@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    /* Colores Principales */
+    --primary-color: #81638b;      /* morado principal */
+    --primary-dark: #5a189a;       /* morado más fuerte */
+    --secondary-color: #e0d4f5;    /* morado claro */
+
+    /* Fondo */
+    --background-color: #0f0f0f;   /* negro suave */
+    --surface-color: #1a1a1a;      /* gris oscuro */
+    --white: #ffffff;
+
+    /* Texto */
+    --text-light: #ffffff;
+    --text-dark: #121212;
+}

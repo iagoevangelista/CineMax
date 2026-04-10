@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<title>CINEMAX</title>
+    <title>CINEMAX - cinemax.pe</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="app.css">
 </head>
 
 <body>
 
-    <!-- CABECERA -->
+    <!-- Cabecera -->
     <header>
         <h1>CINEMAX</h1>
         <nav>
@@ -18,7 +20,90 @@
             <a href="#">Registro</a>
         </nav>
     </header>
+
+    <div class="content">
+
+        <!-- Pantalla 1: Pagina principal (HOMEPAGE) -->
+        <section id="Screen-principal" class="screen active">
+
+            <!-- Banner -->
+            <div class="hero">
+                <h2>Vive la experiencia del cine</h2>
+                <p>Compra tus entradas online 🍿</p>
+                <button class="btn cartelera">Ver Cartelera</button>
+            </div>
+
+            <!-- Cartelera -->
+            <div class="seccion"> 
+                <h2>Cartelera</h2> 
+                <div class="filtros"> 
+                    <select> 
+                        <option>Sede</option> 
+                        <option>Lima Norte</option> 
+                        <option>Lima Sur</option> </select> 
+                    <select> 
+                        <option>Género</option> 
+                        <option>Acción</option> 
+                        <option>Comedia</option> 
+                    </select> 
+                </div> 
+                
+                <div class="grid"> 
+                    <div class="card"> 
+                        <img src="https://via.placeholder.com/300x400"> 
+                        <div class="card-content"> 
+                            <h3>Avengers</h3> 
+                            <p>Acción | 120 min</p> 
+                            <button>Ver más</button> 
+                        </div> 
+                    </div> 
+                    
+                    <div class="card"> 
+                        <img src="https://via.placeholder.com/300x400"> 
+                        <div class="card-content"> 
+                            <h3>Mario Bros</h3> 
+                            <p>Animación | 90 min</p> 
+                            <button>Ver más</button> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div>
+
+
+            <!-- Sedes -->
+            <div class="seccion">
+                <h2>Sedes</h2>
+                <div class="sedes">
+                    <div class="sede">Lima Norte</div>
+                    <div class="sede">Lima Sur</div>
+                    <div class="sede">Lima Centro</div>
+                </div>
+            </div>
+
+            <!-- Confiteria -->
+            <div class="seccion">
+                <h2>Confitería</h2>
+                <div class="confiteria">
+                    <div class="producto">🍿 Canchita</div>
+                    <div class="producto">🥤 Gaseosa</div>
+                    <div class="producto">🍫 Chocolates</div>
+                </div>
+            </div>
+
+            <!-- Si van a añadir mas codigo para la home page es aca abajo, y si quieren avanzar otra pantalla, solo añadan otra etiqueta section con el id de la pantalla y la clase screen FUERA del primer section, y no olviden cerrar esa nueva etiqueta section al final de todo lo que añadan para esa pantalla.-->
+
+        </section>
+
+        <!-- Pie de pagina -->
+        <footer>
+            <p>© 2026 CINEMAX</p>
+        </footer>
+
+    </div>
     
+    
+
+
     
 </body>
 </html>

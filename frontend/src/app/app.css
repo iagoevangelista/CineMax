@@ -1,0 +1,146 @@
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-light);
+}
+
+/* Cabecera */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 25px;
+    background: var(--background-color);
+    position: sticky;
+    top: 0;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.14);
+}
+
+/* Logo */
+header h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+/* Links (parte derecha de la cabecera) */
+header nav a {
+    color: var(--text-light);
+    margin-left: 20px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* Hover (el efecto al pasar el mouse por encima) */
+header nav a:hover {
+    color: var(--primary-color);
+}
+
+/*Define la pantalla inactiva por defecto y la activa cuando se le asigna la clase "active"*/
+.screen {
+    display:none;
+}
+
+.screen.active {
+    display:block;
+}
+
+/* Tambien llamado banner */
+.hero {
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 40px;
+    background: linear-gradient(to right, #000000cc, #00000066),
+                url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4');
+    background-size: cover;
+    background-position: center;
+}
+
+
+/* Secciones de la página */
+.seccion {
+    padding: 30px;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Se prodria decir como las tarjetas donde estan las pelis */
+.card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card img {
+    width: 100%;
+}
+
+.card-content {
+    padding: 10px;
+}
+
+/* Filtro de busqueda */
+.filtros {
+    margin-bottom: 20px;
+}
+
+/* Sedes */
+.sedes {
+    display: flex;
+    gap: 15px;
+}
+
+.sede {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Confiteria */
+.confiteria {
+    display: flex;
+    gap: 15px;
+}
+
+.producto {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.btn.cartelera {
+    background: var(--primary-dark);
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+    border-radius: 8px;
+    font-weight: bold;
+    display: block;
+    width: 97%;
+    padding: 10px 20px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    background:#111;
+    margin-top:30px;
+}
