@@ -1,109 +1,234 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <title>CINEMAX - cinemax.pe</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="app.css">
-</head>
-
-<body>
-
-    <!-- Cabecera -->
-    <header>
-        <h1>CINEMAX</h1>
-        <nav>
-            <a href="#">Inicio</a>
-            <a href="#">Cartelera</a>
-            <a href="#">Promociones</a>
-            <a href="#">Login</a>
-            <a href="#">Registro</a>
+<header>
+        <h1 class="logo">CINEMAX</h1>
+        <nav class="contenedor-b">
+            <a class="b-header " href="#">CARTELERA</a>
+            <a class="b-header" href="#">SEDES</a>
+            <a class="b-header" href="#">PROMOCIONES</a>
+            <a class="b-header" href="#">DULCERIA</a>
         </nav>
-    </header>
 
-    <div class="content">
+        <div>
+            <a href="#"><img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil"></a>
+        </div>
+</header>
 
-        <!-- Pantalla 1: Pagina principal (HOMEPAGE) -->
-        <section id="Screen-principal" class="screen active">
-
-            <!-- Banner -->
-            <div class="hero">
-                <h2>Vive la experiencia del cine</h2>
-                <p>Compra tus entradas online 🍿</p>
-                <button class="btn cartelera">Ver Cartelera</button>
-            </div>
-
-            <!-- Cartelera -->
-            <div class="seccion"> 
-                <h2>Cartelera</h2> 
-                <div class="filtros"> 
-                    <select> 
-                        <option>Sede</option> 
-                        <option>Lima Norte</option> 
-                        <option>Lima Sur</option> </select> 
-                    <select> 
-                        <option>Género</option> 
-                        <option>Acción</option> 
-                        <option>Comedia</option> 
-                    </select> 
-                </div> 
-                
-                <div class="grid"> 
-                    <div class="card"> 
-                        <img src="https://via.placeholder.com/300x400"> 
-                        <div class="card-content"> 
-                            <h3>Avengers</h3> 
-                            <p>Acción | 120 min</p> 
-                            <button>Ver más</button> 
-                        </div> 
-                    </div> 
+    <div class="wrapper-centrado">
+        <div>
+            <section id="Screen-principal" class="screen active section">
+                <div class="carrousel">
+                    <div class="carrousel-item active">
+                        <img src="/Imagenes/Promos/CINEMAX promo.png" alt="Imagen 1">
+                    </div>
                     
-                    <div class="card"> 
-                        <img src="https://via.placeholder.com/300x400"> 
-                        <div class="card-content"> 
-                            <h3>Mario Bros</h3> 
-                            <p>Animación | 90 min</p> 
-                            <button>Ver más</button> 
-                        </div> 
-                    </div> 
-                </div> 
-            </div>
-
-
-            <!-- Sedes -->
-            <div class="seccion">
-                <h2>Sedes</h2>
-                <div class="sedes">
-                    <div class="sede">Lima Norte</div>
-                    <div class="sede">Lima Sur</div>
-                    <div class="sede">Lima Centro</div>
+                    <button class="b-navegacion izquierda">
+                        <img src="/Imagenes/boton izq.png" alt="Anterior">
+                    </button>
+    
+                    <button class="b-navegacion derecha">
+                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                    </button>
                 </div>
-            </div>
-
-            <!-- Confiteria -->
-            <div class="seccion">
-                <h2>Confitería</h2>
-                <div class="confiteria">
-                    <div class="producto">🍿 Canchita</div>
-                    <div class="producto">🥤 Gaseosa</div>
-                    <div class="producto">🍫 Chocolates</div>
+                
+                <div class="indicadores-carrousel">
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
                 </div>
-            </div>
+                
+                <div class="filtro-box">
+                    <form action="">
+                        <select class="opcion-box" value="genero">
+                            <option value="">Película</option>
+                            <option value="911-llamada">911: Llamada Infernal</option>
+                            <option value="mario-bros">Super Mario Bros. La Película</option>
+                            <option value="scream">Scream 6</option>
+                            <option value="diablo-moda">El Diablo Viste a la Moda</option>
+                            <option value="iron-maiden">Iron Maiden: Burning Ambition</option>
+                            <option value="digital-circus">The Amazing Digital Circus</option>
+                            <option value="michael">Michael</option>
+                            <option value="boulevard">Boulevard</option>
+                        </select>
 
-            <!-- Si van a añadir mas codigo para la home page es aca abajo, y si quieren avanzar otra pantalla, solo añadan otra etiqueta section con el id de la pantalla y la clase screen FUERA del primer section, y no olviden cerrar esa nueva etiqueta section al final de todo lo que añadan para esa pantalla.-->
+                        <select class="opcion-box" value="Ciudad">
+                            <option value="">Ciudad</option>
+                            <option value="lima">Lima</option>
+                            <option value="arequipa">Arequipa</option>
+                            <option value="trujillo">Trujillo</option>
+                            <option value="piura">Piura</option>
+                            <option value="chiclayo">Chiclayo</option>
+                            <option value="cusco">Cusco</option>
+                        </select>
 
-        </section>
+                        <select class="opcion-box" value="Sede">
+                            <option value="">Sede</option>
+                            <option value="jockey-plaza">Jockey Plaza (Surco)</option>
+                            <option value="plaza-san-miguel">Plaza San Miguel</option>
+                            <option value="megaplaza">MegaPlaza (Independencia)</option>
+                            <option value="mall-del-sur">Mall del Sur (SJM)</option>
+                            <option value="real-plaza-salaverry">Real Plaza Salaverry</option>
+                            <option value="real-plaza-puruchuco">Real Plaza Puruchuco</option>
+                            <option value="mall-aventura-sjl">Mall Aventura SJL</option>
+                        </select>
 
-        <!-- Pie de pagina -->
-        <footer>
-            <p>© 2026 CINEMAX</p>
-        </footer>
+                        <input type="submit" class="boton-filtro" value="Filtrar">
 
+                    </form>
+                </div>
+
+                <div class="separador wrapper-centrado"></div>
+
+            </section>
+        </div>
+        
+        <div>
+            <section id="Screen-peliculas" class="screen active section">
+                <div class="peliculas">
+                    <h2 class="transparente">PELICULAS</h2>
+                </div>
+
+                <div class="contenedor cartelera">
+                    <div class="columna-p">
+                        <div class="fila-p">
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/911 Llamada Infernal.jpg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Drama.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Fin.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Grazia.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Hopers.jpeg"></a>
+                        </div>
+                        <div class="fila-p">
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Mario.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Scream.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Suegros.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Estacion.jpeg"></a>
+                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Guardian.jpeg"></a>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <div>
+            <section id="Screen-estreno" class="screen active section">
+                <div class="titular-section estreno">
+                    <h3>ESTRENO</h3>
+                </div>
+
+                <div class="contenedor estreno">
+                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Boulevard.jpg"></a>
+                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Diablo.jpg"></a>
+                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Iron.jpg"></a>
+                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Michael.jpg"></a>
+                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Digital.jpg"></a>
+                    
+                    <button class="b-navegacion izquierda">
+                        <img src="/Imagenes/boton izq.png" alt="Anterior">
+                    </button>
+    
+                    <button class="b-navegacion derecha">
+                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                    </button>
+                </div>
+
+                <div class="indicadores-carrousel">
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                </div>
+
+            </section>
+        </div>
+
+        <div>
+            <section id="Screen-promociones" class="screen active">
+                <div class="titular-section promocion">
+                    <h3>PROMOCIONES</h3>
+                </div>
+
+                <div class="contenedor promocion">
+                    <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX Inka.png"></a>
+                    <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX promo.png"></a>
+                    <button class="b-navegacion izquierda">
+                        <img src="/Imagenes/boton izq.png" alt="Anterior">
+                    </button>
+    
+                    <button class="b-navegacion derecha">
+                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                    </button>
+                </div>
+
+                <div class="indicadores-carrousel">
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                    <button class="b-carrousel"></button>
+                </div>
+
+            </section>
+        </div>
     </div>
-    
-    
 
+<footer class="footer">
+        <div class="footer-principal wrapper-centrado">
+            
+            <div class="footer-columna">
+                <h4>ACERCA DE NOSOTROS</h4>
+                <a href="#">Sobre CineMax.</a>
+                <a href="#">Trabaja con nosotros.</a>
+                <a href="#">Ventas corporativas (Para empresas).</a>
+                <a href="#">Nuestras Sedes.</a>
+            </div>
 
-    
-</body>
-</html>
+            <div class="footer-columna borde-lateral">
+                <h4>AYUDA</h4>
+                <a href="#">Preguntas Frecuentes (FAQ).</a>
+                <a href="#">Protocolos de Seguridad.</a>
+                <a href="#">Comprobantes Electrónicos.</a>
+                <a href="#">Contacto / WhatsApp de atención.</a>
+            </div>
+
+            <div class="footer-columna-apps">
+                <div class="redes-sociales">
+                    <h4>SIGUENOS</h4>
+                    <div class="grilla-redes">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="tiendas-apps">
+                    <a href="#">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+                    </a>
+                    <a href="#">
+                        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="separadorf"></div>
+
+        <div class="footer-legal wrapper-centrado">
+            <a href="#">TERMINOS Y CONDICIONES</a>
+            <a href="#">POLITICA Y PRIVACIDAD</a>
+            <a href="#">POLITICA Y USO DE COOKIES</a>
+            <a href="#">LIBRO DE RECLAMACIONES</a>
+        </div>
+
+        <div class="separadorf"></div>
+
+        <div class="footer-copyright">
+            <p>© 2026 CINEMAX</p>
+        </div>
+</footer>
