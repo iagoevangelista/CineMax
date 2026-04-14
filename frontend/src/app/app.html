@@ -1,6 +1,7 @@
 <header>
         <h1 class="logo">CINEMAX</h1>
         <nav class="contenedor-b">
+            <!-- Referencias a  -->
             <a class="b-header " href="#">CARTELERA</a>
             <a class="b-header" href="#">SEDES</a>
             <a class="b-header" href="#">PROMOCIONES</a>
@@ -13,168 +14,160 @@
 </header>
 
     <div class="wrapper-centrado">
-        <div>
-            <section id="Screen-principal" class="screen active section">
-                <div class="carrousel">
-                    <div class="carrousel-item active">
-                        <img src="/Imagenes/Promos/CINEMAX promo.png" alt="Imagen 1">
-                    </div>
-                    
-                    <button class="b-navegacion izquierda">
-                        <img src="/Imagenes/boton izq.png" alt="Anterior">
-                    </button>
-    
-                    <button class="b-navegacion derecha">
-                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
-                    </button>
+        <section id="Screen-principal" class="screen active section">
+            <div class="carrousel">
+                <div class="carrousel-item active">
+                    <img src="/Imagenes/Promos/CINEMAX promo.png" alt="Imagen 1">
                 </div>
                 
-                <div class="indicadores-carrousel">
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                </div>
-                
-                <div class="filtro-box">
-                    <form action="">
-                        <select class="opcion-box" value="genero">
-                            <option value="">Película</option>
-                            <option value="911-llamada">911: Llamada Infernal</option>
-                            <option value="mario-bros">Super Mario Bros. La Película</option>
-                            <option value="scream">Scream 6</option>
-                            <option value="diablo-moda">El Diablo Viste a la Moda</option>
-                            <option value="iron-maiden">Iron Maiden: Burning Ambition</option>
-                            <option value="digital-circus">The Amazing Digital Circus</option>
-                            <option value="michael">Michael</option>
-                            <option value="boulevard">Boulevard</option>
-                        </select>
+                <button class="b-navegacion izquierda">
+                    <img src="/Imagenes/boton izq.png" alt="Anterior">
+                </button>
 
-                        <select class="opcion-box" value="Ciudad">
-                            <option value="">Ciudad</option>
-                            <option value="lima">Lima</option>
-                            <option value="arequipa">Arequipa</option>
-                            <option value="trujillo">Trujillo</option>
-                            <option value="piura">Piura</option>
-                            <option value="chiclayo">Chiclayo</option>
-                            <option value="cusco">Cusco</option>
-                        </select>
+                <button class="b-navegacion derecha">
+                    <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                </button>
+            </div>
+            
+            <div class="indicadores-carrousel">
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+            </div>
+            
+            <div class="filtro-box">
+                <form action="">
+                    <select class="opcion-box" value="genero">
+                        <option value="">Película</option>
+                        <option value="911-llamada">911: Llamada Infernal</option>
+                        <option value="mario-bros">Super Mario Bros. La Película</option>
+                        <option value="scream">Scream 6</option>
+                        <option value="diablo-moda">El Diablo Viste a la Moda</option>
+                        <option value="iron-maiden">Iron Maiden: Burning Ambition</option>
+                        <option value="digital-circus">The Amazing Digital Circus</option>
+                        <option value="michael">Michael</option>
+                        <option value="boulevard">Boulevard</option>
+                    </select>
 
-                        <select class="opcion-box" value="Sede">
-                            <option value="">Sede</option>
-                            <option value="jockey-plaza">Jockey Plaza (Surco)</option>
-                            <option value="plaza-san-miguel">Plaza San Miguel</option>
-                            <option value="megaplaza">MegaPlaza (Independencia)</option>
-                            <option value="mall-del-sur">Mall del Sur (SJM)</option>
-                            <option value="real-plaza-salaverry">Real Plaza Salaverry</option>
-                            <option value="real-plaza-puruchuco">Real Plaza Puruchuco</option>
-                            <option value="mall-aventura-sjl">Mall Aventura SJL</option>
-                        </select>
+                    <select class="opcion-box" value="Ciudad">
+                        <option value="">Ciudad</option>
+                        <option value="lima">Lima</option>
+                        <option value="arequipa">Arequipa</option>
+                        <option value="trujillo">Trujillo</option>
+                        <option value="piura">Piura</option>
+                        <option value="chiclayo">Chiclayo</option>
+                        <option value="cusco">Cusco</option>
+                    </select>
 
-                        <input type="submit" class="boton-filtro" value="Filtrar">
+                    <select class="opcion-box" value="Sede">
+                        <option value="">Sede</option>
+                        <option value="jockey-plaza">Jockey Plaza (Surco)</option>
+                        <option value="plaza-san-miguel">Plaza San Miguel</option>
+                        <option value="megaplaza">MegaPlaza (Independencia)</option>
+                        <option value="mall-del-sur">Mall del Sur (SJM)</option>
+                        <option value="real-plaza-salaverry">Real Plaza Salaverry</option>
+                        <option value="real-plaza-puruchuco">Real Plaza Puruchuco</option>
+                        <option value="mall-aventura-sjl">Mall Aventura SJL</option>
+                    </select>
 
-                    </form>
-                </div>
+                    <input type="submit" class="boton-filtro" value="Filtrar">
 
-                <div class="separador wrapper-centrado"></div>
+                </form>
+            </div>
 
-            </section>
-        </div>
-        
-        <div>
-            <section id="Screen-peliculas" class="screen active section">
-                <div class="peliculas">
-                    <h2 class="transparente">PELICULAS</h2>
-                </div>
+            <div class="separador wrapper-centrado"></div>
 
-                <div class="contenedor cartelera">
-                    <div class="columna-p">
-                        <div class="fila-p">
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/911 Llamada Infernal.jpg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Drama.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Fin.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Grazia.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Hopers.jpeg"></a>
-                        </div>
-                        <div class="fila-p">
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Mario.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Scream.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Suegros.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Estacion.jpeg"></a>
-                            <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Guardian.jpeg"></a>
-                        </div>
+        </section>
+    
+        <section id="Screen-peliculas" class="screen active section">
+            <div class="peliculas">
+                <h2 class="transparente">PELICULAS</h2>
+            </div>
+
+            <div class="contenedor cartelera">
+                <div class="columna-p">
+                    <div class="fila-p">
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/911 Llamada Infernal.jpg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Drama.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Fin.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Grazia.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Hopers.jpeg"></a>
+                    </div>
+                    <div class="fila-p">
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Mario.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Scream.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Suegros.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Estacion.jpeg"></a>
+                        <a href="#" class="poster-link-cartelera"><img src="/Imagenes/Peliculas/Guardian.jpeg"></a>
                     </div>
                 </div>
+            </div>
 
-            </section>
-        </div>
+        </section>
 
-        <div>
-            <section id="Screen-estreno" class="screen active section">
-                <div class="titular-section estreno">
-                    <h3>ESTRENO</h3>
-                </div>
+        <section id="Screen-estreno" class="screen active section">
+            <div class="titular-section estreno">
+                <h3>ESTRENO</h3>
+            </div>
 
-                <div class="contenedor estreno">
-                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Boulevard.jpg"></a>
-                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Diablo.jpg"></a>
-                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Iron.jpg"></a>
-                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Michael.jpg"></a>
-                    <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Digital.jpg"></a>
-                    
-                    <button class="b-navegacion izquierda">
-                        <img src="/Imagenes/boton izq.png" alt="Anterior">
-                    </button>
-    
-                    <button class="b-navegacion derecha">
-                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
-                    </button>
-                </div>
+            <div class="contenedor estreno">
+                <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Boulevard.jpg"></a>
+                <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Diablo.jpg"></a>
+                <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Iron.jpg"></a>
+                <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Michael.jpg"></a>
+                <a href="#" class="poster-link-estreno"><img src="/Imagenes/Estreno/Digital.jpg"></a>
+                
+                <button class="b-navegacion izquierda">
+                    <img src="/Imagenes/boton izq.png" alt="Anterior">
+                </button>
 
-                <div class="indicadores-carrousel">
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                </div>
+                <button class="b-navegacion derecha">
+                    <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                </button>
+            </div>
 
-            </section>
-        </div>
+            <div class="indicadores-carrousel">
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+            </div>
 
-        <div>
-            <section id="Screen-promociones" class="screen active">
-                <div class="titular-section promocion">
-                    <h3>PROMOCIONES</h3>
-                </div>
+        </section>
 
-                <div class="contenedor promocion">
-                    <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX Inka.png"></a>
-                    <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX promo.png"></a>
-                    <button class="b-navegacion izquierda">
-                        <img src="/Imagenes/boton izq.png" alt="Anterior">
-                    </button>
-    
-                    <button class="b-navegacion derecha">
-                        <img src="/Imagenes/boton derecha.png" alt="Siguiente">
-                    </button>
-                </div>
+        <section id="Screen-promociones" class="screen active">
+            <div class="titular-section promocion">
+                <h3>PROMOCIONES</h3>
+            </div>
 
-                <div class="indicadores-carrousel">
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                    <button class="b-carrousel"></button>
-                </div>
+            <div class="contenedor promocion">
+                <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX Inka.png"></a>
+                <a href="#" class="poster-link-promocion"><img src="/Imagenes/Promos/CINEMAX promo.png"></a>
+                <button class="b-navegacion izquierda">
+                    <img src="/Imagenes/boton izq.png" alt="Anterior">
+                </button>
 
-            </section>
-        </div>
-    </div>
+                <button class="b-navegacion derecha">
+                    <img src="/Imagenes/boton derecha.png" alt="Siguiente">
+                </button>
+            </div>
+
+            <div class="indicadores-carrousel">
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+                <button class="b-carrousel"></button>
+            </div>
+
+        </section>
+</div>
 
 <footer class="footer">
         <div class="footer-principal wrapper-centrado">
