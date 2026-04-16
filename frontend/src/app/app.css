@@ -1,70 +1,42 @@
-/* Layout */
+/* Control de pantallas */
 
-.wrapper-centrado {
-    max-width: 140rem;
-    margin: 0 auto;
-    padding: 0 5rem;
-    width: 100%;
+.screen { 
+    display: none; width: 100%; 
+}
+.screen.active { 
+    display: block; 
 }
 
-.screen {
-    display: none;
-    width: 100%;
+/* Cabecera (Navbar) */
+
+.bg-dark-custom { 
+    background-color: var(--background-color) 
 }
 
-.screen.active {
-    display: block;
-}
-
-.section {
-    padding: 2rem;
-}
-
-/* Header */
-
-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding: 1.5rem 3rem;
-    background: var(--background-color);
-    border-bottom: 0.2rem solid var(--surface-color);
-    display: flex;
-    align-items: center;
-    width: 100%;
+.border-bottom-custom { 
+    border-bottom: 0.2rem solid var(--surface-color); 
 }
 
 .logo {
-    font-size: 3.2rem;
+    font-size: 2rem;
     font-weight: bold;
     color: var(--secondary-color);
-}
-
-.contenedor-b {
-    display: flex;
-    gap: 2.5rem;
-    margin-left: 5rem;
 }
 
 .b-header {
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     font-weight: bold;
-    text-decoration: none;
-    color: var(--white);
+    color: var(--text-light);
     transition: color 0.3s;
 }
 
-.b-header:hover {
-    color: var(--secondary-color);
-}
-
-header div {
-    margin-left: auto;
+.b-header:hover { 
+    color: var(--secondary-color); 
 }
 
 .b-perfil {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 2.8rem;
+    height: 2.8rem;
     border-radius: 0.8rem;
     filter: brightness(0) invert(1);
     transition: 0.3s;
@@ -72,421 +44,186 @@ header div {
 
 .b-perfil:hover {
     transform: scale(1.1);
-    border: var(--primary-color) 4px solid;
+    border: 2px solid var(--primary-color);
     filter: invert(92%) sepia(10%) saturate(836%) hue-rotate(215deg) brightness(101%) contrast(97%);
 }
 
-/* Títulos */
+/* Carrusel de banners */
 
-.peliculas h2 {
-    font-size: 7rem;
-    padding: 0 0 2rem 3rem;
+.carousel-inner {
+    border: 2px solid var(--primary-color);
+    height: 500px;
+    border-radius: 15px;
+    height: 420px
 }
 
-.titular-section {
+.carousel-item img {
+    height: 500px;
     width: 100%;
-    margin: 0 auto;
+    object-fit: cover;
+    object-position: center;
+    height: 420px
 }
 
-.titular-section h3 {
-    font-size: 4rem;
-    margin-bottom: 2rem;
-}
+/* Caja de filtros */
 
-.titular-section.estreno{
-    margin-left: 3rem;
-}
-
-.titular-section.promocion{
-    margin-left: 5rem;
-}
-
-.transparente {
-    opacity: 0.9;
-}
-
-/* Carrusel */
-
-.carrousel,
-.contenedor.estreno,
-.contenedor.promocion {
-    position: relative;
-}
-
-.carrousel {
-    width: 92%;
-    height: 40rem;
-    margin: 2rem auto;
-    background-color: var(--surface-color);
-    border: 4px solid var(--primary-color);
+.filtro {
+    background-color: var(--background-color);
+    border-radius: 12px;
+    border: 1px solid var(--surface-color);
     overflow: hidden;
 }
 
-.carrousel-item,
-.carrousel-item img {
-    width: 100%;
-    height: 100%;
-}
-
-.carrousel-item img {
-    object-fit: cover;
-}
-
-/* Botones carrusel */
-
-.b-navegacion {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 0.8rem;
-    border: none;
-    cursor: pointer;
-    background-color: var(--background-color);
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.2s, background-color 0.3s ease;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    z-index: 10;
-}
-
-.b-navegacion img {
-    width: 70%; 
-    height: auto;
+.label-filtro {
     display: block;
-    pointer-events: none; 
-}
-
-.b-navegacion:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-50%) scale(1.1);
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.b-navegacion.izquierda {
-    left: 1rem;
-}
-
-.b-navegacion.derecha {
-    right: 1rem;
-}
-
-/* Indicadores */
-
-.indicadores-carrousel {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin: 2rem 0 4rem;
-}
-
-.b-carrousel {
-    width: 4rem;
-    height: 0.8rem;
-    background-color: var(--primary-color);
-    border: 2px solid var(--background-color);
-    cursor: pointer;
-}
-
-/* Filtros */
-
-.filtro-box {
-    width: 500%;
-    max-width: 60rem;
-    margin: 2rem auto;
-    padding: 0.5rem;
-    border-radius: 0.8rem;
-    border: 2px solid var(--primary-color);
-    background-color: black;
-}
-
-.filtro-box form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 2.0rem; 
-    width: 100%; 
-}
-
-.opcion-box,
-.boton-filtro { 
-    width: 12rem;
-    height: 5rem;
-    padding: 1rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 10px;
-}
-
-.opcion-box {
-    background-color: var(--surface-color);
-    color: var(--secondary-color);
-    border: 2px solid var(--background-color);
-}
-
-.boton-filtro {
-    background-color: var(--primary-color);
-    color: var(--text-dark);
-    border: 2px solid var(--surface-color);
-    transition: 0.3s;
-}
-
-.boton-filtro:hover {
-    background-color: var(--secondary-color);
-}
-
-/* Separador */
-
-.separador {
-    width: 95%;
-    height: 4px;
-    margin: 4rem auto 2rem;
-    background-color: var(--primary-color);
-    border-radius: 4px;
-    filter: brightness(1.2);
-}
-
-/* Contenedores */
-
-.contenedor {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin: 2rem auto;
-}
-
-.contenedor.cartelera {
-    flex-direction: column;
-}
-
-.contenedor.estreno,
-.contenedor.promocion {
-    width: 100%;
-    max-width: 120rem;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    border: 2px solid var(--primary-color);
-    flex-wrap: wrap;
-}
-
-/* Posters */
-
-.columna-p {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.fila-p {
-    display: flex;
-    gap: 1.2rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.poster-link-cartelera {
-    width: 23rem;
-    height: 34rem;
-}
-
-.poster-link-estreno {
-    width: 21rem;
-    height: 34rem;
-}
-
-.poster-link-promocion {
-    width: 55rem;
-    height: 18rem;
-}
-
-/* Animación imagenes */
-
-.poster-link-cartelera,
-.poster-link-estreno,
-.poster-link-promocion {
-    display: block;
-    background-color: var(--surface-color);
-    border-radius: 0.4rem;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.poster-link-cartelera img,
-.poster-link-estreno img,
-.poster-link-promocion img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.poster-link-cartelera:hover,
-.poster-link-estreno:hover,
-.poster-link-promocion:hover {
-    transform: translateY(-10px) scale(1.03);
-    box-shadow: 0 20px 25px var(--primary-dark);
-}
-
-.poster-link-cartelera:hover img,
-.poster-link-estreno:hover img,
-.poster-link-promocion:hover img {
-    transform: scale(1.05);
-}
-
-/* Footer */
-
-.footer {
-    margin-top: 6rem;
-    padding-top: 4rem;
-    background-color: var(--surface-color);
-    border-top: 2px solid var(--primary-color);
-}
-
-.footer-principal {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 4rem;
-    padding-bottom: 4rem;
-}
-
-.footer-columna {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-    flex: 1;
-}
-
-.footer-columna h4 {
-    font-size: 1.6rem;
-    text-transform: uppercase;
-}
-
-.footer-columna a {
-    font-size: 1.4rem;
-    color: var(--secondary-color);
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.footer-columna a:hover {
-    color: var(--white);
-}
-
-.borde-lateral {
-    border-left: 1px solid var(--primary-color);
-    border-right: 1px solid var(--primary-color);
-    padding-left: 4rem;
-}
-
-.footer-columna-apps {
-    display: flex;
-    gap: 3rem;
-    flex: 1;
-}
-
-.redes-sociales h4 {
-    margin-bottom: 1rem;
-}
-
-.grilla-redes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.grilla-redes img {
-    width: 3.5rem;
-    height: 3.5rem;
-    transition: 0.3s;
-}
-
-.grilla-redes img:hover {
-    transform: scale(1.1);
-}
-
-.tiendas-apps {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    justify-content: center;
-}
-
-.tiendas-apps img {
-    height: 4rem;
-}
-
-.grilla-redes a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 4rem;
-    height: 4rem;
-    background-color: var(--background-color);
-    border-radius: 50%;
-    color: var(--white);
-    font-size: 1.8rem;
-    transition: 0.3s;
-    text-decoration: none;
-}
-
-.grilla-redes a:hover {
-    background-color: var(--primary-color);
-    transform: scale(1.1);
-}
-
-.tiendas-apps img {
-    height: 4.5rem;
-    width: auto;
-    transition: transform 0.3s ease;
-}
-
-.tiendas-apps img:hover {
-    transform: scale(1.05);
-}
-
-/* Footer inferior */
-
-.footer-legal {
-    display: flex;
-    justify-content: space-between;
-    padding: 2rem 5rem;
-}
-
-.footer-legal a {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: var(--white);
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.footer-legal a:hover {
+    font-size: 1.1rem;
+    font-weight: 800;
     color: var(--primary-color);
+    margin-bottom: 0;
+    padding-left: 0.8rem;
 }
 
-.separadorf {
-    width: 100%;
-    height: 2px;
-    background-color: var(--primary-color);
-}
-
-.footer-copyright {
-    text-align: center;
-    padding: 2rem 0;
-    background-color: var(--background-color);
-}
-
-.footer-copyright p {
+.select-minimal {
+    border: none;
+    background-color: transparent;
     font-size: 1.4rem;
-    color: var(--secondary-color);
+    color: #b0b0b0;
+    box-shadow: none;
+    font-size: 1.2rem;  
+}
+
+.border-end-custom { 
+    border-right: 1px solid var(--surface-color); 
+}
+
+.btn-filtrar-redondeado {
+    background-color: var(--secondary-color);
+    color: var(--text-dark);
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
     font-weight: bold;
+    border: none;
+    transition: 0.3s;
+    font-size: 1.2rem
+}
+
+.btn-filtrar-redondeado:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    transform: scale(1.05);
+}
+
+/* Cartelera (Mosaico) */
+
+.border-bottom-purple { 
+    border-bottom: 1px solid var(--surface-color); 
+}
+
+.poster-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--surface-color);
+    transition: all 0.3s ease;
+    min-height: 250px; 
+}
+
+.img-mosaico {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.badge-estreno {
+    position: absolute;
+    top: 15px;
+    left: -35px;
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 5px 40px;
+    transform: rotate(-45deg);
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.ver-mas-card {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-dark) 100%);
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.poster-container:hover, .ver-mas-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px var(--primary-dark);
+}
+
+/* Carrusel Promos */
+
+.img-promo {
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+/* Pie de pagina */
+
+.footer-cine {
+    background-color: var(--surface-color);
+    color: var(--text-light);
+    margin-top: 5rem;
+    padding: 2rem 0;
+}
+
+.footer-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover { 
+    color: var(--primary-color); padding-left: 5px; 
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--background-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.social-icon:hover { 
+    background-color: var(--primary-color); 
+}
+
+.app-badge { 
+    height: 38px; 
+    border-radius: 6px; 
+}
+
+.border-top-purple { 
+    border-top: 2px solid var(--primary-dark); 
+}
+
+.legal-link { 
+    color: white; 
+    text-decoration: none; 
+    font-size: 0.9rem; 
+}
+
+.legal-link:hover { 
+    color: var(--primary-color); 
 }

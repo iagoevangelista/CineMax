@@ -6,7 +6,7 @@
 
     /* Fondo */
     --background-color: #131313;   /* negro suave */
-    --surface-color: #1f1f1f;      /* gris oscuro */
+    --surface-color: #434242c3;      /* gris oscuro */
     --white: #ffffff;
 
     /* Texto */
@@ -16,18 +16,14 @@
 
 *, *::before, *::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 html {
-    font-size: 62.5%;
     scroll-behavior: smooth;
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 1.6rem;
     background-color: var(--background-color);
     color: var(--text-light);
 }
