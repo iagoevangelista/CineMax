@@ -2,6 +2,7 @@ package com.cinemax.backend.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,12 +19,18 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+
 public class UserAccount implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     private Integer idUser;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_role", nullable = false)
+    private Role role;
 
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
@@ -43,10 +50,7 @@ public class UserAccount implements UserDetails {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // RELACIÓN (Corregida: eliminamos el Integer idRole que duplicaba el mapeo)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_role", nullable = false)
-    private Role role;
+
 
     // ====================================================================
     // MÉTODOS OBLIGATORIOS DE SPRING SECURITY (Interfaz UserDetails)
