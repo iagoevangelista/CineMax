@@ -1,36 +1,28 @@
 package com.cinemax.backend.model.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;   
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
-@Entity
-@Table(name = "showtime")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@Entity
+@Table(name = "showtime")
 public class Showtime {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_showtime")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idShowtime;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_movie", nullable = false)
-    private Movie movie;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_room", nullable = false)
-    private Room room;
 
     @Column(name = "show_date", nullable = false)
     private LocalDate showDate;
@@ -44,7 +36,24 @@ public class Showtime {
     @Column(name = "language_format", nullable = false, length = 50)
     private String languageFormat;
 
+    
+    @Column(name = "base_ticket_price", nullable = false, precision = 10, scale = 2)
+    @Min(value = 0, message = "El precio base no puede ser negativo")
+    private BigDecimal baseTicketPrice;
+
+    @Column(name = "available_seats")
+    private Integer availableSeats;
+
+    @Builder.Default
     @Column(name = "status", length = 20)
+    @Pattern(regexp = "Programada|En Curso|Finalizada|Cancelada", message = "El estado debe ser: Programada, En Curso, Finalizada o Cancelada")
     private String status = "Programada";
 
+    @ManyToOne
+    @JoinColumn(name = "id_movie", nullable = false)
+    private Movie movie;
+
+    @ManyToOne
+    @JoinColumn(name = "id_room", nullable = false)
+    private Room room;
 }

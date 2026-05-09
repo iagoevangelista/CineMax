@@ -1,58 +1,64 @@
 package com.cinemax.backend.model.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.Set;
-
-
-@Entity
-@Table(name = "movie")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@Entity
+@Table(name = "movie")
 public class Movie {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_movie")
-    private Integer id;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_classification", nullable = false)
-    private Classification classification;
-
-    @Column(name = "title_movie", nullable = false, length = 150)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idMovie;
+    
+    @Column(name = "title_movie", nullable = false, unique = true, length = 150)
     private String titleMovie;
 
-    @Column(name = "synopsis", columnDefinition = "TEXT")
+    @Column(name = "synopsis", columnDefinition = "VARCHAR(MAX)")
     private String synopsis;
 
-    @Column(name = "duration_minutes")
+    @Positive(message = "Duration must be a positive integer")
+    @Column(name = "duration_minutes", nullable = false)
     private Integer durationMinutes;
 
-    @Column(name = "poster_url", length = 250)
+    @Column(name = "poster_url", length = 255)
     private String posterUrl;
-
-    @Column(name = "status", length = 20)
-    private String status = "Cartelera";
 
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @Builder.Default
+    @Column(name = "status", length = 20)
+    @Pattern(regexp = "Cartelera|Proximamente|Retirada", message = "Status must be either 'Cartelera', 'Proximamente' or 'Retirada'")
+    private String status = "Cartelera";
+
+    @Builder.Default
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Builder.Default
+    @Column(name = "premiere_week")
+    private Boolean premiereWeek = false;
+
+    @ManyToMany
     @JoinTable(
-            name = "movie_genre_map",
-            joinColumns = @JoinColumn(name = "id_movie"),
-            inverseJoinColumns = @JoinColumn(name = "id_genre")
+        name = "movie_genre_map", 
+        joinColumns = @JoinColumn(name = "id_movie"), 
+        inverseJoinColumns = @JoinColumn(name = "id_genre") 
     )
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
 }

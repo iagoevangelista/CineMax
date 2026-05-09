@@ -6,19 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "genre")
-public class Genre {
+@Table(name = "document_type")
+public class DocumentType {
+    
     @Id
-    @Column(name = "id_genre")
+    @Column(name = "id_document_type")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idGenre;
+    private Integer idDocumentType;
 
-    @Column(name = "name_genre", nullable = false, unique = true, length = 50)
-    private String nameGenre;
+    @Column(name = "name_document_type", nullable = false, unique = true, length = 30)
+    private String nameDocumentType;
 
 }

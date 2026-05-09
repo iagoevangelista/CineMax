@@ -1,6 +1,5 @@
 package com.cinemax.backend.model.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,33 +9,37 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "sale_transaction")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@Entity
+@Table(name = "sale_transaction")
 public class SaleTransaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_transaction")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTransaction;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
-    private UserAccount user;
+    private UserAccount userAccount;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_promotion")
     private Promotion promotion;
 
-    @Column(name = "discount_amount", precision = 10, scale = 2)
-    private BigDecimal discountAmount = BigDecimal.ZERO;
+    @ManyToOne
+    @JoinColumn(name = "id_transaction_status", nullable = false)
+    private TransactionStatus transactionStatus;
 
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+
+    @Builder.Default
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    private BigDecimal discountAmount = BigDecimal.ZERO;
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
@@ -44,10 +47,13 @@ public class SaleTransaction {
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "payment_date")
+    private LocalDateTime paymentDate;
 
     @Column(name = "qr_code_data", length = 250)
     private String qrCodeData;
-
 }

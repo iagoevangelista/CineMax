@@ -1,31 +1,27 @@
 package com.cinemax.backend.model.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AllArgsConstructor;   
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "classification")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@Entity
+@Table(name = "classification")
 public class Classification {
-
+    
     @Id
-    @Column(name = "classification_id")
+    @Column(name = "id_classification")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer classificationId;
+    private Integer idClassification;
 
-    @Column(name = "name_classification", nullable = false, unique = true, length = 20)
+    @Column(name = "name_classification", nullable = false, unique = true, length = 30)
     private String nameClassification;
 
     @Column(name = "description_text", length = 255)
     private String descriptionText;
-
-
 }

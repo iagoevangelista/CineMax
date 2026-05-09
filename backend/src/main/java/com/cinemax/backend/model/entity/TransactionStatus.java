@@ -11,14 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "genre")
-public class Genre {
+@Table(name = "transaction_status")
+public class TransactionStatus {
     @Id
-    @Column(name = "id_genre")
+    @Column(name = "id_transaction_status")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idGenre;
+    private Integer idTransactionStatus;
 
-    @Column(name = "name_genre", nullable = false, unique = true, length = 50)
-    private String nameGenre;
-
+    @Column(name = "name_status", nullable = false, unique = true, length = 30)
+    private String nameStatus;
 }

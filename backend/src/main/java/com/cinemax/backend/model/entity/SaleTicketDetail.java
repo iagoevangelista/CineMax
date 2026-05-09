@@ -1,6 +1,5 @@
 package com.cinemax.backend.model.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,36 +8,37 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "sale_ticket_detail")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@Entity
+@Table(name = "sale_ticket_detail", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_ticket_seat_showtime", columnNames = {"id_showtime", "id_seat"})
+})
 public class SaleTicketDetail {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ticket")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idTicket;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "id_transaction", nullable = false)
-    private SaleTransaction transaction;
+    private SaleTransaction saleTransaction;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_showtime", nullable = false)
     private Showtime showtime;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "id_seat", nullable = false)
     private Seat seat;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "ticket_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal ticketPrice;
 
+    @Builder.Default
     @Column(name = "is_used")
     private Boolean isUsed = false;
-
 }
