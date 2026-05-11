@@ -78,10 +78,7 @@ public class Promotion {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-<<<<<<< HEAD
-=======
 
     @Column(name = "image_url_promotion", length = 250)
     private String imageUrlPromotion;
->>>>>>> appmod/java-upgrade-20260509084445
 }
