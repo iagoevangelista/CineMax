@@ -28,6 +28,7 @@ public class Seat {
     @Column(name = "column_number", nullable = false)
     private Integer columnNumber;
 
+<<<<<<< HEAD
     @Builder.Default
     @Column(name = "is_accessible")
     private Boolean isAccessible = false;
@@ -35,6 +36,11 @@ public class Seat {
     @Builder.Default    
     @Column(name = "status", length = 20)
     @Pattern(regexp = "Disponible|Mantenimiento|Ocupado", message = "Status must be 'Disponible', 'Mantenimiento', or 'Ocupado'")
+=======
+    @Builder.Default    
+    @Column(name = "status", length = 20)
+    @Pattern(regexp = "Disponible|Mantenimiento", message = "El estado debe ser 'Disponible' o 'Mantenimiento'")
+>>>>>>> appmod/java-upgrade-20260509084445
     private String status = "Disponible";
 
     @ManyToOne

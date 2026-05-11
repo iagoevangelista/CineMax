@@ -42,6 +42,7 @@ public class Movie {
 
     @Builder.Default
     @Column(name = "status", length = 20)
+<<<<<<< HEAD
     @Pattern(regexp = "Cartelera|Proximamente|Retirada", message = "Status must be either 'Cartelera', 'Proximamente' or 'Retirada'")
     private String status = "Cartelera";
 
@@ -60,5 +61,35 @@ public class Movie {
         inverseJoinColumns = @JoinColumn(name = "id_genre") 
     )
     private List<Genre> genres;
+=======
+    @Pattern(regexp = "Cartelera|Estreno|Preventa", message = "Status must be either 'Cartelera', 'Estreno' or 'Preventa'")
+    private String status = "Cartelera";
+>>>>>>> appmod/java-upgrade-20260509084445
 
+    @Builder.Default
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Builder.Default
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    @Builder.Default
+    @Column(name = "premiere_week")
+    private Boolean premiereWeek = false;
+
+    @Column(name = "director", length = 150, nullable = false)
+    private String director;
+
+    @ManyToMany
+    @JoinTable(
+        name = "movie_genre_map", 
+        joinColumns = @JoinColumn(name = "id_movie"), 
+        inverseJoinColumns = @JoinColumn(name = "id_genre") 
+    )
+    private List<Genre> genres;
+
+    @ManyToOne
+    @JoinColumn(name = "id_classification", nullable = false)
+    private Classification classification;
 }

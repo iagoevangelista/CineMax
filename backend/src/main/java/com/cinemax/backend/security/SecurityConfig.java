@@ -10,8 +10,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource; 
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
 
+import java.util.Arrays; 
 
 @Configuration
 @EnableWebSecurity
@@ -24,31 +28,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. Desactivamos CSRF (No lo necesitamos porque usamos Tokens, no Cookies)
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // 2. Definimos las reglas de las rutas (Endpoints)
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas: Todo lo que empiece con /api/v1/auth/ está permitido sin token
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Cualquier otra ruta requiere estar autenticado
+                        .requestMatchers("/api/v1/movies/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // 3. Gestión de Sesiones: STATELESS (Sin estado)
-                // Esto significa que Spring no guardará la sesión en memoria.
-                // Cada petición debe traer su propio JWT para ser validada.
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // 4. Proveedor de autenticación (el que creamos en ApplicationConfig)
                 .authenticationProvider(authenticationProvider)
-
-                // 5. Agregamos nuestro filtro ANTES del filtro estándar de Spring
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); 
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
