@@ -23,7 +23,9 @@
       </ul>
 
       <div class="d-flex align-items-center">
-        <a href="#"><img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil"></a>
+        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#loginOffcanvas">
+            <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil">
+        </a>
       </div>
     </div>
   </div>
@@ -267,3 +269,37 @@
         </div>
     </div>
 </footer>
+
+<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="loginOffcanvas">
+  
+  <div class="offcanvas-header justify-content-end">
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="cerrarLogin"></button>
+  </div>
+  
+  <div class="offcanvas-body d-flex flex-column align-items-center px-4">
+    <img src="/Imagenes/Logo.png" alt="CINEMAX" class="login-logo mb-3"> 
+    <h4 class="text-white fw-bold mb-5 text-center">¡Hola! Qué bueno verte por acá.</h4>
+
+    <form class="w-100" (ngSubmit)="iniciarSesion()">
+      
+      <div class="input-group mb-4 custom-input-group">
+        <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
+        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+      </div>
+
+      <div class="input-group mb-4 custom-input-group">
+        <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
+        <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
+      </div>
+
+      <button type="submit" class="btn btn-login w-100 fw-bold text-white fs-5">INICIAR SESIÓN</button>
+    </form>
+
+    <div class="mt-5 text-center login-links">
+      <a href="#" class="d-block mb-2 text-decoration-none" style="color: #999;">¿OLVIDASTE TU CONTRASEÑA?</a>
+      <span style="color: #999;">¿NO TIENES UNA CUENTA?</span> 
+      <a href="#" class="text-white text-decoration-none fw-bold ms-1">REGÍSTRATE</a>
+    </div>
+  </div>
+</div>
+

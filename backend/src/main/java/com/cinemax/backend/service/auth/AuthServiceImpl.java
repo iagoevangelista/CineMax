@@ -55,7 +55,6 @@ public class AuthServiceImpl implements AuthService {
         user.setDocumentNumber(request.getDocumentNumber());
         
         user.setDocumentType(DocumentType.builder().idDocumentType(request.getIdDocumentType()).build());
-        user.setDistrict(District.builder().idDistrict(request.getIdDistrict()).build());
 
         userRepository.save(user);
 

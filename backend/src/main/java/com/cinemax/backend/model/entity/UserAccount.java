@@ -40,10 +40,6 @@ public class UserAccount implements UserDetails {
     private DocumentType documentType;
 
     @ManyToOne
-    @JoinColumn(name = "id_district", nullable = false)
-    private District district;
-
-    @ManyToOne
     @JoinColumn(name = "id_venue") // Es NULL para clientes o admin general
     private Venue venue;
 

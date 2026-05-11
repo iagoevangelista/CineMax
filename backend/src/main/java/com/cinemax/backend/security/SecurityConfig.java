@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource; 
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 
 import java.util.Arrays; 
 
@@ -32,9 +33,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Permitir peticiones preflight de Angular (CORS) - ¡ESTO FALTABA!
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 2. Rutas públicas: Todo lo que empiece con /api/v1/auth/ está permitido
                         .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // 3. Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/v1/movies/**").permitAll()
+
+                        // 4. Cualquier otra ruta requiere estar autenticado
                         .anyRequest().authenticated()
                 )
 

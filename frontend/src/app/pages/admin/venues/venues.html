@@ -55,44 +55,48 @@
         <form>
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label fw-bold">Nombre del Cine</label>
-              <input type="text" class="form-control" placeholder="Ej: CineMax San Miguel">
+                <label class="form-label fw-bold">Nombre del Cine</label>
+                <input type="text" class="form-control" [(ngModel)]="nuevaSede.nameVenue" name="name" placeholder="Ej: CineMax San Miguel">
             </div>
             
             <div class="col-md-6">
               <label class="form-label fw-bold">Teléfono</label>
-              <input type="text" class="form-control" placeholder="Ej: 01-456-7890">
+              <input type="text" class="form-control" [(ngModel)]="nuevaSede.phoneNumber" name="phone" placeholder="Ej: 01-456-7890">
             </div>
 
             <div class="col-md-12">
               <label class="form-label fw-bold">Dirección Exacta</label>
-              <input type="text" class="form-control" placeholder="Ej: Av. La Marina 2000">
+              <input type="text" class="form-control" [(ngModel)]="nuevaSede.addressVenue" name="address" placeholder="Ej: Av. La Marina 2000">
             </div>
 
             <div class="col-md-4">
-              <label class="form-label fw-bold">Departamento</label>
-              <select class="form-select">
-                <option selected>Seleccione...</option>
-                <option value="1">Lima</option>
-                <option value="2">Arequipa</option>
-              </select>
+                <label class="form-label fw-bold">Departamento</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idDepartment"    name="department" (change)="onDepartamentoChange()">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let dep of listaDepartamentos" [value]="dep.idDepartment">
+                        {{ dep.nameDepartment }}
+                    </option>
+                </select>
             </div>
 
             <div class="col-md-4">
-              <label class="form-label fw-bold">Provincia</label>
-              <select class="form-select">
-                <option selected>Seleccione...</option>
-                <option value="1">Lima</option>
-              </select>
+                <label class="form-label fw-bold">Provincia</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idProvince" name="province" (change)="onProvinciaChange()" [disabled]="listaProvincias.length === 0">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let prov of listaProvincias" [value]="prov.idProvince">
+                        {{ prov.nameProvince }}
+                    </option>
+                </select>
             </div>
 
             <div class="col-md-4">
-              <label class="form-label fw-bold">Distrito</label>
-              <select class="form-select">
-                <option selected>Seleccione...</option>
-                <option value="1">San Miguel</option>
-                <option value="2">Surco</option>
-              </select>
+                <label class="form-label fw-bold">Distrito</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idDistrict" name="district" [disabled]="listaDistritos.length === 0">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let dist of listaDistritos" [value]="dist.idDistrict">
+                        {{ dist.nameDistrict }}
+                    </option>
+                </select>
             </div>
 
             <div class="col-md-6 mt-4">
@@ -107,9 +111,9 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success fw-bold">Guardar Sede</button>
-      </div>
+         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+         <button type="button" class="btn btn-success fw-bold" (click)="guardarSede()">Guardar Sede</button>
+        </div>
 
     </div>
   </div>

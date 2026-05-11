@@ -227,3 +227,60 @@
 .legal-link:hover { 
     color: var(--primary-color); 
 }
+
+/* ESTILOS DEL PANEL DE LOGIN */
+.login-panel {
+  background-color: #242424; /* Fondo gris oscuro */
+  border-left: 1px solid var(--surface-color);
+  width: 400px; /* Ancho del panel */
+}
+
+.login-logo {
+  max-width: 180px;
+}
+
+.custom-input-group {
+  border: 1px solid #555;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #242424;
+}
+
+.custom-input-group .form-control {
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 14px 15px;
+  font-size: 0.9rem;
+}
+
+.custom-input-group .form-control::placeholder {
+  color: #888;
+}
+
+.custom-input-group .form-control:focus {
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.custom-input-group .input-group-text {
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+
+.btn-login {
+  background-color: #9b59b6; /* Tu morado */
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  background-color: #8e44ad;
+}
+
+.login-links {
+  font-size: 0.85rem;
+}

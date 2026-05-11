@@ -16,5 +16,4 @@ public class RegisterRequestDTO {
     private String password;
     private String documentNumber;
     private Integer idDocumentType;
-    private Integer idDistrict;
 }
