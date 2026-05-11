@@ -3,7 +3,8 @@ package com.cinemax.backend.service.auth;
 import com.cinemax.backend.model.dto.auth.AuthRequestDTO;
 import com.cinemax.backend.model.dto.auth.AuthResponseDTO;
 import com.cinemax.backend.model.dto.auth.RegisterRequestDTO;
-import com.cinemax.backend.model.entity.District;
+import java.util.HashMap;
+import java.util.Map;
 import com.cinemax.backend.model.entity.DocumentType;
 import com.cinemax.backend.model.entity.UserAccount;
 import com.cinemax.backend.repository.RoleRepository;
@@ -35,7 +36,13 @@ public class AuthServiceImpl implements AuthService {
         UserAccount user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
-        String jwtToken = jwtService.generateToken(user);
+        // NUEVO: Creamos un "extra claim" para meter el rol en el token
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", user.getRole().getRoleName()); // Guardamos el nombre del rol (ADMIN, GERENTE, etc.)
+
+        // Usamos el metodo de jwtService que acepta extraClaims
+        String jwtToken = jwtService.generateToken(extraClaims, user);
+
         return AuthResponseDTO.builder().token(jwtToken).build();
     }
 

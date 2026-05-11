@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { VenueService } from '../../../services/venue.service';
@@ -31,6 +31,8 @@ export class Venues implements OnInit {
   listaProvincias: any[] = [];
   listaDistritos: any[] = [];
 
+  cargando: boolean = false;
+
   // Inicializamos en 0 para que por defecto diga "Seleccione..."
   nuevaSede = {
     nameVenue: '',
@@ -43,7 +45,11 @@ export class Venues implements OnInit {
   };
 
   // Inyectamos el LocationService
-  constructor(private venueService: VenueService, private locationService: LocationService) {}
+  constructor(
+    private venueService: VenueService, 
+    private locationService: LocationService,
+    private cdr: ChangeDetectorRef 
+  ) {}
 
   ngOnInit() {
     this.cargarSedes();
@@ -51,8 +57,21 @@ export class Venues implements OnInit {
   }
 
   cargarSedes() {
-    this.venueService.getVenues().subscribe((datos) => {
-      this.listaSedes = datos;
+    this.cargando = true; 
+    
+    this.venueService.getVenues().subscribe({
+      next: (datos) => {
+        this.listaSedes = datos;
+        this.cargando = false; 
+        
+        // ¡LA MAGIA! Obligamos a Angular a pintar la pantalla instantáneamente
+        this.cdr.detectChanges(); 
+      },
+      error: (err) => {
+        console.error("Error al traer sedes:", err);
+        this.cargando = false; 
+        this.cdr.detectChanges(); // También lo ponemos por si falla
+      }
     });
   }
 
@@ -60,6 +79,7 @@ export class Venues implements OnInit {
   cargarDepartamentos() {
     this.locationService.getDepartments().subscribe(datos => {
       this.listaDepartamentos = datos;
+      this.cdr.detectChanges();
     });
   }
 

@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
+
 
 @Component({
   selector: 'app-navbar-admin',
@@ -8,7 +10,14 @@ import { CommonModule } from '@angular/common';
   templateUrl: './navbar-admin.html',
   styleUrl: './navbar-admin.css'
 })
-export class NavbarAdmin {
-  // Simulamos que el sistema ya detectó al administrador
-  rolActual: string = 'Administrador'; 
+export class NavbarAdmin implements OnInit {
+  
+  rolActual: string = 'Cargando...'; 
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    // Le pedimos al servicio que lea el token y nos diga el rol
+    this.rolActual = this.authService.getRole();
+  }
 }

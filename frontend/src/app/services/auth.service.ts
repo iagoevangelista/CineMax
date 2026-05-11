@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -32,4 +33,14 @@ export class AuthService {
   logout() {
     localStorage.removeItem('cinemax_token');
   }
+
+  getRole(): string {
+  const token = this.getToken();
+  if (token) {
+    const decoded: any = jwtDecode(token);
+    return decoded.role || 'USUARIO'; // 'role' es el nombre que pusimos en el Backend
+  }
+  return 'INVITADO';
+}
+
 }
