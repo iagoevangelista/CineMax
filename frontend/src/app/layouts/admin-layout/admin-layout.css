@@ -1,0 +1,21 @@
+.admin-wrapper {
+  display: flex;
+  height: 100vh;
+  background-color: #131313; /* Fondo negro suave de tu imagen */
+}
+
+.sidebar-container {
+  width: 260px;
+  height: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.content-area {
+  padding: 20px;
+}

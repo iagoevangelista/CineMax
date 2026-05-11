@@ -6,6 +6,7 @@ import lombok.Data;
 public class VenueRequestDTO {
     private String nameVenue;
     private String addressVenue;
+    private String phoneNumber;
     private String status;
     private Integer idDepartment;
     private Integer idProvince;

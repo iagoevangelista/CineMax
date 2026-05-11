@@ -29,6 +29,7 @@ public class VenueServiceImpl implements VenueService {
             dto.setIdVenue(sede.getIdVenue());
             dto.setNameVenue(sede.getNameVenue());
             dto.setAddressVenue(sede.getAddress());
+            dto.setPhoneNumber(sede.getPhoneNumber());
             dto.setStatus(sede.getStatus());
 
             if (sede.getDistrict() != null) {
@@ -58,6 +59,7 @@ public class VenueServiceImpl implements VenueService {
         Venue nuevaSede = Venue.builder()
                 .nameVenue(request.getNameVenue())
                 .address(request.getAddressVenue())
+                .phoneNumber(request.getPhoneNumber())
                 .status(request.getStatus())
                 .district(dist)
                 .build();
@@ -68,6 +70,7 @@ public class VenueServiceImpl implements VenueService {
         response.setIdVenue(guardada.getIdVenue());
         response.setNameVenue(guardada.getNameVenue());
         response.setAddressVenue(guardada.getAddress());
+        response.setPhoneNumber(guardada.getPhoneNumber());
         response.setStatus(guardada.getStatus());
         
         response.setIdDistrict(dist.getIdDistrict());
@@ -96,6 +99,7 @@ public class VenueServiceImpl implements VenueService {
 
         sedeExistente.setNameVenue(request.getNameVenue());
         sedeExistente.setAddress(request.getAddressVenue());
+        sedeExistente.setPhoneNumber(request.getPhoneNumber());
         sedeExistente.setStatus(request.getStatus());
         sedeExistente.setDistrict(dist);
 
@@ -105,6 +109,7 @@ public class VenueServiceImpl implements VenueService {
         response.setIdVenue(actualizada.getIdVenue());
         response.setNameVenue(actualizada.getNameVenue());
         response.setAddressVenue(actualizada.getAddress());
+        response.setPhoneNumber(actualizada.getPhoneNumber());
         response.setStatus(actualizada.getStatus());
         
         response.setIdDistrict(dist.getIdDistrict());

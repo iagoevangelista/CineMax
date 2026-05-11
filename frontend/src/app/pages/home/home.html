@@ -1,0 +1,269 @@
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark-custom border-bottom-custom">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand logo" href="#">CINEMAX</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#CabeceraCinemax">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="CabeceraCinemax">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-4">
+        <li class="nav-item">
+          <a class="nav-link b-header" href="#">Cartelera</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link b-header" href="#">Sedes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link b-header" href="#">Promociones</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link b-header" href="#">Dulcería</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <a href="#"><img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil"></a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <div class="container mt-5"> 
+        <section id="Homepage-Principal" class="screen active">
+            <div class="row justify-content-center"> 
+                <div class="col-md-10 col-lg-12">
+                    <div id="CarruselPrincipal" class="carousel slide shadow" data-bs-ride="carousel">
+            
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#CarruselPrincipal" data-bs-slide-to="0" class="active"></button>
+                            <button type="button" data-bs-target="#CarruselPrincipal" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#CarruselPrincipal" data-bs-slide-to="2"></button>
+                            <button type="button" data-bs-target="#CarruselPrincipal" data-bs-slide-to="3"></button>
+                        </div>
+
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                               <img src="Imagenes/Estreno/morado.jpeg" class="d-block w-100" alt="Nuevos Estrenos">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="https://static.cinepolis.com/img/front/11/2026318121640616-prin.jpg" class="d-block w-100" alt="Poster 1">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="https://static.cinepolis.com/img/front/11/2026415152353291-prin.jpg" class="d-block w-100" alt="Poster 2">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="https://static.cinepolis.com/img/front/11/2026325112451386-prin.jpg" class="d-block w-100" alt="Poster 3">
+                            </div>
+                        </div>
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#CarruselPrincipal" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#CarruselPrincipal" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                    </div>
+                </div>
+            </div>    
+
+            <div class="container mt-4">
+                <div class="filtro shadow-sm">
+                    <form class="row g-0 align-items-center">
+                        <div class="col-md-3 border-end-custom p-3">
+                            <label class="label-filtro">Por película</label>
+                            <select class="form-select select-minimal">
+                                <option selected>Película</option>
+                                <option value="911-llamada">911: Llamada Infernal</option>
+                                <option value="mario-bros">Super Mario Bros. La Película</option>
+                                <option value="scream">Scream 6</option>
+                                <option value="diablo-moda">El Diablo Viste a la Moda</option>
+                                <option value="iron-maiden">Iron Maiden: Burning Ambition</option>
+                                <option value="digital-circus">The Amazing Digital Circus</option>
+                                <option value="michael">Michael</option>
+                                <option value="boulevard">Boulevard</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 border-end-custom p-3">
+                            <label class="label-filtro">Por ciudad</label>
+                            <select class="form-select select-minimal">
+                                <option selected>Dónde estás</option>
+                                <option value="">Ciudad</option>
+                                <option value="lima">Lima</option>
+                                <option value="arequipa">Arequipa</option>
+                                <option value="trujillo">Trujillo</option>
+                                <option value="piura">Piura</option>
+                                <option value="chiclayo">Chiclayo</option>
+                                <option value="cusco">Cusco</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 border-end-custom p-3">
+                            <label class="label-filtro">Por cine</label>
+                            <select class="form-select select-minimal">
+                                <option selected>Elige tu sede</option>
+                                <option value="jockey-plaza">Jockey Plaza (Surco)</option>
+                                <option value="plaza-san-miguel">Plaza San Miguel</option>
+                                <option value="megaplaza">MegaPlaza (Independencia)</option>
+                                <option value="mall-del-sur">Mall del Sur (SJM)</option>
+                                <option value="real-plaza-salaverry">Real Plaza Salaverry</option>
+                                <option value="real-plaza-puruchuco">Real Plaza Puruchuco</option>
+                                <option value="mall-aventura-sjl">Mall Aventura SJL</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 p-3 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-filtrar-redondeado">
+                                <i class="fa-solid fa-sliders me-2"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="container mt-5 px-4">
+                <div class="mb-4 border-bottom-purple">
+                    <h2 class="fw-bold text-white d-inline-block border-bottom border-primary border-3 pb-2">EN CARTELERA</h2>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="poster-container h-100 shadow-purple">
+                            <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002775?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Mario">
+                            <div class="badge-estreno">Estreno</div>
+                        </div>
+                    </div>
+
+                <div class="col-md-8">
+                    <div class="row g-3 mb-3"> 
+                        <div class="col-md-6">
+                            <div class="poster-container h-100 shadow-purple position-relative">
+                                <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002801?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="La Momia">
+                                <div class="badge-estreno">Estreno</div>
+                                 <span class="badge bg-danger text-white position-absolute top-0 end-0 m-2 fs-6 rounded-pill shadow-sm">+17
+                                 </span>   
+                            </div>
+                        </div>
+                    <div class="col-md-6">
+                        <div class="poster-container h-100 shadow-purple position-relative">
+                            <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002680?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Fin del mundo">
+                            <div class="badge-estreno">Estreno</div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="poster-container h-100 shadow-purple">
+                                    <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002837?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Boulevard">
+                                    <span class="badge bg-danger text-white position-absolute top-0 end-0 m-2 fs-6 rounded-pill shadow-sm">+14
+                                     </span>  
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ver-mas-card h-100 d-flex align-items-center justify-content-center text-center p-4 shadow-purple">
+                                    <a href="#" class="text-white text-decoration-none">
+                                        <i class="fa-solid fa-circle-plus fs-1 mb-3"></i><br>
+                                        <span class="fw-bold fs-4">Ver más películas</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container mt-5 pb-5">
+                <div class="mb-4 border-bottom-purple">
+                    <h2 class="fw-bold text-white d-inline-block border-bottom border-primary border-3 pb-2 text-uppercase"> Promociones Exclusivas </h2>
+                </div>
+
+                <div id="CarruselPromos" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#CarruselPromos" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#CarruselPromos" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#CarruselPrincipal" data-bs-slide-to="2"></button>
+                    </div>
+                    <div class="carousel-inner rounded-4 shadow-purple">
+                        <div class="carousel-item active">
+                          <img src="Imagenes/Promos/promo50.jpeg" class="d-block w-100 img-promo" alt="Promo 50">
+                        </div>
+                        <div class="carousel-item">
+                           <img src="Imagenes/Promos/combo_to_go.png" class="d-block w-100 img-promo" alt="Promo Combo To Go">
+                        </div>
+                    </div>
+        
+                    <button class="carousel-control-prev" type="button" data-bs-target="#CarruselPromos" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#CarruselPromos" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                        </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+<footer class="footer-cine py-5">
+    <div class="container">
+        <div class="row gy-4 mb-5">
+            
+            <div class="col-md-4 border-end-purple">
+                <h5 class="footer-title">ACERCA DE NOSOTROS</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#">Sobre CineMax.</a></li>
+                    <li><a href="#">Trabaja con nosotros.</a></li>
+                    <li><a href="#">Ventas corporativas (Para empresas).</a></li>
+                    <li><a href="#">Nuestras Sedes.</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4 border-end-purple ps-md-5">
+                <h5 class="footer-title">AYUDA</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#">Preguntas Frecuentes (FAQ).</a></li>
+                    <li><a href="#">Protocolos de Seguridad.</a></li>
+                    <li><a href="#">Comprobantes Electrónicos.</a></li>
+                    <li><a href="#">Contacto / WhatsApp de atención.</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4 ps-md-5">
+                <h5 class="footer-title">SIGUENOS</h5>
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex flex-column gap-2">
+                            <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Google Play"></a>
+                            <a href="#"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" class="app-badge" alt="App Store"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top-purple pt-4">
+            <div class="d-flex flex-wrap justify-content-between gap-3 text-center">
+                <a href="#" class="legal-link">TERMINOS Y CONDICIONES</a>
+                <a href="#" class="legal-link">POLITICA Y PRIVACIDAD</a>
+                <a href="#" class="legal-link">POLITICA Y USO DE COOKIES</a>
+                <a href="#" class="legal-link">LIBRO DE RECLAMACIONES</a>
+            </div>
+        </div>
+    </div>
+</footer>
