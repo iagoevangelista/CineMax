@@ -1,4 +1,4 @@
-package com.cinemax.backend.service;
+package com.cinemax.backend.service.auth;
 
 import com.cinemax.backend.model.dto.auth.AuthResponseDTO;
 import com.cinemax.backend.model.dto.auth.AuthRequestDTO;

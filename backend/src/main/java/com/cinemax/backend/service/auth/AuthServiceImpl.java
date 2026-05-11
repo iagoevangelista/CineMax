@@ -1,4 +1,4 @@
-package com.cinemax.backend.service.impl;
+package com.cinemax.backend.service.auth;
 
 import com.cinemax.backend.model.dto.auth.AuthRequestDTO;
 import com.cinemax.backend.model.dto.auth.AuthResponseDTO;
@@ -9,7 +9,7 @@ import com.cinemax.backend.model.entity.UserAccount;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.security.JwtService;
-import com.cinemax.backend.service.AuthService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
