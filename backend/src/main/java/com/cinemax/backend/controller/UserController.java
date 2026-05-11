@@ -1,5 +1,6 @@
 package com.cinemax.backend.controller;
 
+import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
 import com.cinemax.backend.model.dto.user.UserRoleUpdateDTO;
 import com.cinemax.backend.service.user.UserService;
@@ -30,5 +31,13 @@ public class UserController {
             @PathVariable Integer id, 
             @RequestBody UserRoleUpdateDTO request) {
         return ResponseEntity.ok(userService.updateUserRole(id, request));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO request) {
+        // Recibe el JSON de Angular, se lo pasa al servicio (que encripta la clave y asigna sede)
+        UserResponseDTO nuevoUsuario = userService.createUser(request);
+        return ResponseEntity.ok(nuevoUsuario);
     }
 }
