@@ -78,4 +78,7 @@ public class Promotion {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "image_url_promotion", length = 250)
+    private String imageUrlPromotion;
 }
