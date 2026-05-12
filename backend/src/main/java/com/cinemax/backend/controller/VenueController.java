@@ -24,13 +24,13 @@ public class VenueController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('GERENTE_GRAL')")
     public ResponseEntity<VenueResponseDTO> createVenue(@RequestBody VenueRequestDTO request) {
         return ResponseEntity.ok(venueService.createVenue(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('GERENTE_GRAL')")
     public ResponseEntity<VenueResponseDTO> updateVenue(
             @PathVariable Integer id, 
             @RequestBody VenueRequestDTO request) {
@@ -38,7 +38,7 @@ public class VenueController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('GERENTE_GRAL')")
     public ResponseEntity<Void> deleteVenue(@PathVariable Integer id) {
         venueService.deleteVenue(id);
         return ResponseEntity.noContent().build();

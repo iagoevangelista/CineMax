@@ -26,8 +26,10 @@ export class Users implements OnInit {
     lastName: '',
     email: '',
     password: '',
-    idRole: 2, // Por defecto GERENTE GENERAL
-    idVenue: 0 // Por defecto sin sede seleccionada
+    documentNumber: '', // <-- NUEVO CAMPO
+    idDocumentType: 1,  // <-- NUEVO CAMPO (1 = DNI en la BD)
+    idRole: 2, 
+    idVenue: 0
   };
 
   // <-- ACTUALIZADO: Inyectamos el VenueService en el constructor -->
@@ -92,19 +94,25 @@ export class Users implements OnInit {
 
   // <-- NUEVO: Se ejecuta al darle "Crear Colaborador" en el modal verde
   guardarNuevoUsuario() {
-    // 1. Validación básica para que no envíen datos vacíos
-    if(!this.nuevoUsuario.firstName || !this.nuevoUsuario.email || !this.nuevoUsuario.password) {
-      alert("Por favor llena los datos principales.");
+    // 1. Validación básica: que no envíen datos vacíos, incluyendo el DOCUMENTO (DNI)
+    if (!this.nuevoUsuario.firstName || !this.nuevoUsuario.email || !this.nuevoUsuario.password || !this.nuevoUsuario.documentNumber) {
+      alert("Por favor llena los datos principales, incluyendo el documento de identidad.");
       return;
     }
 
-    // 2. Validación de regla de negocio: Si no es Admin, debe tener sede
-    if(this.nuevoUsuario.idRole !== 1 && this.nuevoUsuario.idVenue === 0) {
-      alert("Debes asignarle una sede a este gerente.");
+    // 2. Limpieza de datos: Si es ADMIN (1) o GERENTE_GRAL (2), NO llevan sede
+    // (Forzamos a 0 por si el administrador seleccionó una sede por error y luego cambió de rol en el combo)
+    if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
+      this.nuevoUsuario.idVenue = 0; 
+    }
+
+    // 3. Validación de regla de negocio: Si es MKT (3) u OPERACIONES (5), DEBEN tener sede
+    if ((this.nuevoUsuario.idRole == 3 || this.nuevoUsuario.idRole == 5) && this.nuevoUsuario.idVenue == 0) {
+      alert("¡Atención! Un Gerente de Marketing u Operaciones DEBE tener una sede asignada obligatoriamente.");
       return;
     }
 
-    // 3. Enviamos los datos al backend
+    // 4. Enviamos los datos al backend
     this.userService.createUser(this.nuevoUsuario).subscribe({
       next: (res) => {
         alert("¡Colaborador creado exitosamente!");
@@ -116,11 +124,28 @@ export class Users implements OnInit {
         this.cargarUsuarios(); 
         
         // Limpiamos el formulario para la próxima vez
-        this.nuevoUsuario = { firstName: '', lastName: '', email: '', password: '', idRole: 2, idVenue: 0 };
+        this.nuevoUsuario = { 
+          firstName: '', 
+          lastName: '', 
+          email: '', 
+          password: '', 
+          documentNumber: '', 
+          idDocumentType: 1, 
+          idRole: 2, 
+          idVenue: 0 
+        };
       },
       error: (err) => {
         console.error("Error al crear usuario:", err);
-        alert("Error al crear usuario. Revisa la consola.");
+        
+        // TRUCO PRO: Si el backend lanza nuestra RuntimeException (Ej: "Error: Ya existe un Gerente General..."), lo mostramos.
+        if (err.error && typeof err.error === 'string') {
+            alert(err.error); 
+        } else if (err.error && err.error.message) {
+            alert(err.error.message);
+        } else {
+            alert("Error al crear usuario. Verifica que el correo o DNI no estén repetidos.");
+        }
       }
     });
   }

@@ -12,5 +12,6 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Intege
     // Spring Data JPA crea automáticamente la consulta SQL por debajo:
     // SELECT * FROM user_account WHERE email = ?
     Optional<UserAccount> findByEmail(String email);
-
+    boolean existsByRole_IdRoleAndStatus(Integer idRole, String status);
+    boolean existsByRole_IdRoleAndVenue_IdVenueAndStatus(Integer idRole, Integer idVenue, String status);
 }

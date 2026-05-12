@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -16,5 +15,9 @@ public class UserCreateDTO {
     private String email;
     private String password;
     private Integer idRole;
-    private Integer idVenue; // <-- Para asignar la sede
+    private Integer idVenue;
+
+    // NUEVOS CAMPOS: Son obligatorios para tu Base de Datos
+    private String documentNumber;
+    private Integer idDocumentType;
 }

@@ -35,7 +35,7 @@
           <td class="p-3">
             <span class="badge bg-primary">{{ user.roleName }}</span>
           </td>
-          <td class="p-3 text-muted">{{ user.venueName || 'Acceso Total' }}</td>
+          <td class="p-3 text-white">{{ user.venueName || 'Acceso Total' }}</td>
           <td class="p-3">
             <span class="badge" [ngClass]="user.status === 'Activo' ? 'bg-success' : 'bg-danger'">
               {{ user.status }}
@@ -56,15 +56,41 @@
   </div>
 </div>
 
-<div class="modal fade text-dark" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+<div class="modal fade text-dark" id="modalCambiarRol" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      
+      <div class="modal-header" style="background-color: #ffc107;">
+        <h5 class="modal-title fw-bold text-dark">Cambiar Rol de Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" id="cerrarModalRol"></button>
+      </div>
+      <div class="modal-body p-4" *ngIf="usuarioSeleccionado">
+        <p>Estás modificando los permisos de: <br>
+           <strong class="fs-5" style="color: var(--primary-dark);">{{ usuarioSeleccionado.firstName }} {{ usuarioSeleccionado.lastName }}</strong>
+        </p>
+        <div class="mt-4">
+          <label class="form-label fw-bold">Selecciona el nuevo Rol:</label>
+          <select class="form-select border-warning shadow-sm" [(ngModel)]="nuevoIdRole" name="rolUpdate">
+            <option [ngValue]="1">ADMIN (Administrador Total)</option>
+            <option [ngValue]="2">GERENTE_GRAL (Gerente General)</option>
+            <option [ngValue]="3">GERENTE_MKT (Gerente de Marketing)</option>
+            <option [ngValue]="5">GERENTE_OPR (Gerente de Operaciones)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning fw-bold text-dark" (click)="guardarNuevoRol()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-dark" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content">
       <div class="modal-header" style="background-color: var(--primary-color); color: white;">
         <h5 class="modal-title fw-bold">Registrar Nuevo Colaborador</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="cerrarModalNuevoUser"></button>
       </div>
-
       <div class="modal-body p-4">
         <form class="row g-3">
           <div class="col-md-6">
@@ -75,7 +101,20 @@
             <label class="form-label fw-bold">Apellidos</label>
             <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.lastName" name="apellido">
           </div>
-          <div class="col-md-12">
+          
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Tipo Doc.</label>
+            <select class="form-select" [(ngModel)]="nuevoUsuario.idDocumentType" name="docType">
+              <option [ngValue]="1">DNI</option>
+              <option [ngValue]="2">Carné de Extranjería</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Nro. Documento</label>
+            <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.documentNumber" name="docNumber">
+          </div>
+
+          <div class="col-md-6">
             <label class="form-label fw-bold">Correo Corporativo</label>
             <input type="email" class="form-control" [(ngModel)]="nuevoUsuario.email" name="email">
           </div>
@@ -83,66 +122,33 @@
             <label class="form-label fw-bold">Contraseña Temporal</label>
             <input type="password" class="form-control" [(ngModel)]="nuevoUsuario.password" name="password">
           </div>
+          
           <div class="col-md-6">
             <label class="form-label fw-bold">Rol Inicial</label>
-            <select class="form-select" [(ngModel)]="nuevoUsuario.idRole" name="rol">
-              <option [value]="1">ADMIN</option>
-              <option [value]="2">GERENTE GENERAL</option>
-              <option [value]="3">GERENTE DE MKT</option>
+            <select class="form-select border-success" [(ngModel)]="nuevoUsuario.idRole" name="rolCreate">
+              <option [ngValue]="1">ADMIN</option>
+              <option [ngValue]="2">GERENTE GENERAL</option>
+              <option [ngValue]="3">GERENTE DE MKT</option>
+              <option [ngValue]="5">GERENTE DE OPERACIONES</option>
             </select>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Sede Asignada</label>
+            <select class="form-select border-primary" [(ngModel)]="nuevoUsuario.idVenue" name="sede">
+              <option [ngValue]="0">Seleccione sede...</option>
+              <option *ngFor="let sede of listaSedes" [ngValue]="sede.idVenue">
+                {{ sede.nameVenue }}
+              </option>
+            </select>
+            <small class="text-muted">Obligatorio para Marketing y Operaciones</small>
           </div>
         </form>
       </div>
-
       <div class="modal-footer bg-light">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success fw-bold" (click)="guardarNuevoUsuario()">Crear Colaborador</button>
       </div>
-
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade text-dark" id="modalCambiarRol" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      
-      <div class="modal-header" style="background-color: #ffc107;">
-        <h5 class="modal-title fw-bold text-dark">Cambiar Rol de Usuario</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" id="cerrarModalRol"></button>
-      </div>
-
-      <div class="modal-body p-4" *ngIf="usuarioSeleccionado">
-        <p>Estás modificando los permisos de: <br>
-           <strong class="fs-5" style="color: var(--primary-dark);">{{ usuarioSeleccionado.firstName }} {{ usuarioSeleccionado.lastName }}</strong>
-        </p>
-        
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Rol del Trabajador</label>
-                    <select class="form-select" [(ngModel)]="nuevoUsuario.idRole" name="rol">
-                    <option [value]="2">GERENTE GENERAL</option>
-                    <option [value]="3">GERENTE DE MKT</option>
-                    <option [value]="5">GERENTE DE OPERACIONES</option> </select>
-            </div>
-
-        <div class="col-md-6">
-            <label class="form-label fw-bold">Sede Asignada</label>
-            <select class="form-select border-primary" [(ngModel)]="nuevoUsuario.idVenue" name="sede">
-            <option [value]="0">Seleccione sede...</option>
-            <option *ngFor="let sede of listaSedes" [value]="sede.idVenue">
-                {{ sede.nameVenue }}
-            </option>
-    </select>
-  </div>
-</div>
-
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-warning fw-bold text-dark" (click)="guardarNuevoRol()">Guardar Cambios</button>
-      </div>
-
     </div>
   </div>
 </div>

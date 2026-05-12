@@ -1,5 +1,6 @@
 package com.cinemax.backend.service.user;
 
+import com.cinemax.backend.model.entity.DocumentType;
 import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
@@ -63,24 +64,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO createUser(UserCreateDTO request) {
-        // 1. REGLA DE NEGOCIO: ¿Ya hay alguien con ese rol en esa sede?
-        // (Opcional: puedes implementar una consulta personalizada en el repo)
 
+        // --- 1. REGLAS DE NEGOCIO ESTRICTAS ---
+        // Asumiendo que tus IDs de rol son: 2 (Gerente Gral), 3 (Gerente MKT), 5 (Gerente Operaciones)
+
+        if (request.getIdRole() == 2) {
+            // Regla: Solo 1 Gerente General Activo en todo el sistema
+            if (userRepository.existsByRole_IdRoleAndStatus(2, "Activo")) {
+                throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
+            }
+            request.setIdVenue(null); // El Gerente Gral no pertenece a una sede específica
+        }
+        else if (request.getIdRole() == 3 || request.getIdRole() == 5) {
+            // Regla: Obligatorio tener sede y no repetirse
+            if (request.getIdVenue() == null || request.getIdVenue() == 0) {
+                throw new RuntimeException("Error: Este rol requiere ser asignado a una Sede.");
+            }
+            if (userRepository.existsByRole_IdRoleAndVenue_IdVenueAndStatus(request.getIdRole(), request.getIdVenue(), "Activo")) {
+                throw new RuntimeException("Error: La sede seleccionada ya tiene un gerente activo de este tipo.");
+            }
+        }
+
+        // --- 2. CREACIÓN DEL USUARIO ---
         UserAccount nuevoUsuario = new UserAccount();
         nuevoUsuario.setFirstName(request.getFirstName());
         nuevoUsuario.setLastName(request.getLastName());
         nuevoUsuario.setEmail(request.getEmail());
         nuevoUsuario.setStatus("Activo");
 
-        // 2. ENCRIPTAR CONTRASEÑA (Vital para que pueda hacer login luego)
+        // Agregamos los campos obligatorios para que no explote la BD
+        nuevoUsuario.setDocumentNumber(request.getDocumentNumber());
+        nuevoUsuario.setDocumentType(DocumentType.builder().idDocumentType(request.getIdDocumentType()).build());
+
         nuevoUsuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        // 3. ASIGNAR ROL
         Role rol = roleRepository.findById(request.getIdRole())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         nuevoUsuario.setRole(rol);
 
-        // 4. ASIGNAR SEDE (Si no es Admin)
         if (request.getIdVenue() != null && request.getIdVenue() > 0) {
             Venue sede = venueRepository.findById(request.getIdVenue())
                     .orElseThrow(() -> new RuntimeException("Sede no encontrada"));
@@ -88,7 +109,7 @@ public class UserServiceImpl implements UserService {
         }
 
         UserAccount guardado = userRepository.save(nuevoUsuario);
-        return mapToResponseDTO(guardado); // Método auxiliar para convertir a ResponseDTO
+        return mapToResponseDTO(guardado);
     }
 
     @Override
@@ -119,6 +140,14 @@ public class UserServiceImpl implements UserService {
         }
 
         return response;
+    }
+
+    @Override
+    public void deleteUser(Integer idUser) {
+        UserAccount usuario = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setStatus("Inactivo");
+        userRepository.save(usuario);
     }
 
     private UserResponseDTO mapToResponseDTO(UserAccount usuario) {

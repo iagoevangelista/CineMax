@@ -10,7 +10,7 @@
       </a>
     </li>
 
-    <li>
+    <li *ngIf="rolUsuario === 'GERENTE_GRAL'">
       <a routerLink="/admin/sedes" routerLinkActive="active-link" class="nav-link text-white">
         <i class="fa-solid fa-clock me-2"></i> Sedes
       </a>

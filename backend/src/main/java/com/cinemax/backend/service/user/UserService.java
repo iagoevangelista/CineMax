@@ -10,4 +10,5 @@ public interface UserService {
     List<UserResponseDTO> getAllUsers();
     UserResponseDTO updateUserRole(Integer idUser, UserRoleUpdateDTO request);
     UserResponseDTO createUser(UserCreateDTO request);;
+    void deleteUser(Integer idUser);
 }

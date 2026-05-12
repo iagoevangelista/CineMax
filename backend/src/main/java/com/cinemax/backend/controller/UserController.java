@@ -33,6 +33,13 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserRole(id, request));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO request) {
