@@ -3,18 +3,25 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  // Inyectamos los servicios necesarios (en guards funcionales se usa inject)
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Si el usuario tiene un token guardado... ¡Pase usted!
-  if (authService.isLoggedIn()) {
-    return true;
-  } 
-  
-  // Si NO tiene token... ¡Lo pateamos a la página principal!
-  else {
-    router.navigate(['/']); 
+  // 1. ¿Tiene sesión iniciada?
+  if (!authService.isLoggedIn()) {
+    router.navigate(['/']);
     return false;
   }
+
+  // 2. ¿La ruta exige un rol específico? (NUEVO)
+  const rolExigido = route.data['expectedRole']; 
+  const rolUsuario = authService.getRole();
+
+  // Si la ruta pide un rol y el usuario no lo tiene, lo rebotamos
+  if (rolExigido && rolExigido !== rolUsuario) {
+    alert('Acceso Denegado: No tienes permisos para ver esta pantalla.');
+    router.navigate(['/admin/dashboard']); // Lo mandamos a un lugar seguro
+    return false;
+  }
+
+  return true; // Si todo está bien, lo deja pasar
 };

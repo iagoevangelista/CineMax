@@ -28,12 +28,26 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
-    canActivate: [authGuard],
+    // ¡OJO! Quitamos el canActivate de aquí (el padre)
     children: [
-      { path: 'dashboard', component: Dashboard },
-      { path: 'sedes', component: Venues },
-      { path: 'usuarios', component: Users },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { 
+        path: 'dashboard', 
+        component: Dashboard,
+        canActivate: [authGuard] // Para el dashboard solo basta tener sesión iniciada
+      },
+      { 
+        path: 'sedes', 
+        component: Venues,
+        canActivate: [authGuard], // Ponemos el candado en el hijo
+        data: { expectedRole: 'GERENTE_GRAL' } 
+      },
+      { 
+        path: 'usuarios', 
+        component: Users,
+        canActivate: [authGuard], // Ponemos el candado en el hijo
+        data: { expectedRole: 'ADMIN' } 
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' } 
     ]
   },
 
