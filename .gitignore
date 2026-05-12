@@ -1,0 +1,13 @@
+# Carpetas de librerías
+node_modules/
+.angular/
+dist/
+
+# Carpetas de compilación Java
+target/
+.mvn/
+
+# Archivos de configuración del editor
+.vscode/
+.idea/
+*.swp

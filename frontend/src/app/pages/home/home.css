@@ -1,0 +1,286 @@
+/* Control de pantallas */
+
+.screen { 
+    display: none; width: 100%; 
+}
+.screen.active { 
+    display: block; 
+}
+
+/* Cabecera (Navbar) */
+
+.bg-dark-custom { 
+    background-color: var(--background-color) 
+}
+
+.border-bottom-custom { 
+    border-bottom: 0.2rem solid var(--surface-color); 
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.b-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-light);
+    transition: color 0.3s;
+}
+
+.b-header:hover { 
+    color: var(--secondary-color); 
+}
+
+.b-perfil {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 0.8rem;
+    filter: brightness(0) invert(1);
+    transition: 0.3s;
+}
+
+.b-perfil:hover {
+    transform: scale(1.1);
+    border: 2px solid var(--primary-color);
+    filter: invert(92%) sepia(10%) saturate(836%) hue-rotate(215deg) brightness(101%) contrast(97%);
+}
+
+/* Carrusel de banners */
+
+.carousel-inner {
+    border: 2px solid var(--primary-color);
+    height: 500px;
+    border-radius: 15px;
+    height: 420px
+}
+
+.carousel-item img {
+    height: 500px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    height: 420px
+}
+
+/* Caja de filtros */
+
+.filtro {
+    background-color: var(--background-color);
+    border-radius: 12px;
+    border: 1px solid var(--surface-color);
+    overflow: hidden;
+}
+
+.label-filtro {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 0;
+    padding-left: 0.8rem;
+}
+
+.select-minimal {
+    border: none;
+    background-color: transparent;
+    font-size: 1.4rem;
+    color: #b0b0b0;
+    box-shadow: none;
+    font-size: 1.2rem;  
+}
+
+.border-end-custom { 
+    border-right: 1px solid var(--surface-color); 
+}
+
+.btn-filtrar-redondeado {
+    background-color: var(--secondary-color);
+    color: var(--text-dark);
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-weight: bold;
+    border: none;
+    transition: 0.3s;
+    font-size: 1.2rem
+}
+
+.btn-filtrar-redondeado:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    transform: scale(1.05);
+}
+
+/* Cartelera (Mosaico) */
+
+.border-bottom-purple { 
+    border-bottom: 1px solid var(--surface-color); 
+}
+
+.poster-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--surface-color);
+    transition: all 0.3s ease;
+    min-height: 250px; 
+}
+
+.img-mosaico {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.badge-estreno {
+    position: absolute;
+    top: 15px;
+    left: -35px;
+    background-color: var(--primary-dark);
+    color: white;
+    padding: 5px 40px;
+    transform: rotate(-45deg);
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.ver-mas-card {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-dark) 100%);
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.poster-container:hover, .ver-mas-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px var(--primary-dark);
+}
+
+/* Carrusel Promos */
+
+.img-promo {
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+/* Pie de pagina */
+
+.footer-cine {
+    background-color: var(--surface-color);
+    color: var(--text-light);
+    margin-top: 5rem;
+    padding: 2rem 0;
+}
+
+.footer-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+.footer-links a:hover { 
+    color: var(--primary-color); padding-left: 5px; 
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--background-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.social-icon:hover { 
+    background-color: var(--primary-color); 
+}
+
+.app-badge { 
+    height: 38px; 
+    border-radius: 6px; 
+}
+
+.border-top-purple { 
+    border-top: 2px solid var(--primary-dark); 
+}
+
+.legal-link { 
+    color: white; 
+    text-decoration: none; 
+    font-size: 0.9rem; 
+}
+
+.legal-link:hover { 
+    color: var(--primary-color); 
+}
+
+/* ESTILOS DEL PANEL DE LOGIN */
+.login-panel {
+  background-color: #242424; /* Fondo gris oscuro */
+  border-left: 1px solid var(--surface-color);
+  width: 400px; /* Ancho del panel */
+}
+
+.login-logo {
+  max-width: 180px;
+}
+
+.custom-input-group {
+  border: 1px solid #555;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #242424;
+}
+
+.custom-input-group .form-control {
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 14px 15px;
+  font-size: 0.9rem;
+}
+
+.custom-input-group .form-control::placeholder {
+  color: #888;
+}
+
+.custom-input-group .form-control:focus {
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.custom-input-group .input-group-text {
+  background-color: transparent;
+  border: none;
+  color: white;
+}
+
+.btn-login {
+  background-color: #9b59b6; /* Tu morado */
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  background-color: #8e44ad;
+}
+
+.login-links {
+  font-size: 0.85rem;
+}

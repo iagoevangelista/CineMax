@@ -1,0 +1,134 @@
+<div class="container mt-5 text-white">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Sedes</h2>
+    <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevaSede">
+  <i class="fa-solid fa-plus me-2"></i>Nueva Sede
+</button>
+  </div>
+
+
+  
+  <div class="table-responsive shadow-lg rounded" style="background-color: var(--surface-color);">
+
+    <div *ngIf="cargando" class="text-center my-5">
+      <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <h4 class="mt-3 text-info fw-bold">Consultando a Azure...</h4>
+    </div>
+
+    <div *ngIf="!cargando" class="table-responsive shadow-lg rounded" style="background-color: var(--surface-color);">
+      <table class="table table-dark table-hover mb-0 align-middle">
+
+      <table class="table table-dark table-hover mb-0 align-middle">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--primary-color);">
+          <th class="p-3">ID</th>
+          <th class="p-3">Nombre del Cine</th>
+          <th class="p-3">Dirección</th>
+          <th class="p-3">Departamento</th>
+          <th class="p-3">Distrito</th>
+          <th class="p-3">Estado</th>
+          <th class="p-3 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sede of listaSedes">
+          <td class="p-3 fw-bold">{{ sede.idVenue }}</td>
+          <td class="p-3">{{ sede.nameVenue }}</td>
+          <td class="p-3">{{ sede.addressVenue }}</td>
+          <td class="p-3">{{ sede.departmentName }}</td>
+          <td class="p-3">{{ sede.districtName }}</td>
+          <td class="p-3">
+            <span class="badge" [ngClass]="sede.status === 'Activo' ? 'bg-success' : 'bg-danger'">
+              {{ sede.status }}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <button class="btn btn-sm btn-outline-info me-2"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</table>
+    </div>
+  </div>
+
+  <div class="modal fade text-dark" id="modalNuevaSede" tabindex="-1" aria-labelledby="modalNuevaSedeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background-color: #f8f9fa;">
+      
+      <div class="modal-header" style="background-color: var(--primary-color); color: white;">
+        <h5 class="modal-title fw-bold" id="modalNuevaSedeLabel">Registrar Nueva Sede</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form>
+          <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Nombre del Cine</label>
+                <input type="text" class="form-control" [(ngModel)]="nuevaSede.nameVenue" name="name" placeholder="Ej: CineMax San Miguel">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Teléfono</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevaSede.phoneNumber" name="phone" placeholder="Ej: 01-456-7890">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label fw-bold">Dirección Exacta</label>
+              <input type="text" class="form-control" [(ngModel)]="nuevaSede.addressVenue" name="address" placeholder="Ej: Av. La Marina 2000">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Departamento</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idDepartment"    name="department" (change)="onDepartamentoChange()">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let dep of listaDepartamentos" [value]="dep.idDepartment">
+                        {{ dep.nameDepartment }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Provincia</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idProvince" name="province" (change)="onProvinciaChange()" [disabled]="listaProvincias.length === 0">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let prov of listaProvincias" [value]="prov.idProvince">
+                        {{ prov.nameProvince }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Distrito</label>
+                <select class="form-select" [(ngModel)]="nuevaSede.idDistrict" name="district" [disabled]="listaDistritos.length === 0">
+                    <option [value]="0" selected>Seleccione...</option>
+                    <option *ngFor="let dist of listaDistritos" [value]="dist.idDistrict">
+                        {{ dist.nameDistrict }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mt-4">
+              <label class="form-label fw-bold">Estado Inicial</label>
+              <select class="form-select border-success">
+                <option value="Activo" selected>Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+         <button type="button" class="btn btn-success fw-bold" (click)="guardarSede()">Guardar Sede</button>
+        </div>
+
+    </div>
+  </div>
+</div>

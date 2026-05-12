@@ -1,0 +1,16 @@
+.navbar-top {
+  height: 80px;
+  background-color: #1a1a1a; /* Un negro ligeramente distinto al fondo para crear contraste */
+  border-bottom: 1px solid #333;
+}
+
+.profile-icon i {
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.profile-icon i:hover {
+  transform: scale(1.1);
+  color: var(--primary-color) !important;
+}

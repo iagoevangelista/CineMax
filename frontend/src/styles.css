@@ -1,0 +1,29 @@
+:root {
+    /* Colores Principales */
+    --primary-color: #b25fce;      /* morado principal */
+    --primary-dark: #5a189a;       /* morado más fuerte */
+    --secondary-color: #cabedf;    /* morado claro */
+
+    /* Fondo */
+    --background-color: #131313;   /* negro suave */
+    --surface-color: #434242c3;      /* gris oscuro */
+    --white: #ffffff;
+
+    /* Texto */
+    --text-light: #ffffff;
+    --text-dark: #121212;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-light);
+}
