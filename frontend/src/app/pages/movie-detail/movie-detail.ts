@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BookingService } from '../../services/booking';
 
 @Component({
   selector: 'app-movie-detail',
@@ -14,6 +15,7 @@ export class MovieDetail implements OnInit {
   loading = true;
   error = false;
 
+  
   // Datos estáticos por ahora (luego conectamos al backend)
   movies: any[] = [
     {
@@ -60,8 +62,10 @@ export class MovieDetail implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private bookingService: BookingService
   ) {}
+
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -72,5 +76,13 @@ export class MovieDetail implements OnInit {
 
   volver() {
     this.router.navigate(['/']);
+  }
+
+
+  empezarCompra() {
+    if (this.movie) {
+      this.bookingService.guardarPelicula(this.movie); 
+      this.router.navigate(['/seats']);
+    }
   }
 }

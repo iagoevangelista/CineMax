@@ -1,0 +1,92 @@
+/* BARRITA DE PROGRESO (Intacta) */
+.progress-wrapper {
+    background-color: #1e1e24; 
+    padding: 15px 30px;
+    border-radius: 40px;
+    width: 70%;
+  }
+  .progress-line { 
+    height: 2px; background-color: #444; 
+    left: 0; right: 0; top: 50%; transform: translateY(-50%); 
+  }
+  .progress-step {
+    width: 45px; height: 45px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background-color: #1a1a1c; border: 2px solid #444; color: #777;
+    font-size: 1.2rem; transition: all 0.3s ease;
+  }
+  .progress-step.active {
+    border-color: #8a2be2; 
+    color: #8a2be2; 
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+  }
+  
+  /* PANTALLA (Barrita blanca como en tu imagen) */
+  .screen-curve {
+    width: 65%; 
+    height: 35px; 
+    background-color: #ffffff; /* Fondo blanco puro */
+    color: #111111; /* Texto oscuro */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 1rem; 
+    font-weight: 900; 
+    letter-spacing: 4px;
+    border-radius: 4px; /* Bordes ligeramente suaves */
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); /* Ligero resplandor */
+  }
+  
+  /* INDICADORES DE FILAS (Fuente un poquitito más grande) */
+  .text-indicator { font-size: 1.15rem; color: #aaa; width: 25px; text-align: center; }
+  
+  /* LAS BUTACAS (Ligeramente más grandes) */
+  .seat-box {
+    width: 42px; height: 42px;
+    border-radius: 6px; 
+    border: 1px solid #555; 
+    background-color: #1a1a1c; color: #ccc; 
+    display: flex; justify-content: center; align-items: center;
+    font-size: 0.95rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s ease;
+  }
+  .seat-box:hover:not(:disabled) { transform: translateY(-2px); border-color: #8a2be2; }
+  
+  /* ESTADOS DE LOS ASIENTOS */
+  .seat-box.disponible { border-color: #555; }
+  .seat-box.ocupado {
+    background-color: #333; 
+    color: #777; border-color: #333; cursor: not-allowed;
+  }
+  
+  /* VERDE MÁS VIVO PARA LA SELECCIÓN */
+  .seat-box.seleccionado {
+    background-color: #00e676; /* Verde vivo tipo lima */
+    border-color: #00c853; 
+    color: #000;
+  }
+  .seat-box.discapacitado { border-color: #29b6f6; color: #29b6f6; background-color: transparent; }
+  
+  /* LEYENDA */
+  .seat-box.mini { width: 24px; height: 24px; font-size: 0.75rem; pointer-events: none; border-radius: 4px; }
+  
+  /* RESUMEN (Fuentes más grandes y claras) */
+  .summary-card { background-color: #161619; border: 1px solid #2a2a2a; }
+  .summary-label { color: #888; font-size: 0.95rem; }
+  .pastel-badge { background-color: #222; color: #ccc; border: 1px solid #444; font-size: 0.9rem; }
+  .icon-box { background-color: #222; padding: 12px; border-radius: 8px; border: 1px solid #333; }
+  
+  /* TEXTO BLANCO EN EL RESUMEN COMO PEDISTE */
+  .selection-text { color: #ffffff !important; font-size: 1.25rem !important; }
+  
+  /* BOTONES */
+  .btn-continue {
+    background-color: #8a2be2; 
+    color: #fff !important; border: none;
+  }
+  .btn-continue:hover { background-color: #7c26cc; transform: scale(1.02); }
+  
+  .btn-cancel {
+    border: 1px solid #ef5350; color: #ef5350; background-color: transparent;
+  }
+  .btn-cancel:hover { background-color: rgba(239, 83, 80, 0.1); color: #ef5350; }

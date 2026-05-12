@@ -1,0 +1,93 @@
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
+    
+    <div class="collapse navbar-collapse justify-content-start ms-4" id="CabeceraCinemax">
+      <ul class="navbar-nav gap-lg-4">
+        <li class="nav-item"><a class="nav-link b-header" routerLink="/movies">Cartelera</a></li>
+        <li class="nav-item"><a class="nav-link b-header" href="#">Sedes</a></li>
+        <li class="nav-item"><a class="nav-link b-header" href="#">Promociones</a></li>
+        <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
+      </ul>
+    </div>
+
+    <div class="d-flex align-items-center">
+      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#loginOffcanvas" class="user-icon">
+        <i class="fa-regular fa-circle-user"></i>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer-cine py-5">
+  <div class="container">
+    <div class="row gy-4 mb-5">
+      <div class="col-md-4 border-end-purple">
+        <h5 class="footer-title">ACERCA DE NOSOTROS</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a href="#">Sobre CineMax.</a></li>
+          <li><a href="#">Trabaja con nosotros.</a></li>
+          <li><a href="#">Ventas corporativas.</a></li>
+          <li><a href="#">Nuestras Sedes.</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 border-end-purple ps-md-5">
+        <h5 class="footer-title">AYUDA</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a href="#">Preguntas Frecuentes.</a></li>
+          <li><a href="#">Protocolos de Seguridad.</a></li>
+          <li><a href="#">Comprobantes Electrónicos.</a></li>
+          <li><a href="#">Contacto.</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 ps-md-5">
+        <h5 class="footer-title">SÍGUENOS</h5>
+        <div class="d-flex flex-wrap gap-3 mb-3">
+          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+        <div class="d-flex flex-column gap-2">
+          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Google Play"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+
+<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="loginOffcanvas">
+  <div class="offcanvas-header justify-content-end">
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  
+  <div class="offcanvas-body d-flex flex-column align-items-center px-4 pt-0">
+    <img src="assets/Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
+    
+    <h3 class="text-center login-title mb-5">¡Hola! Qué bueno verte por acá.</h3>
+
+    <form class="w-100" (ngSubmit)="iniciarSesion()">
+      <div class="input-group mb-4 custom-input-group">
+        <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
+        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+      </div>
+
+      <div class="input-group mb-5 custom-input-group">
+        <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
+        <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
+      </div>
+
+      <button type="submit" class="btn btn-login w-100 text-white">INICIAR SESIÓN</button>
+    </form>
+
+    <div class="mt-5 text-center login-links">
+      <a href="#" class="d-block mb-3 text-decoration-none">¿OLVIDASTE TU CONTRASEÑA?</a>
+      <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
+      <a href="#" class="text-decoration-none register-link" data-bs-dismiss="offcanvas" data-bs-toggle="offcanvas" data-bs-target="#registerOffcanvas">REGÍSTRATE</a>
+    </div>
+  </div>
+</div>

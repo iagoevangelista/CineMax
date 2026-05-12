@@ -1,0 +1,95 @@
+/* NAVBAR (image_ef9ad3.png) */
+.navbar {
+    background-color: #121212 !important; /* Fondo negro profundo */
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #222;
+  }
+  
+  .logo {
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: #a29bfe !important; /* Morado claro/lavanda de la imagen */
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+  
+  .b-header {
+    color: #ffffff !important; /* Texto blanco puro */
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: 0.3s;
+  }
+  
+  .b-header:hover {
+    color: #a29bfe !important;
+  }
+  
+  .user-icon {
+    color: white;
+    font-size: 1.8rem;
+    transition: 0.3s;
+  }
+  
+  /* MODAL DE LOGIN (image_ef9ab4.png) */
+  .login-panel {
+    background-color: #222222 !important; /* Gris oscuro de la imagen */
+    width: 400px !important;
+    color: white;
+  }
+  
+  .login-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  /* Inputs con ícono a la derecha */
+  .custom-input-group {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .custom-input-group .form-control {
+    background: transparent !important;
+    border: none !important;
+    color: #bbb !important;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+  }
+  
+  .custom-input-group .input-group-text {
+    background: transparent !important;
+    border: none !important;
+    color: #eee;
+    padding-right: 15px;
+  }
+  
+  /* Botón Morado Vibrante */
+  .btn-login {
+    background-color: #8a2be2; /* Morado de la imagen */
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: 0.3s;
+  }
+  
+  .btn-login:hover {
+    background-color: #7020c0;
+  }
+  
+  .login-links a {
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  
+  .register-link {
+    color: #fff !important;
+    font-weight: 800 !important;
+  }
