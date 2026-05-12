@@ -1,51 +1,89 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
-import { Router } from '@angular/router'; 
-import { AuthService } from '../../services/auth.service'; // Asegúrate de que esta ruta sea correcta según tu carpeta
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { MovieService, Movie } from '../../services/movie.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home {
-  
-  // Aquí guardamos lo que el usuario escribe
-  loginData = {
-    email: '',
-    password: ''
-  };
+export class Home implements OnInit {
 
-  // Un solo constructor con el Router y el AuthService inyectados
-  constructor(private authService: AuthService, private router: Router) {}
+  loginData = { email: '', password: '' };
+  registerData = { firstName: '', lastName: '', email: '', password: '' };
 
-  // Un solo método para iniciar sesión
-  iniciarSesion() {
-    // 1. Validamos que no intenten entrar con los campos vacíos
-    if (!this.loginData.email || !this.loginData.password) {
-      alert("Por favor ingresa tu correo y contraseña");
-      return; // Detiene la ejecución para no enviarlo al backend
-    }
+  movies: Movie[] = [];
+  filteredMovies: Movie[] = [];
+  loading = true;
+  error = false;
 
-    console.log("Enviando credenciales al backend...", this.loginData);
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private movieService: MovieService
+  ) {}
 
-    // 2. Llamada real al backend en Spring Boot
-    this.authService.login(this.loginData).subscribe({
-      next: (res) => {
-        // Si el backend responde OK (200), cerramos el panel
-        document.getElementById('cerrarLogin')?.click();
-        
-        // Y lo mandamos al panel dashboard de admin
-        this.router.navigate(['/admin/dashboard']);;
+  ngOnInit() {
+    this.loadMovies();
+  }
+
+  loadMovies() {
+    this.loading = true;
+    this.error = false;
+    this.movieService.getMovies().subscribe({
+      next: (data: Movie[]) => {
+        this.movies = data;
+        this.filteredMovies = data;
+        this.loading = false;
       },
-      error: (err) => {
-        // Si el backend rechaza la clave (403/401)
-        console.error("Error al iniciar sesión:", err);
-        alert("Correo o contraseña incorrectos");
+      error: (err: any) => {
+        console.error('Error cargando peliculas:', err);
+        this.error = true;
+        this.loading = false;
       }
     });
   }
+
+  iniciarSesion() {
+    if (!this.loginData.email || !this.loginData.password) {
+      alert('Por favor ingresa tu correo y contrasena');
+      return;
+    }
+    this.authService.login(this.loginData).subscribe({
+      next: () => {
+        document.getElementById('cerrarLogin')?.click();
+        this.router.navigate(['/admin/dashboard']);
+      },
+      error: (err: any) => {
+        console.error('Error al iniciar sesion:', err);
+        alert('Correo o contrasena incorrectos');
+      }
+    });
+  }
+
+  registrarse() {
+    if (!this.registerData.firstName || !this.registerData.email || !this.registerData.password) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+    this.authService.register(this.registerData).subscribe({
+      next: () => {
+        alert('Registro exitoso. Ya puedes iniciar sesion.');
+        document.getElementById('cerrarRegister')?.click();
+      },
+      error: (err: any) => {
+        console.error('Error al registrarse:', err);
+        alert('Error al registrarse. Intenta de nuevo.');
+      }
+    });
+  }
+
+irAMovies() {
+  this.router.navigate(['/movies']);
+}
 }

@@ -39,6 +39,9 @@ public class SecurityConfig {
                         // 2. Rutas públicas: Todo lo que empiece con /api/v1/auth/ está permitido
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // Rutas públicas: Películas (cartelera pública)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+
                         // 3. Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 

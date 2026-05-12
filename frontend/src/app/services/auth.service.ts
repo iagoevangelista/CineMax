@@ -1,7 +1,7 @@
+import { jwtDecode } from 'jwt-decode';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -42,5 +42,7 @@ export class AuthService {
   }
   return 'INVITADO';
 }
-
+register(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, data);
+  }
 }

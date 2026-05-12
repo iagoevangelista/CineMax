@@ -1,0 +1,181 @@
+/* ===== BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0f;
+}
+
+/* ===== HEADER ===== */
+.movies-header {
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%);
+  padding: 48px 0 32px;
+  border-bottom: 1px solid rgba(124,58,237,0.2);
+}
+.movies-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.movies-subtitle {
+  color: #888;
+  margin: 6px 0 0;
+  font-size: 0.95rem;
+}
+
+/* ===== TABS ===== */
+.tabs-bar {
+  display: flex;
+  gap: 8px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 32px;
+}
+.tab-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #aaa;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 28px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.tab-btn:hover {
+  background: rgba(124,58,237,0.15);
+  border-color: rgba(124,58,237,0.4);
+  color: #fff;
+}
+.tab-activo {
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+}
+
+/* ===== GRID ===== */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+}
+
+/* ===== MOVIE CARD ===== */
+.movie-card {
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.movie-card:hover {
+  transform: translateY(-6px);
+}
+
+.movie-poster-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 2/3;
+  background: #1a1a2e;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.movie-poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.movie-card:hover .movie-poster-img {
+  transform: scale(1.05);
+}
+
+/* Overlay al hover */
+.movie-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,15,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.movie-card:hover .movie-overlay {
+  opacity: 1;
+}
+.btn-ver-detalle {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.5);
+}
+
+/* Badges */
+.badge-estreno-grid {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.badge-rating {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(220,38,38,0.9);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Info debajo del poster */
+.movie-card-info {
+  padding: 10px 4px 0;
+}
+.movie-card-title {
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.movie-card-status {
+  color: #c084fc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* ===== SIN RESULTADOS ===== */
+.sin-resultados {
+  text-align: center;
+  color: #666;
+  padding: 80px 0;
+  font-size: 1rem;
+}
+.sin-resultados span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+}
