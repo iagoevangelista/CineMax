@@ -90,3 +90,29 @@
     border: 1px solid #ef5350; color: #ef5350; background-color: transparent;
   }
   .btn-cancel:hover { background-color: rgba(239, 83, 80, 0.1); color: #ef5350; }
+  .card {
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: #00d2ff !important;
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover; /* Recorta la imagen para que encaje perfecto */
+}
+
+h2 {
+    letter-spacing: 2px;
+}
+
+.btn-primary {
+    background: #6f42c1; /* Color púrpura como tu botón anterior */
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #59359a;
+}

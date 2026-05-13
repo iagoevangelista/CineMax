@@ -5,7 +5,6 @@ import { Injectable } from '@angular/core';
 })
 export class BookingService {
   
-  // Tu "mochila" se llama 'reserva'
   private reserva = {
     pelicula: { nombre: '', formato: '', imagen: '' }, 
     cine: 'CINEMAX - PLAZA ANGAMOS',
@@ -35,5 +34,21 @@ export class BookingService {
   // Guarda los asientos que elijas en el Paso 1
   guardarAsientos(asientosSeleccionados: string[]) {
     this.reserva.asientos = asientosSeleccionados;
+  }
+
+  private seleccionSnacks: any[] = [];
+
+  guardarSnacks(snacks: any[]) {
+    this.seleccionSnacks = snacks;
+    localStorage.setItem('snacksSeleccionados', JSON.stringify(snacks));
+  }
+
+  obtenerSnacks() {
+    const snacks = localStorage.getItem('snacksSeleccionados');
+    return snacks ? JSON.parse(snacks) : [];
+  }
+
+  calcularTotalSnacks() {
+    return this.seleccionSnacks.reduce((total, s) => total + (s.precio * s.cantidad), 0);
   }
 }

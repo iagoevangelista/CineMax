@@ -11,10 +11,44 @@
       </ul>
     </div>
 
-    <div class="d-flex align-items-center">
-      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#loginOffcanvas" class="user-icon">
+    <div class="zona-perfil-manual" style="position: relative; display: flex; align-items: center; z-index: 999999;">
+
+      <div *ngIf="!isLogged" 
+           (click)="iniciarSesion()" 
+           style="cursor: pointer; color: white; font-size: 24px;"
+           data-bs-toggle="offcanvas" 
+           data-bs-target="#loginOffcanvas">
         <i class="fa-regular fa-circle-user"></i>
-      </a>
+      </div>
+    
+      <ng-container *ngIf="isLogged">
+        
+        <div (click)="toggleMenu($event)" 
+             style="cursor: pointer; color: white; font-size: 28px; display: flex;">
+          <i class="fa-regular fa-circle-user"></i>
+        </div>
+    
+        <div [style.display]="menuAbierto ? 'block' : 'none'" 
+             style="position: absolute; top: 45px; right: 0; width: 200px; 
+                    background-color: #ffffff; border: 2px solid #333; border-radius: 8px; 
+                    padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
+          
+          <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 8px;">
+            <small style="color: #666; font-size: 11px;">USUARIO ACTIVO:</small><br>
+            <strong style="font-size: 13px; color: #d63384;">{{ userEmail }}</strong>
+          </div>
+    
+          <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;">
+            <i class="fa-solid fa-ticket me-2"></i> Mis Entradas
+          </div>
+    
+          <div (click)="cerrarSesion()" 
+               style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;">
+            <i class="fa-solid fa-power-off me-2"></i> Salir
+          </div>
+        </div>
+    
+      </ng-container>
     </div>
   </div>
 </nav>

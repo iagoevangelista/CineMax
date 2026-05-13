@@ -1,1 +1,107 @@
-<p>tickets works!</p>
+<div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  
+    <div class="progress-wrapper mb-5 mx-auto shadow-sm">
+      <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
+        <div class="progress-line position-absolute" style="z-index: 1;"></div>
+        
+        <div class="progress-step completed position-relative" style="z-index: 2;"><i class="fa-solid fa-couch"></i></div>
+        <div class="progress-step active position-relative" style="z-index: 2;"><i class="fa-solid fa-ticket"></i></div>
+        <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-burger"></i></div>
+        <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-regular fa-credit-card"></i></div>
+      </div>
+    </div>
+  
+    <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">SELECCIONA TUS ENTRADAS</h3>
+  
+    <div class="row g-5">
+      <div class="col-lg-8">
+        
+        <div class="tickets-container p-4 rounded-4 mb-4">
+          
+          <div class="d-flex justify-content-between align-items-center ticket-row pb-4 mb-4">
+            <div>
+              <h5 class="fw-bold text-white mb-1">GENERAL (ADULTO)</h5>
+              <p class="text-muted mb-0 small">Válido para mayores de 12 años</p>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+              <span class="fs-5 fw-bold text-light">S/ 25.00</span>
+              <div class="qty-control d-flex align-items-center gap-3">
+                <button class="btn-qty" (click)="cambiarCantidad('adulto', -1)"><i class="fa-solid fa-minus"></i></button>
+                <span class="fs-5 fw-bold text-white w-25 text-center">{{ entradas.adulto }}</span>
+                <button class="btn-qty" (click)="cambiarCantidad('adulto', 1)"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+          </div>
+  
+          <div class="d-flex justify-content-between align-items-center ticket-row">
+            <div>
+              <h5 class="fw-bold text-white mb-1">NIÑO</h5>
+              <p class="text-muted mb-0 small">De 2 a 11 años (Requiere DNI)</p>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+              <span class="fs-5 fw-bold text-light">S/ 18.00</span>
+              <div class="qty-control d-flex align-items-center gap-3">
+                <button class="btn-qty" (click)="cambiarCantidad('nino', -1)"><i class="fa-solid fa-minus"></i></button>
+                <span class="fs-5 fw-bold text-white w-25 text-center">{{ entradas.nino }}</span>
+                <button class="btn-qty" (click)="cambiarCantidad('nino', 1)"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+  
+        <div class="alert alert-dark custom-alert d-flex align-items-center gap-3">
+          <i class="fa-solid fa-circle-info fs-4 text-info"></i>
+          <div>
+            Tienes <strong>{{ cantidadAsientos }} asientos</strong> seleccionados. 
+            Has elegido <strong>{{ totalEntradasElegidas }}</strong> entradas.
+          </div>
+        </div>
+  
+      </div>
+  
+      <div class="col-lg-4">
+        <div class="p-4 rounded-4 summary-card">
+          <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
+          
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
+          <div class="d-flex gap-3 mb-4 align-items-center">
+            <img src="https://sacnkprodpecms.blob.core.windows.net/content/posters/HO00008934.jpg" alt="Pelicula" width="65" class="rounded-3 shadow">
+            <div>
+              <p class="mb-1 fw-bold text-white lh-sm fs-5">{{ resumenActual.pelicula?.nombre || 'Película' }}</p>
+              <span class="badge py-1 px-2 pastel-badge">{{ resumenActual.pelicula?.formato || '2D' }}</span>
+            </div>
+          </div>
+  
+          <hr class="border-secondary mb-4 opacity-50">
+  
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Cine y Asientos</h6>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-light small">{{ resumenActual.cine }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-4">
+            <span class="text-light small">Asientos:</span>
+            <span class="fw-bold selection-text">{{ resumenActual.asientos.join(', ') }}</span>
+          </div>
+  
+          <hr class="border-secondary mb-4 opacity-50">
+  
+          <div class="d-flex justify-content-between align-items-end mb-5">
+            <span class="text-uppercase fw-bold summary-label">Total a pagar</span>
+            <span class="fs-3 fw-bold text-white">S/ {{ totalPagar | number:'1.2-2' }}</span>
+          </div>
+  
+          <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
+                  (click)="irSiguientePaso()">
+            CONTINUAR <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          
+          <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel"
+                  (click)="regresar()">
+            REGRESAR <i class="fa-solid fa-arrow-left"></i>
+          </button>
+  
+        </div>
+      </div>
+    </div>
+  </div>
