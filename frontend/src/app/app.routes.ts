@@ -8,7 +8,9 @@ import { authGuard } from './services/auth.guard';
 import { MovieDetail } from './pages/movie-detail/movie-detail';
 import { Movies } from './pages/movies/movies';
 import { Seats } from './pages/checkout/seats/seats';
+import { Tickets } from './pages/checkout/tickets/tickets';
 import { ClientLayout } from './layouts/client-layout/client-layout';
+import { Snacks } from './pages/checkout/snacks/snacks';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -17,11 +19,11 @@ export const routes: Routes = [
 
   {
     path: '',
-    component: ClientLayout, // Este es el padre
+    component: ClientLayout,
     children: [
-      { path: 'seats', component: Seats }, // Esta es la hija que aparecerá en el router-outlet
-      // { path: 'tickets', component: Tickets },
-      // ... más páginas del cliente
+      { path: 'seats', component: Seats },
+      { path: 'tickets', component: Tickets },
+      { path: 'snacks', component: Snacks }
     ]
   },
   

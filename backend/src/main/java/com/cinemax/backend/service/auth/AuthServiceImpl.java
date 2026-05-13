@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
-        var role = roleRepository.findById(1)
+        var role = roleRepository.findById(4)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado. Asegúrate de insertarlo en la BD."));
 
         UserAccount user = new UserAccount();

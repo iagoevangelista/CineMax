@@ -42,6 +42,9 @@ public class SecurityConfig {
                         // Rutas públicas: Películas (cartelera pública)
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
 
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/error").permitAll()
+
                         // 3. Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 

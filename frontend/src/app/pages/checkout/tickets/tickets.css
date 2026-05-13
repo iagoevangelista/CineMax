@@ -1,0 +1,41 @@
+/* BARRITA DE PROGRESO */
+.progress-wrapper { background-color: #1e1e24; padding: 15px 30px; border-radius: 40px; width: 70%; }
+.progress-line { height: 2px; background-color: #444; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
+.progress-step {
+  width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background-color: #1a1a1c; border: 2px solid #444; color: #777; font-size: 1.2rem; transition: all 0.3s ease;
+}
+/* Paso activo actual (Tickets) */
+.progress-step.active { border-color: #8a2be2; color: #8a2be2; box-shadow: 0 0 10px rgba(138, 43, 226, 0.2); }
+/* Paso ya completado (Asientos) -> Verde Vivo que pediste antes */
+.progress-step.completed { border-color: #00e676; color: #00e676; background-color: rgba(0, 230, 118, 0.1); }
+
+/* LISTA DE TICKETS */
+.tickets-container { background-color: #161619; border: 1px solid #2a2a2a; }
+.ticket-row { border-bottom: 1px solid #2a2a2a; }
+.ticket-row:last-child { border-bottom: none; }
+
+/* CONTROLES + Y - */
+.btn-qty {
+  width: 35px; height: 35px; border-radius: 50%;
+  border: 1px solid #8a2be2; background-color: transparent;
+  color: #8a2be2; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+  transition: 0.3s ease; cursor: pointer;
+}
+.btn-qty:hover { background-color: #8a2be2; color: #fff; transform: scale(1.1); }
+.btn-qty:active { transform: scale(0.95); }
+
+/* ALERTA */
+.custom-alert { background-color: #1a1a1c; border: 1px solid #2a2a2a; color: #ccc; }
+
+/* RESUMEN (Mismos de seats.css) */
+.summary-card { background-color: #161619; border: 1px solid #2a2a2a; }
+.summary-label { color: #888; font-size: 0.95rem; }
+.pastel-badge { background-color: #222; color: #ccc; border: 1px solid #444; font-size: 0.9rem; }
+.selection-text { color: #ffffff !important; font-size: 1.1rem !important; }
+
+/* BOTONES */
+.btn-continue { background-color: #8a2be2; color: #fff !important; border: none; transition: 0.3s; }
+.btn-continue:hover { background-color: #7c26cc; transform: scale(1.02); }
+.btn-cancel { border: 1px solid #888; color: #888; background-color: transparent; transition: 0.3s; }
+.btn-cancel:hover { background-color: rgba(255,255,255,0.1); color: #fff; border-color: #fff; }

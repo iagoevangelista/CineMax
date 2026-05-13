@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- Necesario para los modales
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../../services/booking';
-import { AuthService } from '../../../services/auth.service'; // <-- Servicio de tu compañera
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-seats',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule], // <-- Agregamos FormsModule
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './seats.html',
   styleUrl: './seats.css'
 })
@@ -63,25 +63,23 @@ export class Seats implements OnInit {
       alert('Por favor selecciona al menos un asiento.');
       return;
     }
-  
-    // Guardamos los asientos en el servicio para no perderlos
+    const isUserLoggedIn = this.authService.isLoggedIn();
     this.bookingService.guardarAsientos(this.asientosSeleccionados);
-  
-    // Verificamos si el usuario está logueado
-    // Nota: Suponiendo que tu AuthService tiene un método o variable 'isLoggedIn'
-    const isUserLoggedIn = !!localStorage.getItem('token'); // Una forma rápida de verificar
-  
+    console.log("¿El sistema cree que estoy logueado?:", isUserLoggedIn);
+
     if (isUserLoggedIn) {
-      // Si está logueado, vamos directo a tickets
+      // Solo si el servicio confirma que el token es válido, pasamos
       this.router.navigate(['/tickets']);
     } else {
-      // Si NO está logueado, disparamos el modal de login que está en el Layout
-      // Buscamos el botón "fantasma" o el ID del offcanvas
-      const loginTrigger = document.querySelector('[data-bs-target="#loginOffcanvas"]') as HTMLElement;
+      // Si no, forzamos la apertura del panel lateral
+      console.log("No hay sesión. Abriendo panel de login...");
+      const loginTrigger = document.querySelector('.user-icon') as HTMLElement;
       if (loginTrigger) {
-        loginTrigger.click();
+        loginTrigger.click(); // Esto abre el panel derecho 
       } else {
-        alert('Por favor, inicia sesión para continuar con tu compra.');
+        // Intento por data-target si no encuentra la clase
+        const alternativeTrigger = document.querySelector('[data-bs-target="#loginOffcanvas"]') as HTMLElement;
+        alternativeTrigger?.click();
       }
     }
   }
