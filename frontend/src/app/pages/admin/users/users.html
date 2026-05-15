@@ -86,7 +86,7 @@
 </div>
 
 <div class="modal fade text-dark" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content bg-dark text-white">
       <div class="modal-header" style="background-color: var(--primary-color); color: white;">
         <h5 class="modal-title fw-bold">Registrar Nuevo Colaborador</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="cerrarModalNuevoUser"></button>
@@ -95,57 +95,61 @@
         <form class="row g-3">
           <div class="col-md-6">
             <label class="form-label fw-bold">Nombre</label>
-            <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.firstName" name="nombre">
+            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.firstName" name="nombre">
           </div>
           <div class="col-md-6">
             <label class="form-label fw-bold">Apellidos</label>
-            <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.lastName" name="apellido">
+            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.lastName" name="apellido">
           </div>
           
           <div class="col-md-6">
             <label class="form-label fw-bold">Tipo Doc.</label>
-            <select class="form-select" [(ngModel)]="nuevoUsuario.idDocumentType" name="docType">
+            <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.idDocumentType" name="docType">
               <option [ngValue]="1">DNI</option>
               <option [ngValue]="2">Carné de Extranjería</option>
             </select>
           </div>
           <div class="col-md-6">
             <label class="form-label fw-bold">Nro. Documento</label>
-            <input type="text" class="form-control" [(ngModel)]="nuevoUsuario.documentNumber" name="docNumber">
+            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.documentNumber" name="docNumber">
           </div>
 
           <div class="col-md-6">
             <label class="form-label fw-bold">Correo Corporativo</label>
-            <input type="email" class="form-control" [(ngModel)]="nuevoUsuario.email" name="email">
+            <input type="email" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.email" name="email">
           </div>
           <div class="col-md-6">
             <label class="form-label fw-bold">Contraseña Temporal</label>
-            <input type="password" class="form-control" [(ngModel)]="nuevoUsuario.password" name="password">
+            <input type="password" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.password" name="password">
           </div>
           
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Rol Inicial</label>
-            <select class="form-select border-success" [(ngModel)]="nuevoUsuario.idRole" name="rolCreate">
-              <option [ngValue]="1">ADMIN</option>
-              <option [ngValue]="2">GERENTE GENERAL</option>
-              <option [ngValue]="3">GERENTE DE MKT</option>
-              <option [ngValue]="5">GERENTE DE OPERACIONES</option>
+          <div class="mb-3">
+            <label class="form-label">Rol del Colaborador</label>
+            <select class="form-select bg-dark text-white border-secondary" 
+                    [(ngModel)]="nuevoUsuario.idRole" 
+                    name="idRole" 
+                    (change)="onRoleChangeCreate()">
+              <option [value]="2">Gerente General</option>
+              <option [value]="3">Gerente de Marketing</option>
+              <option [value]="5">Gerente de Operaciones</option>
             </select>
           </div>
           
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Sede Asignada</label>
-            <select class="form-select border-primary" [(ngModel)]="nuevoUsuario.idVenue" name="sede">
-              <option [ngValue]="0">Seleccione sede...</option>
-              <option *ngFor="let sede of listaSedes" [ngValue]="sede.idVenue">
+          <div class="mb-3" *ngIf="mostrarSedeCreate">
+            <label class="form-label">Asignar Sede</label>
+            <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.idVenue" name="idVenue">
+              <option [value]="0">Seleccione sede...</option>
+              <option *ngFor="let sede of listaSedes" [value]="sede.idVenue">
                 {{ sede.nameVenue }}
               </option>
             </select>
-            <small class="text-muted">Obligatorio para Marketing y Operaciones</small>
+            <div class="form-text text-secondary">
+              Solo se muestran sedes que no tienen un gerente de este tipo asignado.
+            </div>
           </div>
         </form>
       </div>
-      <div class="modal-footer bg-light">
+      <div class="modal-footer border-secondary">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success fw-bold" (click)="guardarNuevoUsuario()">Crear Colaborador</button>
       </div>

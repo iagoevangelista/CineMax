@@ -18,30 +18,30 @@ public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
 
-   @Override
-public List<MovieListDTO> getMoviesByStatus(String status) {
-    List<Movie> peliculasPesadas = movieRepository.findByStatusAndIsActiveTrue(status);
+    @Override
+    public List<MovieListDTO> getMoviesByStatus(String status) {
+        List<Movie> peliculasPesadas = movieRepository.findByStatusAndIsActiveTrue(status);
 
-    List<MovieListDTO> peliculasLigeras = new ArrayList<>();
+        List<MovieListDTO> peliculasLigeras = new ArrayList<>();
 
-    for (Movie peli : peliculasPesadas) {
-        MovieListDTO dto = new MovieListDTO();
-        
-        dto.setIdMovie(peli.getIdMovie());
-        dto.setTitleMovie(peli.getTitleMovie());
-        dto.setPosterUrl(peli.getPosterUrl());
-        dto.setStatus(peli.getStatus());
-        dto.setPremiereWeek(peli.getPremiereWeek());
+        for (Movie peli : peliculasPesadas) {
+            MovieListDTO dto = new MovieListDTO();
+            
+            dto.setIdMovie(peli.getIdMovie());
+            dto.setTitleMovie(peli.getTitleMovie());
+            dto.setPosterUrl(peli.getPosterUrl());
+            dto.setStatus(peli.getStatus());
+            dto.setPremiereWeek(peli.getPremiereWeek());
 
-        if (peli.getClassification() != null) {
-            dto.setRating(peli.getClassification().getNameClassification());
+            if (peli.getClassification() != null) {
+                dto.setRating(peli.getClassification().getNameClassification());
+            }
+            
+            peliculasLigeras.add(dto);
         }
-        
-        peliculasLigeras.add(dto);
-    }
 
-    return peliculasLigeras;
-}
+        return peliculasLigeras;
+    }
 
     @Override
     public MovieDetailDTO getMovieById(Integer id) {

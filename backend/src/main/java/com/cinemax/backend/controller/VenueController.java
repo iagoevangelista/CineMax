@@ -1,6 +1,7 @@
 package com.cinemax.backend.controller;
 
 import com.cinemax.backend.model.dto.venue.VenueRequestDTO;
+import com.cinemax.backend.model.dto.venue.VenueDropdownDTO;
 import com.cinemax.backend.model.dto.venue.VenueResponseDTO;
 import com.cinemax.backend.service.venue.VenueService;
 import lombok.RequiredArgsConstructor;
@@ -44,4 +45,11 @@ public class VenueController {
         venueService.deleteVenue(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/available-for-role/{roleId}")
+    @PreAuthorize("hasAuthority('ROLE_GERENTE_GRAL')")
+    public ResponseEntity<List<VenueDropdownDTO>> getAvailableVenuesForRole(@PathVariable Integer roleId) {
+        return ResponseEntity.ok(venueService.getVenuesWithoutRole(roleId));
+    }
+
 }

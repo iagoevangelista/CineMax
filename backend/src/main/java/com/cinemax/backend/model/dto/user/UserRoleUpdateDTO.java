@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class UserRoleUpdateDTO {
     private Integer idRole; 
+    private Integer idVenue;
 }

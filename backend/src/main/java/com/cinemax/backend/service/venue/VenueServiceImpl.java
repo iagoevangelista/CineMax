@@ -1,16 +1,19 @@
 package com.cinemax.backend.service.venue;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.cinemax.backend.model.dto.venue.VenueDropdownDTO;
 import com.cinemax.backend.model.dto.venue.VenueRequestDTO;
 import com.cinemax.backend.model.dto.venue.VenueResponseDTO;
 import com.cinemax.backend.model.entity.District;
 import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.DistrictRepository;
 import com.cinemax.backend.repository.VenueRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -134,5 +137,20 @@ public class VenueServiceImpl implements VenueService {
             throw new RuntimeException("La sede no existe");
         }
         venueRepository.deleteById(idVenue);
+    }
+
+    @Override
+    public List<VenueDropdownDTO> getVenuesWithoutRole(Integer roleId) {
+        List<Venue> availableVenues = venueRepository.findVenuesWithoutSpecificRole(roleId);
+        List<VenueDropdownDTO> responseList = new ArrayList<>();
+        for (Venue venue : availableVenues) {
+            VenueDropdownDTO dto = new VenueDropdownDTO(
+                    venue.getIdVenue(),
+                    venue.getNameVenue()
+            );
+            
+            responseList.add(dto);
+        }
+        return responseList;
     }
 }

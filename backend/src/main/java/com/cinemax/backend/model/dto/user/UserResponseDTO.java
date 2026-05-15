@@ -15,8 +15,8 @@ public class UserResponseDTO {
     private String lastName;
     private String email;
     private Integer idRole;
-    private String roleName;    // Ej: "ADMIN", "GERENTE_GRAL"
-    private String venueName;   // Ej: "Plaza San Miguel" (Puede ser null)
-    private String status;      // Ej: "Activo"
+    private String roleName;   
+    private String venueName;   
+    private String status;      
 
 }

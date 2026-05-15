@@ -24,4 +24,10 @@ export class VenueService {
     // pronto necesitaremos enviarle el Token JWT, pero por ahora armamos la estructura.
     return this.http.post<Venue>(this.apiUrl, venueData);
   }
+
+  // NUEVO: Método para traer sedes filtradas según el rol
+  getAvailableVenuesForRole(roleId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/available-for-role/${roleId}`);
+  }
+
 }

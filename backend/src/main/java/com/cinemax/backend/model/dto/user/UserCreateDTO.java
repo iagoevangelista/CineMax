@@ -16,8 +16,6 @@ public class UserCreateDTO {
     private String password;
     private Integer idRole;
     private Integer idVenue;
-
-    // NUEVOS CAMPOS: Son obligatorios para tu Base de Datos
     private String documentNumber;
     private Integer idDocumentType;
 }

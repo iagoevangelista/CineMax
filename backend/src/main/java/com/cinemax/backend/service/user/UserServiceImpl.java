@@ -1,22 +1,23 @@
 package com.cinemax.backend.service.user;
 
-import com.cinemax.backend.model.entity.DocumentType;
-import com.cinemax.backend.model.entity.Venue;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
 import com.cinemax.backend.model.dto.user.UserRoleUpdateDTO;
+import com.cinemax.backend.model.entity.DocumentType;
 import com.cinemax.backend.model.entity.Role;
 import com.cinemax.backend.model.entity.UserAccount;
+import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import com.cinemax.backend.repository.VenueRepository;
 
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -120,26 +121,48 @@ public class UserServiceImpl implements UserService {
         Role nuevoRol = roleRepository.findById(request.getIdRole())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
+        // --- REGLAS DE NEGOCIO PARA LA ACTUALIZACIÓN ---
+        
+        // Si lo estamos cambiando a Gerente General (Id 2)
+        if (request.getIdRole() == 2) {
+            // Verificamos si YA existe otro Gerente General distinto a este usuario
+            UserAccount gerenteActual = userRepository.findByRole_IdRoleAndStatus(2, "Activo").orElse(null);
+            if (gerenteActual != null && !gerenteActual.getIdUser().equals(idUser)) {
+                throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
+            }
+            // Le quitamos la sede porque el Gerente Gral es de toda la cadena
+            usuarioExistente.setVenue(null); 
+        } 
+        // Si lo estamos cambiando a Gerente de MKT (3) u Operaciones (5)
+        else if (request.getIdRole() == 3 || request.getIdRole() == 5) {
+            if (request.getIdVenue() == null || request.getIdVenue() == 0) {
+                throw new RuntimeException("Error: Este rol requiere ser asignado a una Sede.");
+            }
+            
+            // Verificamos si la sede ya tiene un gerente de este tipo (que no sea el mismo usuario)
+            UserAccount gerenteSede = userRepository.findByRole_IdRoleAndVenue_IdVenueAndStatus(
+                    request.getIdRole(), request.getIdVenue(), "Activo").orElse(null);
+                    
+            if (gerenteSede != null && !gerenteSede.getIdUser().equals(idUser)) {
+                throw new RuntimeException("Error: La sede seleccionada ya tiene un gerente activo de este tipo.");
+            }
+
+            // Buscamos la nueva sede y se la asignamos
+            Venue nuevaSede = venueRepository.findById(request.getIdVenue())
+                    .orElseThrow(() -> new RuntimeException("Sede no encontrada"));
+            usuarioExistente.setVenue(nuevaSede);
+        } 
+        // Si es cualquier otro rol (ej. Cliente), no validamos sede
+        else {
+            usuarioExistente.setVenue(null);
+        }
+
+        // Aplicamos el nuevo rol y guardamos
         usuarioExistente.setRole(nuevoRol);
         UserAccount usuarioActualizado = userRepository.save(usuarioExistente);
 
-        UserResponseDTO response = new UserResponseDTO();
-        response.setIdUser(usuarioActualizado.getIdUser());
-        response.setFirstName(usuarioActualizado.getFirstName());
-        response.setLastName(usuarioActualizado.getLastName());
-        response.setEmail(usuarioActualizado.getEmail());
-
-        // NUEVO: También actualizamos aquí para la respuesta de edición
-        response.setStatus(usuarioActualizado.getStatus());
-
-        response.setRoleName(nuevoRol.getRoleName());
-        response.setIdRole(nuevoRol.getIdRole());
-
-        if (usuarioActualizado.getVenue() != null) {
-            response.setVenueName(usuarioActualizado.getVenue().getNameVenue());
-        }
-
-        return response;
+        // Retornamos usando el método de mapeo que ya tienes abajo para mantener el código limpio
+        return mapToResponseDTO(usuarioActualizado);
     }
 
     @Override

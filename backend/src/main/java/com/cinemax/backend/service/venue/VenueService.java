@@ -1,5 +1,6 @@
 package com.cinemax.backend.service.venue;
 
+import com.cinemax.backend.model.dto.venue.VenueDropdownDTO;
 import com.cinemax.backend.model.dto.venue.VenueRequestDTO;
 import com.cinemax.backend.model.dto.venue.VenueResponseDTO;
 
@@ -10,4 +11,5 @@ public interface VenueService {
     VenueResponseDTO createVenue(VenueRequestDTO request);
     VenueResponseDTO updateVenue(Integer idVenue, VenueRequestDTO request);
     void deleteVenue(Integer idVenue);
+    List<VenueDropdownDTO> getVenuesWithoutRole(Integer roleId);
 }
