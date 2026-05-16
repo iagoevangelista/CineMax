@@ -19,17 +19,23 @@ export class ClientLayout implements OnInit{
   userEmail: string = '';
   menuAbierto: boolean = false;
 
-  
-
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
 
-
-
   ngOnInit() {
     this.verificarSesion();
+  }
+
+  vistaActiva: string = 'login'; 
+
+  cambiarVista(vista: string, event?: Event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    this.vistaActiva = vista;
   }
 
   iniciarSesion() {
@@ -40,17 +46,15 @@ export class ClientLayout implements OnInit{
 
     this.authService.login(this.loginData).subscribe({
       next: (res: any) => {
-        // Busca el botón de cerrar del offcanvas específico por su data-bs-dismiss
         const panelLogin = document.getElementById('loginOffcanvas');
         const closeButton = panelLogin?.querySelector('[data-bs-dismiss="offcanvas"]') as HTMLElement;
-        closeButton?.click(); // Esto cierra la pantalla de la derecha automáticamente 
+        closeButton?.click(); 
 
         localStorage.setItem('email', this.loginData.email);
         document.getElementById('btn-cerrar-panel')?.click();
 
-        this.verificarSesion(); // Actualiza isLogged y userEmail  [cite: 1, 48, 86-91]
+        this.verificarSesion(); 
 
-        // Redirección inteligente que ya configuramos  [cite: 1, 45-56]
         const rolUsuario = this.authService.getRole(); 
         if (rolUsuario && rolUsuario.toUpperCase() === 'CLIENTE') {
           if (this.router.url.includes('/seats') || this.router.url.includes('/tickets')) {
@@ -82,11 +86,9 @@ export class ClientLayout implements OnInit{
     });
   }
 
-
   verificarSesion() {
     this.isLogged = this.authService.isLoggedIn();
     if (this.isLogged) {
-      // Ajusta 'email' al nombre exacto con el que lo guardas en tu localStorage
       this.userEmail = localStorage.getItem('email') || 'Mi Cuenta'; 
     }
   }
@@ -100,12 +102,10 @@ export class ClientLayout implements OnInit{
 
   toggleMenu(event: Event) {
     event.preventDefault();
-    event.stopPropagation(); // BLOQUEA el error de Bootstrap/Popper
+    event.stopPropagation(); 
     this.menuAbierto = !this.menuAbierto;
-    console.log("¿Menú abierto?", this.menuAbierto);
   }
 
-  // Agrega este listener para cerrar el menú si haces clic en cualquier otro lado de la pantalla
   @HostListener('document:click', ['$event'])
   clickFuera(event: any) {
     this.menuAbierto = false;

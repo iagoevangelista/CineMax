@@ -191,4 +191,36 @@ public class UserServiceImpl implements UserService {
         }
         return response;
     }
+
+    @Override
+    public void activateUser(Integer idUser) {
+        UserAccount user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // --- VALIDACIONES ANTES DE REACTIVAR ---
+        if (user.getRole() != null) {
+            Integer idRole = user.getRole().getIdRole();
+
+            // 1. Si es Gerente General (Id 2)
+            if (idRole == 2) {
+                if (userRepository.existsByRole_IdRoleAndStatus(2, "Activo")) {
+                    throw new RuntimeException("No se puede reactivar: Ya existe un Gerente General activo actualmente en el sistema.");
+                }
+            } 
+            // 2. Si es Gerente de MKT (3) u Operaciones (5)
+            else if (idRole == 3 || idRole == 5) {
+                if (user.getVenue() != null) {
+                    Integer idVenue = user.getVenue().getIdVenue();
+                    if (userRepository.existsByRole_IdRoleAndVenue_IdVenueAndStatus(idRole, idVenue, "Activo")) {
+                        throw new RuntimeException("No se puede reactivar: La sede " + user.getVenue().getNameVenue() + " ya está ocupada por otro gerente activo.");
+                    }
+                }
+            }
+        }
+
+        // Si pasa las validaciones (nadie ha ocupado su puesto), lo reactivamos con seguridad
+        user.setStatus("Activo");
+        userRepository.save(user);
+    }
+
 }

@@ -14,10 +14,10 @@
     <div class="zona-perfil-manual" style="position: relative; display: flex; align-items: center; z-index: 999999;">
 
       <div *ngIf="!isLogged" 
-           (click)="iniciarSesion()" 
+           (click)="cambiarVista('login')" 
            style="cursor: pointer; color: white; font-size: 24px;"
            data-bs-toggle="offcanvas" 
-           data-bs-target="#loginOffcanvas">
+           data-bs-target="#authOffcanvas">
         <i class="fa-regular fa-circle-user"></i>
       </div>
     
@@ -94,34 +94,66 @@
 
 
 
-<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="loginOffcanvas">
+<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="authOffcanvas">
   <div class="offcanvas-header justify-content-end">
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="btn-cerrar-panel"></button>
   </div>
   
   <div class="offcanvas-body d-flex flex-column align-items-center px-4 pt-0">
     <img src="assets/Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
     
-    <h3 class="text-center login-title mb-5">¡Hola! Qué bueno verte por acá.</h3>
+    <div class="w-100" *ngIf="vistaActiva === 'login'">
+      <h3 class="text-center login-title mb-5">¡Hola! Qué bueno verte por acá.</h3>
 
-    <form class="w-100" (ngSubmit)="iniciarSesion()">
-      <div class="input-group mb-4 custom-input-group">
-        <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
-        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+      <form class="w-100" (ngSubmit)="iniciarSesion()">
+        <div class="input-group mb-4 custom-input-group">
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
+          <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+        </div>
+
+        <div class="input-group mb-5 custom-input-group">
+          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
+          <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
+        </div>
+
+        <button type="submit" class="btn btn-login w-100 text-white">INICIAR SESIÓN</button>
+      </form>
+
+      <div class="mt-5 text-center login-links">
+        <a href="#" class="d-block mb-3 text-decoration-none">¿OLVIDASTE TU CONTRASEÑA?</a>
+        <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" class="register-link" (click)="cambiarVista('registro')">REGÍSTRATE</span>
       </div>
-
-      <div class="input-group mb-5 custom-input-group">
-        <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
-        <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
-      </div>
-
-      <button type="submit" class="btn btn-login w-100 text-white">INICIAR SESIÓN</button>
-    </form>
-
-    <div class="mt-5 text-center login-links">
-      <a href="#" class="d-block mb-3 text-decoration-none">¿OLVIDASTE TU CONTRASEÑA?</a>
-      <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
-      <a href="#" class="text-decoration-none register-link" data-bs-dismiss="offcanvas" data-bs-toggle="offcanvas" data-bs-target="#registerOffcanvas">REGÍSTRATE</a>
     </div>
+
+    <div class="w-100" *ngIf="vistaActiva === 'registro'">
+      <h3 class="text-center login-title mb-4" style="color: var(--primary-color);">Únete a CineMax</h3>
+
+      <form class="w-100" (ngSubmit)="registrarse()">
+        <div class="input-group mb-3 custom-input-group">
+          <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
+        </div>
+        
+        <div class="input-group mb-3 custom-input-group">
+          <input type="text" class="form-control" placeholder="APELLIDOS" name="lastName" [(ngModel)]="registerData.lastName" required>
+        </div>
+
+        <div class="input-group mb-3 custom-input-group">
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
+        </div>
+
+        <div class="input-group mb-5 custom-input-group">
+          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" required>
+        </div>
+
+        <button type="submit" class="btn btn-login w-100 text-white">CREAR CUENTA</button>
+      </form>
+
+      <div class="mt-4 text-center login-links">
+        <span class="small" style="color: #999;">¿YA TIENES CUENTA? </span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" class="register-link" (click)="cambiarVista('login')">INICIA SESIÓN AQUÍ</span>
+      </div>
+    </div>
+
   </div>
 </div>

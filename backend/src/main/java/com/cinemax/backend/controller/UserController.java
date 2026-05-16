@@ -48,4 +48,12 @@ public class UserController {
         UserResponseDTO nuevoUsuario = userService.createUser(request);
         return ResponseEntity.ok(nuevoUsuario);
     }
+
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GRAL', 'ADMIN', 'GERENTE_GRAL')")
+    public ResponseEntity<Void> activateUser(@PathVariable Integer id) {
+        userService.activateUser(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

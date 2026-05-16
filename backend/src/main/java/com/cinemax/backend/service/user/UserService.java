@@ -11,4 +11,5 @@ public interface UserService {
     UserResponseDTO updateUserRole(Integer idUser, UserRoleUpdateDTO request);
     UserResponseDTO createUser(UserCreateDTO request);;
     void deleteUser(Integer idUser);
+    void activateUser(Integer idUser);
 }

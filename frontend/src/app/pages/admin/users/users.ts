@@ -32,8 +32,32 @@ export class Users implements OnInit {
     idVenue: 0,
   };
 
-  // <-- Bandera que controla el HTML -->
-  mostrarSedeCreate = false; // Empieza en falso porque el idRole por defecto es 2
+  mostrarSedeCreate = false; 
+
+  mostrarSedeUpdate = false;
+  nuevoIdVenue: number = 0;
+
+  filtroEstado: string = 'Activo';
+  filtroRol: string = 'TODOS';
+  filtroSede: string = 'TODOS';
+
+  get rolesDisponibles() {
+    return [...new Set(this.listaUsuarios.map(u => u.roleName))];
+  }
+
+  get sedesDisponibles() {
+    return [...new Set(this.listaUsuarios.map(u => u.venueName || 'Acceso Total'))];
+  }
+
+  get usuariosFiltrados() {
+    return this.listaUsuarios.filter(user => {
+      const cumpleEstado = this.filtroEstado === 'TODOS' || user.status === this.filtroEstado;
+      const cumpleRol = this.filtroRol === 'TODOS' || user.roleName === this.filtroRol;
+      const cumpleSede = this.filtroSede === 'TODOS' || (user.venueName || 'Acceso Total') === this.filtroSede;
+      
+      return cumpleEstado && cumpleRol && cumpleSede;
+    });
+  }
 
   constructor(
     private userService: UserService, 
@@ -65,27 +89,40 @@ export class Users implements OnInit {
 
   // --- NUEVA FUNCIÓN ESTRELLA ---
   // Esta función se activará desde el HTML cada vez que toques el <select> de Rol
-  onRoleChangeCreate() {
-    // Si eligen Rol 1 o 2 (Admin o Gerente General)
-    if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
-      this.mostrarSedeCreate = false; // Bajamos la bandera (el HTML ocultará el div de sede)
-      this.nuevoUsuario.idVenue = 0;  // Limpiamos los datos
-      this.listaSedes = [];           // Vaciamos la lista de sedes
-    } 
-    // Si eligen Rol 3 o 5 (Gerentes de Sede)
-    else {
-      this.mostrarSedeCreate = true;  // Subimos la bandera (el HTML mostrará el div de sede)
-      this.nuevoUsuario.idVenue = 0;  // Obligamos al usuario a seleccionar una de la lista
+  // --- FUNCIÓN PARA EL MODAL DE ACTUALIZAR ROL ---
+  onRoleChangeUpdate() {
+    if (this.nuevoIdRole == 1 || this.nuevoIdRole == 2) {
+      this.mostrarSedeUpdate = false;
+      this.nuevoIdVenue = 0;
+    } else {
+      this.mostrarSedeUpdate = true;
       
-      // Llamamos a tu genial Endpoint en Spring Boot
-      this.venueService.getAvailableVenuesForRole(this.nuevoUsuario.idRole).subscribe({
+      // QUITAMOS getVenues() Y VOLVEMOS AL MÉTODO QUE FILTRA DESDE EL BACKEND
+      this.venueService.getAvailableVenuesForRole(this.nuevoIdRole).subscribe({
         next: (sedesDisponibles) => {
-          this.listaSedes = sedesDisponibles; // Llenamos la lista solo con las que devolvió SQL Server
+          this.listaSedes = sedesDisponibles;
           this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error("Error al traer sedes disponibles:", err);
-        }
+        error: (err) => console.error("Error al traer sedes filtradas:", err)
+      });
+    }
+  }
+
+  // --- FUNCIÓN PARA EL MODAL DE CREAR NUEVO COLABORADOR ---
+  onRoleChangeCreate() {
+    if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
+      this.mostrarSedeCreate = false;
+      this.nuevoUsuario.idVenue = 0;
+    } else {
+      this.mostrarSedeCreate = true;
+      
+      // QUITAMOS getVenues() Y VOLVEMOS AL MÉTODO QUE FILTRA DESDE EL BACKEND
+      this.venueService.getAvailableVenuesForRole(this.nuevoUsuario.idRole).subscribe({
+        next: (sedesDisponibles) => {
+          this.listaSedes = sedesDisponibles;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error("Error al traer sedes filtradas:", err)
       });
     }
   }
@@ -93,20 +130,34 @@ export class Users implements OnInit {
   abrirModalRol(usuario: any) {
     this.usuarioSeleccionado = usuario;
     this.nuevoIdRole = usuario.idRole; 
+    this.nuevoIdVenue = usuario.idVenue || 0; // Cargamos su sede actual si tiene
+    this.onRoleChangeUpdate(); // Verificamos si debemos mostrar el selector de sede al abrir el modal
   }
 
   guardarNuevoRol() {
     if (!this.usuarioSeleccionado || this.nuevoIdRole === 0) return;
 
-    this.userService.updateUserRole(this.usuarioSeleccionado.idUser, this.nuevoIdRole).subscribe({
+    // Validación: Si es gerente 3 o 5, debe tener sede
+    if ((this.nuevoIdRole == 3 || this.nuevoIdRole == 5) && this.nuevoIdVenue == 0) {
+      alert("¡Atención! Un Gerente de Marketing u Operaciones DEBE tener una nueva sede asignada.");
+      return;
+    }
+
+    // Armamos el "paquete" con los nuevos datos
+    const payloadUpdate = {
+      idRole: this.nuevoIdRole,
+      idVenue: this.nuevoIdVenue == 0 ? null : this.nuevoIdVenue
+    };
+
+    this.userService.updateUserRole(this.usuarioSeleccionado.idUser, payloadUpdate).subscribe({
       next: (res) => {
-        alert('¡Rol actualizado con éxito!');
+        alert('¡Rol y permisos actualizados con éxito!');
         document.getElementById('cerrarModalRol')?.click();
         this.cargarUsuarios(); 
       },
       error: (err) => {
         console.error("Error al actualizar:", err);
-        alert('Hubo un error al actualizar el rol.');
+        alert('Hubo un error al actualizar los permisos.');
       }
     });
   }
@@ -151,4 +202,41 @@ export class Users implements OnInit {
       }
     });
   }
+
+  eliminarUsuario(idUser: number) {
+    const confirmar = confirm('¿Estás seguro de que deseas eliminar o desactivar a este colaborador?');
+    
+    if (confirmar) {
+      this.userService.deleteUser(idUser).subscribe({
+        next: (res) => {
+          alert('Colaborador retirado con éxito.');
+          this.cargarUsuarios(); // Recargamos la tabla automáticamente
+        },
+        error: (err) => {
+          console.error("Error al eliminar:", err);
+          alert('Hubo un error al intentar eliminar el usuario. Revisa la consola.');
+        }
+      });
+    }
+  }
+
+  activarUsuario(idUser: number) {
+    const confirmar = confirm('¿Deseas reactivar a este colaborador para que recupere su acceso al sistema?');
+    if (confirmar) {
+      this.userService.activateUser(idUser).subscribe({
+        next: () => {
+          alert('¡Colaborador reactivado con éxito!');
+          this.cargarUsuarios(); 
+        },
+        error: (err) => {
+          console.error("Error al reactivar:", err);
+          
+          const mensajeBackend = err.error?.message || err.error || 'Hubo un error al intentar reactivar el usuario.';
+          
+          alert(mensajeBackend);
+        }
+      });
+    }
+  }
+
 }

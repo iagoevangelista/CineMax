@@ -3,6 +3,8 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service'; 
 import { CommonModule } from '@angular/common';
 
+// 1. Agregamos esta declaración para que Angular pueda usar las funciones nativas de Bootstrap
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -28,4 +30,7 @@ export class Sidebar implements OnInit { // 2. Agregamos "implements OnInit"
     this.router.navigate(['/']);
     console.log("Sesión cerrada. El usuario ahora es un externo.");
   }
+
+  
+
 }
