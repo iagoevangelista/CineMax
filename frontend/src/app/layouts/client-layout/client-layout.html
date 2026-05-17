@@ -1,8 +1,7 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark">
   <div class="container-fluid px-4">
     <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
-    
-    <div class="collapse navbar-collapse justify-content-start ms-4" id="CabeceraCinemax">
+    <div class="collapse navbar-collapse justify-content-start ms-4">
       <ul class="navbar-nav gap-lg-4">
         <li class="nav-item"><a class="nav-link b-header" routerLink="/movies">Cartelera</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Sedes</a></li>
@@ -10,52 +9,28 @@
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
       </ul>
     </div>
-
     <div class="zona-perfil-manual" style="position: relative; display: flex; align-items: center; z-index: 999999;">
-
-      <div *ngIf="!isLogged" 
-           (click)="cambiarVista('login')" 
-           style="cursor: pointer; color: white; font-size: 24px;"
-           data-bs-toggle="offcanvas" 
-           data-bs-target="#authOffcanvas">
+      <div *ngIf="!isLogged" (click)="cambiarVista('login')" style="cursor: pointer; color: white; font-size: 24px;" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
         <i class="fa-regular fa-circle-user"></i>
       </div>
-    
       <ng-container *ngIf="isLogged">
-        
-        <div (click)="toggleMenu($event)" 
-             style="cursor: pointer; color: white; font-size: 28px; display: flex;">
+        <div (click)="toggleMenu($event)" style="cursor: pointer; color: white; font-size: 28px; display: flex;">
           <i class="fa-regular fa-circle-user"></i>
         </div>
-    
-        <div [style.display]="menuAbierto ? 'block' : 'none'" 
-             style="position: absolute; top: 45px; right: 0; width: 200px; 
-                    background-color: #ffffff; border: 2px solid #333; border-radius: 8px; 
-                    padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
-          
+        <div [style.display]="menuAbierto ? 'block' : 'none'" style="position: absolute; top: 45px; right: 0; width: 200px; background-color: #ffffff; border: 2px solid #333; border-radius: 8px; padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
           <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 8px;">
             <small style="color: #666; font-size: 11px;">USUARIO ACTIVO:</small><br>
             <strong style="font-size: 13px; color: #d63384;">{{ userEmail }}</strong>
           </div>
-    
-          <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;">
-            <i class="fa-solid fa-ticket me-2"></i> Mis Entradas
-          </div>
-    
-          <div (click)="cerrarSesion()" 
-               style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;">
-            <i class="fa-solid fa-power-off me-2"></i> Salir
-          </div>
+          <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;"><i class="fa-solid fa-ticket me-2"></i> Mis Entradas</div>
+          <div (click)="cerrarSesion()" style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;"><i class="fa-solid fa-power-off me-2"></i> Salir</div>
         </div>
-    
       </ng-container>
     </div>
   </div>
 </nav>
 
-<main>
-  <router-outlet></router-outlet>
-</main>
+<main><router-outlet></router-outlet></main>
 
 <footer class="footer-cine py-5">
   <div class="container">
@@ -65,16 +40,12 @@
         <ul class="list-unstyled footer-links">
           <li><a href="#">Sobre CineMax.</a></li>
           <li><a href="#">Trabaja con nosotros.</a></li>
-          <li><a href="#">Ventas corporativas.</a></li>
-          <li><a href="#">Nuestras Sedes.</a></li>
         </ul>
       </div>
       <div class="col-md-4 border-end-purple ps-md-5">
         <h5 class="footer-title">AYUDA</h5>
         <ul class="list-unstyled footer-links">
           <li><a href="#">Preguntas Frecuentes.</a></li>
-          <li><a href="#">Protocolos de Seguridad.</a></li>
-          <li><a href="#">Comprobantes Electrónicos.</a></li>
           <li><a href="#">Contacto.</a></li>
         </ul>
       </div>
@@ -84,15 +55,10 @@
           <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
           <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
         </div>
-        <div class="d-flex flex-column gap-2">
-          <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Google Play"></a>
-        </div>
       </div>
     </div>
   </div>
 </footer>
-
-
 
 <div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="authOffcanvas">
   <div class="offcanvas-header justify-content-end">
@@ -100,60 +66,79 @@
   </div>
   
   <div class="offcanvas-body d-flex flex-column align-items-center px-4 pt-0">
-    <img src="assets/Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
+    <img src="Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
     
     <div class="w-100" *ngIf="vistaActiva === 'login'">
-      <h3 class="text-center login-title mb-5">¡Hola! Qué bueno verte por acá.</h3>
-
+      <h3 class="text-center login-title mb-5 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
       <form class="w-100" (ngSubmit)="iniciarSesion()">
         <div class="input-group mb-4 custom-input-group">
           <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
           <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
         </div>
-
         <div class="input-group mb-5 custom-input-group">
           <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
           <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
         </div>
-
-        <button type="submit" class="btn btn-login w-100 text-white">INICIAR SESIÓN</button>
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">INICIAR SESIÓN</button>
       </form>
-
       <div class="mt-5 text-center login-links">
-        <a href="#" class="d-block mb-3 text-decoration-none">¿OLVIDASTE TU CONTRASEÑA?</a>
+        <span style="cursor: pointer; display: block; color: #999; margin-bottom: 1rem;" (click)="cambiarVista('recuperar', $event)">¿OLVIDASTE TU CONTRASEÑA?</span>
         <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
-        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" class="register-link" (click)="cambiarVista('registro')">REGÍSTRATE</span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" (click)="cambiarVista('registro', $event)">REGÍSTRATE</span>
       </div>
     </div>
 
     <div class="w-100" *ngIf="vistaActiva === 'registro'">
-      <h3 class="text-center login-title mb-4" style="color: var(--primary-color);">Únete a CineMax</h3>
-
+      <h3 class="text-center login-title mb-4" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
       <form class="w-100" (ngSubmit)="registrarse()">
         <div class="input-group mb-3 custom-input-group">
           <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
         </div>
-        
         <div class="input-group mb-3 custom-input-group">
           <input type="text" class="form-control" placeholder="APELLIDOS" name="lastName" [(ngModel)]="registerData.lastName" required>
         </div>
-
+        <div class="row mb-3">
+          <div class="col-4 pe-1">
+            <div class="input-group custom-input-group h-100">
+              <select class="form-control" name="idDocumentType" [(ngModel)]="registerData.idDocumentType" required style="cursor: pointer;">
+                <option value="1">DNI</option>
+                <option value="2">CE</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-8 ps-1">
+            <div class="input-group custom-input-group h-100">
+              <input type="text" class="form-control" placeholder="N° DOCUMENTO" name="documentNumber" [(ngModel)]="registerData.documentNumber" required>
+            </div>
+          </div>
+        </div>
         <div class="input-group mb-3 custom-input-group">
           <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
         </div>
-
         <div class="input-group mb-5 custom-input-group">
           <input type="password" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" required>
         </div>
-
-        <button type="submit" class="btn btn-login w-100 text-white">CREAR CUENTA</button>
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
       </form>
-
       <div class="mt-4 text-center login-links">
         <span class="small" style="color: #999;">¿YA TIENES CUENTA? </span>
-        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" class="register-link" (click)="cambiarVista('login')">INICIA SESIÓN AQUÍ</span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" (click)="cambiarVista('login', $event)">INICIA SESIÓN AQUÍ</span>
       </div>
     </div>
 
+    <div class="w-100" *ngIf="vistaActiva === 'recuperar'">
+      <h3 class="text-center login-title mb-4" style="color: var(--primary-color);">Recuperar Acceso</h3>
+      <p class="text-center text-secondary mb-4" style="font-size: 0.9rem;">Ingresa tu correo y te enviaremos un enlace seguro.</p>
+      <form class="w-100" (ngSubmit)="solicitarRecuperacion()">
+        <div class="input-group mb-4 custom-input-group">
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="correoRecuperacion" [(ngModel)]="correoRecuperacion" required>
+          <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+        </div>
+        <button type="submit" class="btn btn-login w-100 text-white mb-3">ENVIAR ENLACE</button>
+      </form>
+      <div class="mt-3 text-center login-links">
+        <span style="cursor: pointer; color: #999; font-weight: bold;" (click)="cambiarVista('login', $event)">VOLVER AL LOGIN</span>
+      </div>
+    </div>
   </div>
 </div>

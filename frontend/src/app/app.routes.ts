@@ -11,9 +11,11 @@ import { Seats } from './pages/checkout/seats/seats';
 import { Tickets } from './pages/checkout/tickets/tickets';
 import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 
 export const routes: Routes = [
   { path: '', component: Home },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { 
     path: 'movie/:id', 
     component: MovieDetail,

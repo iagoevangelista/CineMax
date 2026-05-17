@@ -74,6 +74,12 @@ public class UserAccount implements UserDetails {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "reset_token", length = 100)
+    private String resetToken;
+
+    @Column(name = "token_expiry_date")
+    private LocalDateTime tokenExpiryDate;
+
     // ====================================================================
     // MÉTODOS OBLIGATORIOS DE SPRING SECURITY (Interfaz UserDetails)
     // ====================================================================

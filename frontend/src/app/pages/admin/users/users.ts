@@ -168,6 +168,14 @@ export class Users implements OnInit {
       return;
     }
 
+    // --- NUEVA VALIDACIÓN: CORREO CORPORATIVO ---
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/;
+    if (!emailRegex.test(this.nuevoUsuario.email)) {
+      alert('Por favor ingresa un correo válido. Debe contener un "@" y terminar en ".com" (Ejemplo: colaborador@empresa.com).');
+      return;
+    }
+    // --------------------------------------------
+
     if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
       this.nuevoUsuario.idVenue = 0; 
     }
@@ -203,18 +211,18 @@ export class Users implements OnInit {
     });
   }
 
-  eliminarUsuario(idUser: number) {
-    const confirmar = confirm('¿Estás seguro de que deseas eliminar o desactivar a este colaborador?');
+  desactivarUsuario(idUser: number) {
+    const confirmar = confirm('¿Estás seguro de que deseas desactivar a este colaborador?');
     
     if (confirmar) {
       this.userService.deleteUser(idUser).subscribe({
         next: (res) => {
-          alert('Colaborador retirado con éxito.');
-          this.cargarUsuarios(); // Recargamos la tabla automáticamente
+          alert('Colaborador desactivado con éxito.');
+          this.cargarUsuarios(); // Recargamos la tabla automáticamente para ver el estado 'Inactivo'
         },
         error: (err) => {
-          console.error("Error al eliminar:", err);
-          alert('Hubo un error al intentar eliminar el usuario. Revisa la consola.');
+          console.error("Error al desactivar:", err);
+          alert('Hubo un error al intentar desactivar el usuario. Revisa la consola.');
         }
       });
     }

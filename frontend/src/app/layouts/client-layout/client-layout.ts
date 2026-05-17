@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class ClientLayout implements OnInit{
 
   loginData = { email: '', password: '' };
-  registerData = { firstName: '', lastName: '', email: '', password: '' };
+  registerData = { firstName: '', lastName: '', idDocumentType: 1, documentNumber: '', email: '', password: '' };
   isLogged: boolean = false;
   userEmail: string = '';
   menuAbierto: boolean = false;
@@ -31,10 +31,7 @@ export class ClientLayout implements OnInit{
   vistaActiva: string = 'login'; 
 
   cambiarVista(vista: string, event?: Event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    console.log('Cambiando a:', vista);
     this.vistaActiva = vista;
   }
 
@@ -82,6 +79,29 @@ export class ClientLayout implements OnInit{
       error: (err: any) => {
         console.error('Error al registrarse:', err);
         alert('Error al registrarse. Intenta de nuevo.');
+      }
+    });
+  }
+
+  correoRecuperacion: string = '';
+
+  solicitarRecuperacion() {
+    if (!this.correoRecuperacion) {
+      alert('Por favor ingresa tu correo corporativo.');
+      return;
+    }
+
+    this.authService.forgotPassword(this.correoRecuperacion).subscribe({
+      next: (res: any) => {
+        alert(res.message || 'Si el correo existe, se ha enviado un enlace de recuperación.');
+        this.cambiarVista('login'); // Regresamos a la vista normal
+        this.correoRecuperacion = ''; // Limpiamos el campo
+      },
+      error: (err: any) => {
+        console.error("Error al solicitar recuperación:", err);
+        // Mostramos el error del backend o uno genérico
+        const msg = err.error?.error || 'Hubo un error al procesar la solicitud.';
+        alert(msg);
       }
     });
   }

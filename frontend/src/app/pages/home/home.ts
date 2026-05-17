@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MovieService, Movie } from '../../services/movie.service';
+import { finalize, delay } from 'rxjs/operators';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
+
+
 
 @Component({
   selector: 'app-home',
@@ -25,7 +28,8 @@ export class Home implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private movieService: MovieService
+    private movieService: MovieService,
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit() {
@@ -96,4 +100,52 @@ vistaActiva: string = 'login';
     }
     this.vistaActiva = vista;
   }
+
+  // Variables para la experiencia de usuario
+  correoRecuperacion: string = '';
+  loadingRecuperacion: boolean = false;
+  mensajeRecuperacion: { texto: string, tipo: 'success' | 'danger' } | null = null;
+
+  solicitarRecuperacion() {
+    this.mensajeRecuperacion = null;
+
+    if (!this.correoRecuperacion) {
+      this.mensajeRecuperacion = { texto: 'Por favor ingresa tu correo corporativo.', tipo: 'danger' };
+      return;
+    }
+
+    // 1. Encendemos el spinner
+    this.loadingRecuperacion = true;
+    
+    // 2. FORZAMOS A ANGULAR A DIBUJAR EL SPINNER AHORA MISMO
+    this.cdr.detectChanges(); 
+
+    this.authService.forgotPassword(this.correoRecuperacion)
+      .pipe(
+        // 3. Retenemos la respuesta por 9 segundos exactos
+        delay(9000), 
+        finalize(() => this.loadingRecuperacion = false) 
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.mensajeRecuperacion = { 
+            texto: res.message || '¡Enlace enviado! Revisa tu bandeja de entrada.', 
+            tipo: 'success' 
+          };
+          this.correoRecuperacion = '';  
+          this.cdr.detectChanges();
+          
+          setTimeout(() => {
+            this.mensajeRecuperacion = null;
+            this.cdr.detectChanges(); 
+          }, 8000);
+        },
+        error: (err: any) => {
+          console.error("Error en recuperación:", err);
+          const msg = err.error?.error || err.error?.message || 'Hubo un error al conectar con el servidor.';
+          this.mensajeRecuperacion = { texto: msg, tipo: 'danger' };
+        }
+      });
+  }
+
 }

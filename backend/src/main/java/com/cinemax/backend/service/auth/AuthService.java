@@ -7,4 +7,6 @@ import com.cinemax.backend.model.dto.auth.RegisterRequestDTO;
 public interface AuthService {
     AuthResponseDTO login(AuthRequestDTO request);
     AuthResponseDTO register(RegisterRequestDTO request);
+    void requestPasswordReset(String email);
+    void resetPassword(String token, String newPassword);
 }

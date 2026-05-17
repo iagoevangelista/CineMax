@@ -11,8 +11,10 @@ import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.security.JwtService;
 import com.cinemax.backend.repository.DocumentTypeRepository;
+import com.cinemax.backend.service.email.EmailService;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final EmailService emailService; // <-- Movido aquí arriba de forma limpia
     private final DocumentTypeRepository documentTypeRepository; // NUEVO: Inyectamos el repo
 
     @Override
@@ -39,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow();
 
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", user.getRole().getRoleName());
+        extraClaims.put("role", user.getRole().getRoleName()); 
 
         String jwtToken = jwtService.generateToken(extraClaims, user);
 
@@ -75,5 +78,54 @@ public class AuthServiceImpl implements AuthService {
         String jwtToken = jwtService.generateToken(user);
 
         return AuthResponseDTO.builder().token(jwtToken).build();
+    }
+
+    @Override
+    public void requestPasswordReset(String email) {
+        java.util.Optional<UserAccount> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            System.out.println("Intento de recuperación para correo inexistente: " + email);
+            // Responde a Angular en 0.1 segundos
+            return; 
+        }
+
+        UserAccount user = userOptional.get();
+        String token = java.util.UUID.randomUUID().toString();
+        
+        user.setResetToken(token);
+        user.setTokenExpiryDate(java.time.LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        // LA MAGIA ASÍNCRONA: Mandamos el correo en un proceso en segundo plano (background thread)
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendPasswordResetEmail(user.getEmail(), token);
+            } catch (Exception e) {
+                System.err.println("Error al enviar el correo en segundo plano: " + e.getMessage());
+            }
+        });
+        
+        // El hilo principal no espera a Google. Responde a Angular inmediatamente en 0.1 segundos.
+    }
+
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        // Buscamos al usuario por el token secreto
+        UserAccount user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido o no existe."));
+
+        // Verificamos si ya pasaron los 15 minutos
+        if (user.getTokenExpiryDate().isBefore(java.time.LocalDateTime.now())) {
+            throw new RuntimeException("El enlace de recuperación ha expirado. Por favor solicita uno nuevo.");
+        }
+
+        // Encriptamos la nueva contraseña (corregido a setPasswordHash)
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        
+        // Limpiamos el token para que no se pueda reciclar
+        user.setResetToken(null);
+        user.setTokenExpiryDate(null);
+        userRepository.save(user);
     }
 }

@@ -16,4 +16,5 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Intege
     boolean existsByRole_IdRoleAndVenue_IdVenueAndStatus(Integer idRole, Integer idVenue, String status);
     Optional<UserAccount> findByRole_IdRoleAndStatus(Integer idRole, String status);
     Optional<UserAccount> findByRole_IdRoleAndVenue_IdVenueAndStatus(Integer idRole, Integer idVenue, String status);
+    Optional<UserAccount> findByResetToken(String resetToken);
 }

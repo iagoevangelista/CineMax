@@ -53,4 +53,15 @@ register(data: any): Observable<any> {
       })
     );
   }
+// Solicitar el correo de recuperación
+  forgotPassword(email: string) {
+    // Ajusta la URL base si es diferente en tu entorno
+    return this.http.post('http://localhost:8080/api/v1/auth/forgot-password', { email });
+  }
+
+  // Enviar la nueva contraseña con el token
+  resetPassword(token: string, newPassword: string) {
+    return this.http.post('http://localhost:8080/api/v1/auth/reset-password', { token, newPassword });
+  }
+
 }

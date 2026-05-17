@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div *ngIf="!cargando" class="table-responsive shadow-lg rounded" style="background-color: var(--surface-color);">
+  <div *ngIf="!cargando" class="table-responsive shadow-lg rounded border border-secondary" style="background-color: var(--surface-color);">
     <table class="table table-dark table-hover mb-0 align-middle">
       <thead>
         <tr style="border-bottom: 2px solid var(--primary-color);">
@@ -73,7 +73,7 @@
                 <i class="fa-solid fa-user-shield"></i>
             </button>
             
-            <button *ngIf="user.status === 'Activo'" class="btn btn-sm btn-outline-danger" title="Desactivar" (click)="eliminarUsuario(user.idUser)">
+            <button *ngIf="user.status === 'Activo'" class="btn btn-sm btn-outline-danger" title="Desactivar" (click)="desactivarUsuario(user.idUser)">
               <i class="fa-solid fa-user-minus"></i>
             </button>
 
