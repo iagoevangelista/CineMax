@@ -32,7 +32,7 @@ body {
   gap: 8px;
   padding: 24px 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  margin-bottom: 32px;
+  margin-bottom: 0;
 }
 .tab-btn {
   background: rgba(255,255,255,0.05);
@@ -178,4 +178,89 @@ body {
   font-size: 3rem;
   display: block;
   margin-bottom: 16px;
+}
+/* ===== FILTROS ===== */
+.filtros-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filtro-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+.filtro-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 0.85rem;
+}
+.filtro-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 10px 16px 10px 38px;
+  border-radius: 50px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.filtro-input::placeholder { color: #666; }
+.filtro-input:focus { border-color: #7c3aed; }
+
+.filtro-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  border-radius: 50px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.filtro-select:focus { border-color: #7c3aed; }
+.filtro-select option { background: #1a1a2e; color: #fff; }
+
+.btn-limpiar {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #888;
+  font-size: 0.85rem;
+  padding: 10px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-limpiar:hover { border-color: #7c3aed; color: #c084fc; }
+
+/* ===== MENSAJE FILTRO ===== */
+.mensaje-filtro {
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mensaje-ok {
+  background: rgba(29,158,117,0.15);
+  border: 1px solid rgba(29,158,117,0.3);
+  color: #5dcaa5;
+}
+.mensaje-error {
+  background: rgba(226,75,74,0.15);
+  border: 1px solid rgba(226,75,74,0.3);
+  color: #f09595;
+}
+.filtros-bar {
+  margin-top: 24px;
 }

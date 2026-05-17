@@ -14,9 +14,12 @@ import { Snacks } from './pages/checkout/snacks/snacks';
 
 export const routes: Routes = [
   { path: '', component: Home },
-  { path: 'movie/:id', component: MovieDetail },
+  { 
+    path: 'movie/:id', 
+    component: MovieDetail,
+    runGuardsAndResolvers: 'always'
+  },
   { path: 'movies', component: Movies },
-
   {
     path: '',
     component: ClientLayout,
@@ -26,32 +29,15 @@ export const routes: Routes = [
       { path: 'snacks', component: Snacks }
     ]
   },
-  
   {
     path: 'admin',
     component: AdminLayout,
-    // ¡OJO! Quitamos el canActivate de aquí (el padre)
     children: [
-      { 
-        path: 'dashboard', 
-        component: Dashboard,
-        canActivate: [authGuard] // Para el dashboard solo basta tener sesión iniciada
-      },
-      { 
-        path: 'sedes', 
-        component: Venues,
-        canActivate: [authGuard], // Ponemos el candado en el hijo
-        data: { expectedRole: 'GERENTE_GRAL' } 
-      },
-      { 
-        path: 'usuarios', 
-        component: Users,
-        canActivate: [authGuard], // Ponemos el candado en el hijo
-        data: { expectedRole: 'ADMIN' } 
-      },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' } 
+      { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRole: 'GERENTE_GRAL' } },
+      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRole: 'ADMIN' } },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
-
   { path: '**', redirectTo: '' }
 ];

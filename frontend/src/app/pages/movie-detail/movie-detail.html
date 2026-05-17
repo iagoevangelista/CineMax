@@ -1,9 +1,9 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark-custom border-bottom-custom">
   <div class="container-fluid px-4">
-    <a class="navbar-brand logo" href="#">CINEMAX</a>
+    <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-4">
-        <li class="nav-item"><a class="nav-link b-header" href="#">Cartelera</a></li>
+        <li class="nav-item"><a class="nav-link b-header" routerLink="/movies">Cartelera</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Sedes</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Promociones</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
@@ -13,136 +13,161 @@
 </nav>
 
 <!-- LOADING -->
-<div *ngIf="loading" class="text-center text-white py-5 mt-5">
-  <div class="spinner-border text-light"></div>
+<div *ngIf="loading && !movie" class="loading-screen">
+  <div class="spinner-ring"></div>
 </div>
 
 <!-- ERROR -->
-<div *ngIf="error" class="text-center text-white py-5 mt-5">
+<div *ngIf="error && !loading" class="error-screen">
+  <span>🎬</span>
   <p>Película no encontrada.</p>
-  <button class="btn btn-outline-light" (click)="volver()">Volver</button>
+  <button (click)="volver()">← Volver</button>
 </div>
 
 <!-- DETALLE -->
-<div *ngIf="movie && !loading" class="movie-detail-page">
+<div *ngIf="movie" class="movie-detail-page">
 
-  <!-- Hero Banner -->
-  <div class="hero-banner position-relative">
+  <!-- HERO -->
+  <div class="hero-banner">
+    <div class="hero-bg" [style.backgroundImage]="'url(' + movie.posterUrl + ')'"></div>
     <div class="hero-overlay"></div>
-    <img [src]="movie.posterUrl" class="hero-bg" [alt]="movie.titleMovie">
-    <div class="hero-content container">
-      <div class="row align-items-end">
-        <div class="col-md-3">
-          <img [src]="movie.posterUrl" class="poster-detail shadow" [alt]="movie.titleMovie">
-        </div>
-        <div class="col-md-9 text-white pb-4">
-          <span class="badge-status mb-2 d-inline-block">{{ movie.status }}</span>
-          <h1 class="fw-bold display-5">{{ movie.titleMovie }}</h1>
-          <div class="d-flex gap-3 mt-2 flex-wrap">
-            <span class="info-chip"><i class="fa-regular fa-clock me-1"></i>{{ movie.duration_minutes }} min</span>
-            <span class="info-chip"><i class="fa-solid fa-film me-1"></i>{{ movie.rating }}</span>
-            <span class="info-chip"><i class="fa-solid fa-user me-1"></i>{{ movie.director }}</span>
+    <div class="container hero-content">
+      <button class="btn-back" (click)="volver()">
+        <i class="fa-solid fa-arrow-left"></i> Cartelera
+      </button>
+      <div class="row align-items-end g-4 mt-2">
+        <div class="col-auto">
+          <div class="poster-wrap">
+            <img [src]="movie.posterUrl" [alt]="movie.titleMovie" class="poster-img">
+            <span class="badge-status">{{ movie.status ?? 'Cartelera' }}</span>
           </div>
+        </div>
+        <div class="col text-white pb-3">
+          <h1 class="movie-title">{{ movie.titleMovie }}</h1>
+          <div class="meta-row">
+            <span class="meta-chip"><i class="fa-regular fa-clock"></i> {{ movie.durationMinutes }} min</span>
+            <span class="meta-chip"><i class="fa-solid fa-film"></i> {{ movie.classificationName }}</span>
+            <span class="meta-chip"><i class="fa-solid fa-clapperboard"></i> {{ movie.director }}</span>
+          </div>
+          <button class="btn-comprar-hero" (click)="empezarCompra()">
+            <i class="fa-solid fa-ticket"></i> Comprar Entradas
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Contenido -->
-  <div class="container py-5">
-    <div class="row g-4">
+  <!-- CONTENIDO -->
+  <div class="container content-section">
+    <div class="row g-5">
 
-      <!-- Sinopsis + Horarios -->
-      <div class="col-md-8">
-        <div class="detail-card p-4 mb-4">
-          <h4 class="text-purple fw-bold mb-3">Sinopsis</h4>
-          <p class="text-white-50 fs-5">{{ movie.synopsis }}</p>
+      <!-- IZQUIERDA: Sinopsis + Horarios -->
+      <div class="col-lg-8">
+
+        <!-- Sinopsis -->
+        <div class="section-block">
+          <h3 class="section-title">Sinopsis</h3>
+          <p class="sinopsis-text">{{ movie.synopsis }}</p>
         </div>
 
-        <div class="detail-card p-4">
-          <h4 class="text-purple fw-bold mb-3">Horarios disponibles</h4>
-          <div class="d-flex gap-2 flex-wrap mb-3">
-            <button class="btn btn-fecha active-fecha">Hoy</button>
-            <button class="btn btn-fecha">Mañana</button>
-            <button class="btn btn-fecha">Miércoles</button>
-            <button class="btn btn-fecha">Jueves</button>
+        <!-- Info rápida -->
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Duración</span>
+            <span class="info-value">{{ movie.durationMinutes }} min</span>
           </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="sede-card p-3">
-                <h6 class="text-white fw-bold">CineMax Jockey Plaza</h6>
-                <p class="text-white-50 small mb-2">Surco, Lima</p>
-                <div class="d-flex gap-2 flex-wrap">
-                  <button class="btn btn-hora">2:30 PM</button>
-                  <button class="btn btn-hora">5:00 PM</button>
-                  <button class="btn btn-hora">8:30 PM</button>
+          <div class="info-item">
+            <span class="info-label">Clasificación</span>
+            <span class="info-value">{{ movie.classificationName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Director</span>
+            <span class="info-value">{{ movie.director }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Estado</span>
+            <span class="info-value">{{ movie.status ?? 'Cartelera' }}</span>
+          </div>
+        </div>
+
+        <!-- Horarios -->
+        <div class="section-block">
+          <h3 class="section-title">Horarios disponibles</h3>
+
+          <!-- Días -->
+          <div class="dias-row">
+            <button class="dia-btn active-dia">Hoy</button>
+            <button class="dia-btn">Mañana</button>
+            <button class="dia-btn">Miércoles</button>
+            <button class="dia-btn">Jueves</button>
+          </div>
+
+          <!-- Sedes -->
+          <div class="sede-block">
+            <div class="sede-header">
+              <i class="fa-solid fa-location-dot"></i>
+              <div>
+                <span class="sede-nombre">CineMax VMT</span>
+                <span class="sede-dir">Villa María del Triunfo, Lima</span>
+              </div>
+            </div>
+            <div class="formatos-wrap">
+              <div class="formato-row">
+                <span class="formato-tag">2D</span>
+                <div class="horas-wrap">
+                  <button class="hora-btn">2:30 PM</button>
+                  <button class="hora-btn">5:00 PM</button>
+                  <button class="hora-btn">8:30 PM</button>
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="sede-card p-3">
-                <h6 class="text-white fw-bold">CineMax San Miguel</h6>
-                <p class="text-white-50 small mb-2">San Miguel, Lima</p>
-                <div class="d-flex gap-2 flex-wrap">
-                  <button class="btn btn-hora">3:00 PM</button>
-                  <button class="btn btn-hora">6:15 PM</button>
-                  <button class="btn btn-hora">9:00 PM</button>
+          </div>
+
+          <div class="sede-block">
+            <div class="sede-header">
+              <i class="fa-solid fa-location-dot"></i>
+              <div>
+                <span class="sede-nombre">CineMax Miraflores</span>
+                <span class="sede-dir">Miraflores, Lima</span>
+              </div>
+            </div>
+            <div class="formatos-wrap">
+              <div class="formato-row">
+                <span class="formato-tag">2D</span>
+                <div class="horas-wrap">
+                  <button class="hora-btn">3:00 PM</button>
+                  <button class="hora-btn">6:15 PM</button>
+                </div>
+              </div>
+              <div class="formato-row">
+                <span class="formato-tag tag-3d">3D</span>
+                <div class="horas-wrap">
+                  <button class="hora-btn">9:00 PM</button>
                 </div>
               </div>
             </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DERECHA: CTA -->
+      <div class="col-lg-4">
+        <div class="cta-card">
+          <img [src]="movie.posterUrl" [alt]="movie.titleMovie" class="cta-poster">
+          <div class="cta-body">
+            <h5 class="cta-title">{{ movie.titleMovie }}</h5>
+            <p class="cta-meta">{{ movie.durationMinutes }} min · {{ movie.classificationName }}</p>
+            <button class="btn-comprar-cta" (click)="empezarCompra()">
+              <i class="fa-solid fa-ticket me-2"></i>Comprar Entradas
+            </button>
+            <button class="btn-volver-cta" (click)="volver()">
+              ← Volver a cartelera
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Sidebar -->
-      <div class="col-md-4">
-        <div class="detail-card p-4 mb-3">
-          <h5 class="text-purple fw-bold mb-3">Compra tus entradas</h5>
-          <div class="mb-3">
-            <label class="text-white-50 small">Sede</label>
-            <select class="form-select select-minimal mt-1">
-              <option>CineMax Jockey Plaza</option>
-              <option>CineMax San Miguel</option>
-              <option>CineMax MegaPlaza</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="text-white-50 small">Formato</label>
-            <div class="d-flex gap-2 mt-1">
-              <button class="btn btn-formato active-formato">2D</button>
-              <button class="btn btn-formato">3D</button>
-              <button class="btn btn-formato">IMAX</button>
-            </div>
-          </div>
-          <button class="btn btn-comprar w-100 fw-bold mt-2" (click)="empezarCompra()">
-            <i class="fa-solid fa-ticket me-2"></i>COMPRAR ENTRADAS
-          </button>
-        </div>
-
-        <div class="detail-card p-4">
-          <h5 class="text-purple fw-bold mb-3">Información</h5>
-          <div class="info-row">
-            <span class="text-white-50">Duración</span>
-            <span class="text-white">{{ movie.duration_minutes }} min</span>
-          </div>
-          <div class="info-row">
-            <span class="text-white-50">Clasificación</span>
-            <span class="text-white">{{ movie.rating }}</span>
-          </div>
-          <div class="info-row">
-            <span class="text-white-50">Director</span>
-            <span class="text-white">{{ movie.director }}</span>
-          </div>
-          <div class="info-row">
-            <span class="text-white-50">Estado</span>
-            <span class="text-white">{{ movie.status }}</span>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <button class="btn btn-outline-light mt-4" (click)="volver()">
-      <i class="fa-solid fa-arrow-left me-2"></i>Volver a cartelera
-    </button>
   </div>
 </div>

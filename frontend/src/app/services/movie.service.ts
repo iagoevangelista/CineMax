@@ -14,6 +14,7 @@ export interface Movie {
   isActive: boolean;
   premiereWeek: boolean;
   rating?: string;
+  classificationName?: string; 
 }
 
 @Injectable({
@@ -35,4 +36,5 @@ export class MovieService {
   getMoviesByStatus(status: string): Observable<Movie[]> {
     return this.http.get<Movie[]>(`${this.apiUrl}/movies?status=${status}`);
   }
+  
 }
