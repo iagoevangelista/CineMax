@@ -53,4 +53,10 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Contraseña restablecida con éxito."));
     }
 
+    @GetMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestParam String token) {
+        boolean isValid = authService.validateResetToken(token);
+        return ResponseEntity.ok(Map.of("isValid", isValid));
+    }
+
 }

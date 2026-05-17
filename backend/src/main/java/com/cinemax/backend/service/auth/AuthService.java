@@ -9,4 +9,5 @@ public interface AuthService {
     AuthResponseDTO register(RegisterRequestDTO request);
     void requestPasswordReset(String email);
     void resetPassword(String token, String newPassword);
+    boolean validateResetToken(String token);
 }

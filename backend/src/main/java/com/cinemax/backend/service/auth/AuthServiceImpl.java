@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
         String token = java.util.UUID.randomUUID().toString();
         
         user.setResetToken(token);
-        user.setTokenExpiryDate(java.time.LocalDateTime.now().plusMinutes(15));
+        user.setTokenExpiryDate(java.time.LocalDateTime.now().plusMinutes(1));
         userRepository.save(user);
 
         // LA MAGIA ASÍNCRONA: Mandamos el correo en un proceso en segundo plano (background thread)
@@ -128,4 +128,12 @@ public class AuthServiceImpl implements AuthService {
         user.setTokenExpiryDate(null);
         userRepository.save(user);
     }
+
+    @Override
+    public boolean validateResetToken(String token) {
+        return userRepository.findByResetToken(token)
+                .map(user -> user.getTokenExpiryDate() != null && user.getTokenExpiryDate().isAfter(java.time.LocalDateTime.now()))
+                .orElse(false);
+    }
+
 }
