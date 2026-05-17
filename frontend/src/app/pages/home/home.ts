@@ -15,7 +15,7 @@ import { MovieService, Movie } from '../../services/movie.service';
 export class Home implements OnInit {
 
   loginData = { email: '', password: '' };
-  registerData = { firstName: '', lastName: '', email: '', password: '' };
+  registerData = { firstName: '', lastName: '', email: '', password: '', documentNumber: '', idDocumentType: '1' };
 
   movies: Movie[] = [];
   filteredMovies: Movie[] = [];
@@ -67,14 +67,14 @@ export class Home implements OnInit {
   }
 
   registrarse() {
-    if (!this.registerData.firstName || !this.registerData.email || !this.registerData.password) {
-      alert('Por favor completa todos los campos');
-      return;
-    }
     this.authService.register(this.registerData).subscribe({
       next: () => {
-        alert('Registro exitoso. Ya puedes iniciar sesion.');
-        document.getElementById('cerrarRegister')?.click();
+        // Como authService.ts ya guardó el token, el usuario ya está "logueado"
+        document.getElementById('btn-cerrar-panel')?.click(); // Cerramos el modal
+        
+        // Recargamos o redirigimos según lo que quieras
+        alert('¡Bienvenido a CineMax!');
+        window.location.reload(); 
       },
       error: (err: any) => {
         console.error('Error al registrarse:', err);
@@ -86,4 +86,14 @@ export class Home implements OnInit {
 irAMovies() {
   this.router.navigate(['/movies']);
 }
+
+vistaActiva: string = 'login'; 
+
+  cambiarVista(vista: string, event?: Event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    this.vistaActiva = vista;
+  }
 }

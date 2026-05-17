@@ -10,6 +10,7 @@ import com.cinemax.backend.model.entity.UserAccount;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.security.JwtService;
+import com.cinemax.backend.repository.DocumentTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final DocumentTypeRepository documentTypeRepository; // NUEVO: Inyectamos el repo
 
     @Override
     public AuthResponseDTO login(AuthRequestDTO request) {
@@ -36,11 +38,9 @@ public class AuthServiceImpl implements AuthService {
         UserAccount user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
-        // NUEVO: Creamos un "extra claim" para meter el rol en el token
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", user.getRole().getRoleName()); // Guardamos el nombre del rol (ADMIN, GERENTE, etc.)
+        extraClaims.put("role", user.getRole().getRoleName());
 
-        // Usamos el metodo de jwtService que acepta extraClaims
         String jwtToken = jwtService.generateToken(extraClaims, user);
 
         return AuthResponseDTO.builder().token(jwtToken).build();
@@ -48,9 +48,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
+        // 1. Buscamos el rol en la BD
         var role = roleRepository.findById(4)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado. Asegúrate de insertarlo en la BD."));
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
 
+        // 2. NUEVO: Buscamos el tipo de documento REAL en la base de datos
+        DocumentType docType = documentTypeRepository.findById(request.getIdDocumentType())
+                .orElseThrow(() -> new RuntimeException("Tipo de documento no válido."));
+
+        // 3. Creamos el usuario
         UserAccount user = new UserAccount();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -58,11 +64,12 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
         user.setStatus("Activo");
-
         user.setDocumentNumber(request.getDocumentNumber());
-        
-        user.setDocumentType(DocumentType.builder().idDocumentType(request.getIdDocumentType()).build());
 
+        // 4. Asignamos la entidad real que trajimos de la BD
+        user.setDocumentType(docType);
+
+        // 5. Guardamos
         userRepository.save(user);
 
         String jwtToken = jwtService.generateToken(user);

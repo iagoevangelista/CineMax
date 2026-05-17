@@ -12,7 +12,7 @@
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
       </ul>
       <div class="d-flex align-items-center">
-        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#loginOffcanvas">
+        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
           <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil">
         </a>
       </div>
@@ -228,67 +228,72 @@
   </div>
 </footer>
 
-<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="loginOffcanvas">
+<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="authOffcanvas">
   <div class="offcanvas-header justify-content-end">
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="cerrarLogin"></button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="btn-cerrar-panel"></button>
   </div>
-  <div class="offcanvas-body d-flex flex-column align-items-center px-4">
-    <img src="/Imagenes/Logo.png" alt="CINEMAX" class="login-logo mb-3">
-    <h4 class="text-white fw-bold mb-5 text-center">¡Hola! Qué bueno verte por acá.</h4>
-    <form class="w-100" (ngSubmit)="iniciarSesion()">
-      <div class="input-group mb-4 custom-input-group">
-        <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
-        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+  
+  <div class="offcanvas-body d-flex flex-column align-items-center px-4 pt-0">
+    <img src="Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
+    
+    <div class="w-100" *ngIf="vistaActiva === 'login'">
+      <h3 class="text-center login-title mb-5 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
+      <form class="w-100" (ngSubmit)="iniciarSesion()">
+        <div class="input-group mb-4 custom-input-group">
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
+          <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+        </div>
+        <div class="input-group mb-5 custom-input-group">
+          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
+          <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
+        </div>
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">INICIAR SESIÓN</button>
+      </form>
+      <div class="mt-5 text-center login-links">
+        <a href="#" class="d-block mb-3 text-decoration-none" style="color: #999;">¿OLVIDASTE TU CONTRASEÑA?</a>
+        <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" (click)="cambiarVista('registro', $event)">REGÍSTRATE</span>
       </div>
-      <div class="input-group mb-4 custom-input-group">
-        <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
-        <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
-      </div>
-      <button type="submit" class="btn btn-login w-100 fw-bold text-white fs-5">INICIAR SESIÓN</button>
-    </form>
-    <div class="mt-5 text-center login-links">
-      <a href="#" class="d-block mb-2 text-decoration-none" style="color: #999;">¿OLVIDASTE TU CONTRASEÑA?</a>
-      <span style="color: #999;">¿NO TIENES UNA CUENTA?</span>
-      <a href="#" class="text-white text-decoration-none fw-bold ms-1"
-         data-bs-dismiss="offcanvas"
-         data-bs-toggle="offcanvas"
-         data-bs-target="#registerOffcanvas">REGÍSTRATE</a>
     </div>
-  </div>
-</div>
 
-<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="registerOffcanvas">
-  <div class="offcanvas-header justify-content-end">
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="cerrarRegister"></button>
-  </div>
-  <div class="offcanvas-body d-flex flex-column align-items-center px-4">
-    <img src="/Imagenes/Logo.png" alt="CINEMAX" class="login-logo mb-3">
-    <h4 class="text-white fw-bold mb-4 text-center">Crea tu cuenta</h4>
-    <form class="w-100" (ngSubmit)="registrarse()">
-      <div class="input-group mb-3 custom-input-group">
-        <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName">
-        <span class="input-group-text"><i class="fa-regular fa-user"></i></span>
+    <div class="w-100" *ngIf="vistaActiva === 'registro'">
+      <h3 class="text-center login-title mb-4" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
+      <form class="w-100" (ngSubmit)="registrarse()">
+        <div class="input-group mb-3 custom-input-group">
+          <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
+        </div>
+        <div class="input-group mb-3 custom-input-group">
+          <input type="text" class="form-control" placeholder="APELLIDOS" name="lastName" [(ngModel)]="registerData.lastName" required>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-4 pe-1">
+            <div class="input-group custom-input-group h-100">
+              <select class="form-control" name="idDocumentType" [(ngModel)]="registerData.idDocumentType" required style="cursor: pointer;">
+                <option value="1">DNI</option>
+                <option value="2">CE</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-8 ps-1">
+            <div class="input-group custom-input-group h-100">
+              <input type="text" class="form-control" placeholder="N° DOCUMENTO" name="documentNumber" [(ngModel)]="registerData.documentNumber" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="input-group mb-3 custom-input-group">
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
+        </div>
+        <div class="input-group mb-5 custom-input-group">
+          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" required>
+        </div>
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
+      </form>
+      <div class="mt-4 text-center login-links">
+        <span class="small" style="color: #999;">¿YA TIENES CUENTA? </span>
+        <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" (click)="cambiarVista('login', $event)">INICIA SESIÓN AQUÍ</span>
       </div>
-      <div class="input-group mb-3 custom-input-group">
-        <input type="text" class="form-control" placeholder="APELLIDO" name="lastName" [(ngModel)]="registerData.lastName">
-        <span class="input-group-text"><i class="fa-regular fa-user"></i></span>
-      </div>
-      <div class="input-group mb-3 custom-input-group">
-        <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="regEmail" [(ngModel)]="registerData.email">
-        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
-      </div>
-      <div class="input-group mb-4 custom-input-group">
-        <input type="password" class="form-control" placeholder="CONTRASEÑA" name="regPassword" [(ngModel)]="registerData.password">
-        <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
-      </div>
-      <button type="submit" class="btn btn-login w-100 fw-bold text-white fs-5">REGISTRARSE</button>
-    </form>
-    <div class="mt-4 text-center login-links">
-      <span style="color: #999;">¿YA TIENES CUENTA?</span>
-      <a href="#" class="text-white text-decoration-none fw-bold ms-1"
-         data-bs-dismiss="offcanvas"
-         data-bs-toggle="offcanvas"
-         data-bs-target="#loginOffcanvas">INICIA SESIÓN</a>
     </div>
   </div>
 </div>

@@ -42,7 +42,15 @@ export class AuthService {
   }
   return 'INVITADO';
 }
+
 register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+    return this.http.post(`${this.apiUrl}/register`, data).pipe(
+      tap((response: any) => {
+        // Atrapamos el token que el backend ya nos envía al registrar
+        if (response.token) {
+          localStorage.setItem('cinemax_token', response.token);
+        }
+      })
+    );
   }
 }
