@@ -14,21 +14,21 @@ import { Snacks } from './pages/checkout/snacks/snacks';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 
 export const routes: Routes = [
-  { path: '', component: Home },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { 
-    path: 'movie/:id', 
-    component: MovieDetail,
-    runGuardsAndResolvers: 'always'
-  },
-  { path: 'movies', component: Movies },
   {
     path: '',
     component: ClientLayout,
     children: [
+      { path: '', component: Home },
+      { path: 'movies', component: Movies },
+      { 
+        path: 'movie/:id', 
+        component: MovieDetail,
+        runGuardsAndResolvers: 'always'
+      },
       { path: 'seats', component: Seats },
       { path: 'tickets', component: Tickets },
-      { path: 'snacks', component: Snacks }
+      { path: 'snacks', component: Snacks },
+      { path: 'reset-password', component: ResetPasswordComponent }
     ]
   },
   {
