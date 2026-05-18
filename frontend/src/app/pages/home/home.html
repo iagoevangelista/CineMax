@@ -11,10 +11,30 @@
         <li class="nav-item"><a class="nav-link b-header" href="#">Promociones</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
       </ul>
-      <div class="d-flex align-items-center">
-        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
-          <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil">
+      <div class="d-flex align-items-center" style="position: relative; z-index: 99999;">
+        
+        <a *ngIf="!isLogged" href="#" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
+          <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Iniciar Sesión">
         </a>
+        
+        <ng-container *ngIf="isLogged">
+          <a href="javascript:void(0)" (click)="toggleMenu($event)">
+            <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi Perfil Activo">
+          </a>
+          
+          <div [style.display]="menuAbierto ? 'block' : 'none'" style="position: absolute; top: 50px; right: 0; width: 220px; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; box-shadow: 0px 8px 24px rgba(0,0,0,0.7); color: white;">
+            <div style="border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 8px;">
+              <small style="color: #888; font-size: 11px; text-transform: uppercase;">Usuario Activo:</small><br>
+              <strong style="font-size: 13px; color: #9d4edd; word-break: break-all;">{{ userEmail }}</strong>
+            </div>
+            
+            <div data-bs-toggle="offcanvas" data-bs-target="#profileOffcanvas" (click)="menuAbierto = false" style="padding: 8px 4px; cursor: pointer; font-size: 14px; transition: 0.2s;"><i class="fa-solid fa-user-gear me-2"></i> Mi Perfil</div>
+            
+            <div style="padding: 8px 4px; cursor: pointer; font-size: 14px;"><i class="fa-solid fa-ticket me-2"></i> Mis Entradas</div>
+            
+            <div (click)="cerrarSesion()" style="padding: 8px 4px; cursor: pointer; font-size: 14px; color: #ff5555; font-weight: bold; border-top: 1px solid #333; margin-top: 6px;"><i class="fa-solid fa-power-off me-2"></i> Salir</div>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>
@@ -94,7 +114,6 @@
       </div>
       <div class="row g-3">
 
-        <!-- POSTER 1 — Mario -->
         <div class="col-md-4">
           <div class="poster-container h-100 shadow-purple" style="cursor:pointer" [routerLink]="['/movie', 1]">
             <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002775?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Mario">
@@ -105,7 +124,6 @@
         <div class="col-md-8">
           <div class="row g-3 mb-3">
 
-            <!-- POSTER 2 — La Momia -->
             <div class="col-md-6">
               <div class="poster-container h-100 shadow-purple position-relative" style="cursor:pointer" [routerLink]="['/movie', 2]">
                 <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002801?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="La Momia">
@@ -114,7 +132,6 @@
               </div>
             </div>
 
-            <!-- POSTER 3 — Fin del Mundo -->
             <div class="col-md-6">
               <div class="poster-container h-100 shadow-purple position-relative" style="cursor:pointer" [routerLink]="['/movie', 3]">
                 <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002680?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Fin del mundo">
@@ -125,7 +142,6 @@
           </div>
           <div class="row g-3">
 
-            <!-- POSTER 4 — Boulevard -->
             <div class="col-md-6">
               <div class="poster-container h-100 shadow-purple position-relative" style="cursor:pointer" [routerLink]="['/movie', 4]">
                 <img src="https://cdn.apis.cineplanet.com.pe/CDN/media/entity/get/FilmPosterGraphic/HO00002837?referenceScheme=HeadOffice&allowPlaceHolder=true" class="img-mosaico" alt="Boulevard">
@@ -237,7 +253,12 @@
     <img src="Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
     
     <div class="w-100" *ngIf="vistaActiva === 'login'">
-      <h3 class="text-center login-title mb-5 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
+      <h3 class="text-center login-title mb-4 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
+      <div *ngIf="mensajeAuth" class="alert small py-2 w-100 d-flex align-items-center mb-4 shadow-sm" 
+           [ngClass]="esErrorAuth ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+        <i class="fa-solid me-2" [ngClass]="esErrorAuth ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+        <div>{{ mensajeAuth }}</div>
+      </div>
       <form class="w-100" (ngSubmit)="iniciarSesion()">
         <div class="input-group mb-4 custom-input-group">
           <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
@@ -257,7 +278,12 @@
     </div>
 
     <div class="w-100" *ngIf="vistaActiva === 'registro'">
-      <h3 class="text-center login-title mb-4" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
+      <h3 class="text-center login-title mb-3" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
+      <div *ngIf="mensajeAuth" class="alert small py-2 w-100 d-flex align-items-center mb-3 shadow-sm" 
+           [ngClass]="esErrorAuth ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+        <i class="fa-solid me-2" [ngClass]="esErrorAuth ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+        <div>{{ mensajeAuth }}</div>
+      </div>
       <form class="w-100" (ngSubmit)="registrarse()">
         <div class="input-group mb-3 custom-input-group">
           <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
@@ -281,11 +307,27 @@
           </div>
         </div>
         <div class="input-group mb-3 custom-input-group">
-          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
+          <input type="email" 
+          class="form-control" 
+          placeholder="CORREO ELECTRÓNICO" 
+          name="registerEmail" 
+          [(ngModel)]="registerData.email" 
+          required>
         </div>
-        <div class="input-group mb-5 custom-input-group">
-          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" required>
+
+        <div class="input-group mb-2 custom-input-group">
+          <input type="password" 
+          class="form-control" 
+          placeholder="CONTRASEÑA" 
+          name="registerPassword" 
+          [(ngModel)]="registerData.password" 
+          pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" 
+          required>
         </div>
+
+        <small class="text-start d-block text-white mb-4 w-100 ps-1" style="font-size: 12px; font-weight: 500;">
+         <i class="fa-solid fa-circle-info me-1 text-warning"></i> Mínimo 8 caracteres, al menos 1 letra y 1 número.
+        </small>
         <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
       </form>
       <div class="mt-4 text-center login-links">
@@ -323,5 +365,119 @@
         <span style="cursor: pointer; color: #999; font-weight: bold;" (click)="cambiarVista('login', $event)" *ngIf="!loadingRecuperacion">VOLVER AL LOGIN</span>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-end login-panel" tabindex="-1" id="profileOffcanvas">
+  
+  <div class="offcanvas-header border-bottom border-secondary pb-3 mt-2 px-4">
+    <h5 class="offcanvas-title fw-bold d-flex align-items-center" style="color: var(--primary-color);">
+      <i class="fa-solid fa-user-astronaut me-3 fs-4"></i> MI PERFIL
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="btn-cerrar-perfil"></button>
+  </div>
+  
+  <div class="offcanvas-body d-flex flex-column px-4 pt-4 text-white">
+    
+    <div *ngIf="mensajePerfil" class="alert small py-2 w-100 d-flex align-items-center mb-4 shadow-sm" 
+         [ngClass]="esErrorPerfil ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+      <i class="fa-solid me-2" [ngClass]="esErrorPerfil ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+      <div>{{ mensajePerfil }}</div>
+    </div>
+
+    <form class="w-100" (ngSubmit)="guardarCambiosPerfilLateral()">
+      
+      <h6 class="text-secondary fw-bold small mb-3 text-uppercase" style="letter-spacing: 1px;">
+        <i class="fa-solid fa-lock me-2"></i>Datos de la Cuenta
+      </h6>
+      
+      <div class="mb-3">
+        <label class="form-label text-white" style="font-size: 11px; font-weight: 600;">CORREO ELECTRÓNICO</label>
+        <div class="input-group custom-input-group" style="opacity: 0.5; pointer-events: none;">
+          <input type="email" class="form-control" [value]="datosUserAccount.email" disabled>
+          <span class="input-group-text border-0"><i class="fa-solid fa-envelope"></i></span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label text-muted" style="font-size: 11px; font-weight: 600;">N° DE DOCUMENTO</label>
+        <div class="input-group custom-input-group" style="opacity: 0.5; pointer-events: none;">
+          <input type="text" class="form-control" [value]="datosUserAccount.documentNumber" disabled>
+          <span class="input-group-text border-0"><i class="fa-solid fa-id-card"></i></span>
+        </div>
+      </div>
+
+      <h6 class="text-white fw-bold small mb-3 text-uppercase mt-2" style="letter-spacing: 1px;">
+        <i class="fa-solid fa-pen-to-square me-2" style="color: var(--primary-color);"></i>Datos Personales
+      </h6>
+      
+      <div class="mb-3">
+        <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">NOMBRES</label>
+        <div class="input-group custom-input-group">
+          <input type="text" class="form-control" placeholder="Tus nombres" name="profFirstName" [(ngModel)]="formPerfil.firstName" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">APELLIDOS</label>
+        <div class="input-group custom-input-group">
+          <input type="text" class="form-control" placeholder="Tus apellidos" name="profLastName" [(ngModel)]="formPerfil.lastName" required>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-6 pe-2">
+          <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">TELÉFONO</label>
+          <div class="input-group custom-input-group">
+            <input type="text" class="form-control" placeholder="Ej: 999888777" name="profPhone" [(ngModel)]="formPerfil.phone">
+          </div>
+        </div>
+        <div class="col-6 ps-2">
+          <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">NACIMIENTO</label>
+          <div class="input-group custom-input-group">
+            <input type="date" class="form-control" name="profDate" [(ngModel)]="formPerfil.datebirth" [max]="fechaMaxima" style="color-scheme: dark;">
+          </div>
+        </div>
+      </div>
+
+      <h6 class="text-white fw-bold small mb-3 text-uppercase mt-2" style="letter-spacing: 1px;">
+        <i class="fa-solid fa-shield-halved me-2 text-warning"></i>Seguridad
+      </h6>
+      
+      <div class="mb-3">
+        <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">CONTRASEÑA ACTUAL</label>
+        <div class="input-group custom-input-group">
+          <input type="password" class="form-control" placeholder="Requerida para hacer cambios" name="profOldPass" [(ngModel)]="formPerfil.oldPassword">
+          <span class="input-group-text border-0"><i class="fa-solid fa-key"></i></span>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label text-light" style="font-size: 11px; font-weight: 600;">NUEVA CONTRASEÑA</label>
+        <div class="input-group custom-input-group">
+          <input type="password" class="form-control" placeholder="Mínimo 8 caracteres" name="profNewPass" [(ngModel)]="formPerfil.newPassword" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$">
+        </div>
+      </div>
+      <small class="text-white d-block mb-4" style="font-size: 11px; line-height: 1.4;">
+        <i class="fa-solid fa-circle-info text-warning me-1"></i> Déjalo en blanco si no deseas cambiarla. Debe incluir letras y números.
+      </small>
+
+      <button type="submit" class="btn btn-login w-100 text-white fw-bold py-3 mb-5 mt-2 shadow-lg" style="border-radius: 8px; font-size: 15px; letter-spacing: 1px;">
+        GUARDAR CAMBIOS
+      </button>
+
+      <div class="p-3 mb-4 mt-2" style="background-color: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 10px;">
+        <h6 class="text-danger fw-bold small mb-2 text-uppercase" style="letter-spacing: 0.5px;">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>Zona de Peligro
+        </h6>
+        <p class="text-white mb-3" style="font-size: 11px; line-height: 1.5;">
+          Al eliminar tu cuenta perderás permanentemente tu historial de películas, entradas y datos asociados. Esta acción no se puede deshacer.
+        </p>
+        <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold py-2" (click)="eliminarCuenta()" style="border-radius: 6px;">
+          ELIMINAR MI CUENTA
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>

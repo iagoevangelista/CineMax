@@ -4,6 +4,7 @@ import com.cinemax.backend.model.dto.auth.AuthRequestDTO;
 import com.cinemax.backend.model.dto.auth.AuthResponseDTO;
 import com.cinemax.backend.model.dto.auth.RegisterRequestDTO;
 import com.cinemax.backend.service.auth.AuthService;
+import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

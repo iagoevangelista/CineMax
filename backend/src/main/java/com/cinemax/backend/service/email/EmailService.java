@@ -35,4 +35,20 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendWelcomeEmail(String toEmail, String firstName) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("¡Bienvenido a CineMax, " + firstName + "!");
+        message.setText("Hola " + firstName + ",\n\n"
+                + "Queremos darte una cálida bienvenida a la familia CineMax.\n\n"
+                + "Tu cuenta ha sido creada exitosamente. Ahora podrás disfrutar de la mejor experiencia "
+                + "comprando tus entradas y combos favoritos desde la comodidad de tu hogar.\n\n"
+                + "¡Nos vemos en el cine!\n\n"
+                + "Atentamente,\n"
+                + "El equipo de CineMax");
+
+        mailSender.send(message);
+    }
 }

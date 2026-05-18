@@ -1,0 +1,79 @@
+<nav class="navbar navbar-dark bg-dark-custom border-bottom-custom px-4">
+  <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
+  <button class="btn btn-outline-primary btn-sm" routerLink="/"><i class="fa-solid fa-arrow-left me-2"></i>Volver al Inicio</button>
+</nav>
+
+<div class="container mt-5 text-white pb-5" style="max-width: 750px;">
+  <h2 class="fw-bold mb-4 text-uppercase"><i class="fa-solid fa-user-astronaut me-2 text-primary"></i>Configuración de Mi Perfil</h2>
+
+  <div *ngIf="mensajeFeedback" class="alert mb-4 shadow" [ngClass]="esError ? 'alert-danger' : 'alert-success'" role="alert">
+    <i class="fa-solid me-2" [ngClass]="esError ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+    {{ mensajeFeedback }}
+  </div>
+
+  <div class="card border-0 shadow-lg" style="background-color: #16161a; border-radius: 12px;">
+    <div class="card-body p-4 p-md-5">
+      <form (ngSubmit)="guardarCambios()">
+        
+        <h5 class="text-primary fw-bold mb-3"><i class="fa-solid fa-lock me-2"></i>Información del Sistema (No modificable)</h5>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-bold">CORREO ELECTRÓNICO</label>
+            <input type="text" class="form-control text-muted border-0" style="background-color: #24242b;" [value]="datosUsuario.email" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-bold">NÚMERO DE DOCUMENTO (DNI/CE)</label>
+            <input type="text" class="form-control text-muted border-0" style="background-color: #24242b;" [value]="datosUsuario.documentNumber" disabled>
+          </div>
+        </div>
+
+        <h5 class="text-primary fw-bold mb-3 border-top border-secondary pt-4"><i class="fa-solid fa-user-pen me-2"></i>Datos Personales</h5>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Nombre</label>
+            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="firstName" [(ngModel)]="formUpdate.firstName" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Apellidos</label>
+            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="lastName" [(ngModel)]="formUpdate.lastName" required>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Teléfono Celular</label>
+            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="phone" [(ngModel)]="formUpdate.phone">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Dirección Residencial</label>
+            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="address" [(ngModel)]="formUpdate.address">
+          </div>
+        </div>
+
+        <h5 class="text-primary fw-bold mb-3 border-top border-secondary pt-4"><i class="fa-solid fa-key me-2"></i>Cambiar Contraseña</h5>
+        <div class="mb-4">
+          <label class="form-label fw-bold">Nueva Contraseña <span class="text-muted fw-normal">(Opcional)</span></label>
+          <input type="password" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="password" [(ngModel)]="formUpdate.password" placeholder="Dejar en blanco para mantener la contraseña actual">
+          <small class="text-start d-block text-white mt-2 ps-1" style="font-size: 11px;">
+            <i class="fa-solid fa-circle-info me-1 text-warning"></i> Si decides cambiarla, debe tener mínimo 8 caracteres, al menos 1 letra y 1 número.
+          </small>
+        </div>
+
+        <div class="d-grid gap-2 mt-5">
+          <button type="submit" class="btn btn-login text-white fw-bold py-2 fs-5">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Cambios en mi Perfil
+          </button>
+        </div>
+
+        <div class="mt-5 pt-4 border-top border-danger border-dashed">
+          <h5 class="text-danger fw-bold mb-2"><i class="fa-solid fa-skull-crossbones me-2"></i>Zona de Peligro</h5>
+          <p class="text-muted small mb-3">Las siguientes acciones son irreversibles y afectarán tu cuenta de forma permanente.</p>
+          <button type="button" class="btn btn-outline-danger btn-sm fw-bold">
+            <i class="fa-solid fa-user-slash me-2"></i>Eliminar mi cuenta definitivamente
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
