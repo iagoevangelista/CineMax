@@ -51,15 +51,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
-        // 1. Buscamos el rol en la BD
+
+        // --- 1. VALIDAR UNICIDAD DEL CORREO ---
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("El correo electrónico ya se encuentra registrado.");
+        }
+
+        // 2. Buscamos el rol en la BD
         var role = roleRepository.findById(4)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
 
-        // 2. NUEVO: Buscamos el tipo de documento REAL en la base de datos
+        // 3. Buscamos el tipo de documento REAL en la base de datos
         DocumentType docType = documentTypeRepository.findById(request.getIdDocumentType())
                 .orElseThrow(() -> new RuntimeException("Tipo de documento no válido."));
 
-        // 3. Creamos el usuario
+        // 4. Creamos el usuario
         UserAccount user = new UserAccount();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -68,13 +74,21 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(role);
         user.setStatus("Activo");
         user.setDocumentNumber(request.getDocumentNumber());
-
-        // 4. Asignamos la entidad real que trajimos de la BD
         user.setDocumentType(docType);
 
         // 5. Guardamos
         userRepository.save(user);
 
+        // --- 6. ENVÍO DE CORREO DE BIENVENIDA ASÍNCRONO ---
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
+            } catch (Exception e) {
+                System.err.println("Error al enviar correo de bienvenida: " + e.getMessage());
+            }
+        });
+
+        // 7. Generamos Token
         String jwtToken = jwtService.generateToken(user);
 
         return AuthResponseDTO.builder().token(jwtToken).build();

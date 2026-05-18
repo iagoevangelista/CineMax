@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -120,4 +121,6 @@ public class UserAccount implements UserDetails {
     public boolean isEnabled() {
         return "Activo".equalsIgnoreCase(this.status);
     }
+
+
 }

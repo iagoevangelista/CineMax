@@ -12,6 +12,7 @@ import { Tickets } from './pages/checkout/tickets/tickets';
 import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
+import { Profile } from './pages/profile/profile';
 
 export const routes: Routes = [
   {
@@ -41,5 +42,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
+
+  { path: '', component: Home },
+  { path: 'perfil', component: Profile },
   { path: '**', redirectTo: '' }
 ];

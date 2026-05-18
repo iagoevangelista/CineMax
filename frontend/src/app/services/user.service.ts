@@ -35,4 +35,12 @@ export class UserService {
     return this.http.put<any>(`${this.apiUrl}/${idUser}/activate`, {});
   }
 
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/profile`);
+  }
+
+  updateProfile(profileData: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/profile`, profileData);
+  }
+
 }

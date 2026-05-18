@@ -4,12 +4,16 @@ import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
 import com.cinemax.backend.model.dto.user.UserRoleUpdateDTO;
 import com.cinemax.backend.service.user.UserService;
+import java.security.Principal;
+import jakarta.validation.Valid;
+import com.cinemax.backend.model.dto.user.UserUpdateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -54,6 +58,18 @@ public class UserController {
     public ResponseEntity<Void> activateUser(@PathVariable Integer id) {
         userService.activateUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponseDTO> getMyProfile(Principal principal) {
+        // principal.getName() obtiene directamente el email del token inyectado
+        return ResponseEntity.ok(userService.getMyProfile(principal.getName()));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateMyProfile(Principal principal, @Valid @RequestBody UserUpdateDTO request) {
+        userService.updateMyProfile(principal.getName(), request);
+        return ResponseEntity.ok(Map.of("message", "¡Perfil actualizado con éxito!"));
     }
 
 }

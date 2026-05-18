@@ -1,12 +1,11 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service'; // <-- Asegúrate de importar esto
 import { MovieService, Movie } from '../../services/movie.service';
 import { finalize, delay } from 'rxjs/operators';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
-
-
 
 @Component({
   selector: 'app-home',
@@ -20,6 +19,22 @@ export class Home implements OnInit {
   loginData = { email: '', password: '' };
   registerData = { firstName: '', lastName: '', email: '', password: '', documentNumber: '', idDocumentType: '1' };
 
+  // --- NUEVAS VARIABLES PARA EL PANEL DE PERFIL LATERAL ---
+  isLogged: boolean = false;
+  userEmail: string = '';
+  menuAbierto: boolean = false;
+  vistaActiva: string = 'login'; 
+
+  datosUserAccount: any = {}; // Guardará los datos inmutables de la BD
+  formPerfil = {
+    firstName: '', lastName: '', phone: '', datebirth: '', oldPassword: '', newPassword: ''
+  };
+  mensajePerfil: string = '';
+  mensajeAuth: string = '';
+  esErrorAuth: boolean = false;
+  esErrorPerfil: boolean = false;
+  fechaMaxima: string = new Date().toISOString().split('T')[0];
+
   movies: Movie[] = [];
   filteredMovies: Movie[] = [];
   loading = true;
@@ -27,13 +42,84 @@ export class Home implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private userService: UserService, // <-- Inyectamos el servicio de usuarios
     private router: Router,
     private movieService: MovieService,
     private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit() {
+    this.isLogged = this.authService.isLoggedIn();
+    if (this.isLogged) {
+      this.userEmail = this.authService.getEmail() || 'Usuario';
+      this.cargarDatosPerfilLateral(); // Cargamos sus datos si ya inició sesión
+    }
     this.loadMovies();
+  }
+
+  // Métodos de control del menú superior de sesión
+  toggleMenu(event: Event) {
+    event.stopPropagation();
+    this.menuAbierto = !this.menuAbierto;
+  }
+
+  cerrarSesion() {
+    this.authService.logout();
+    this.isLogged = false;
+    this.menuAbierto = false;
+    alert('Sesión cerrada correctamente.');
+    window.location.reload();
+  }
+
+  // --- LÓGICA DE OPERACIÓN DEL PANEL DE PERFIL LATERAL ---
+  cargarDatosPerfilLateral() {
+    this.userService.getProfile().subscribe({
+      next: (res) => {
+        this.datosUserAccount = res;
+        this.formPerfil.firstName = res.firstName;
+        this.formPerfil.lastName = res.lastName;
+        this.formPerfil.phone = res.phone || '';
+        this.formPerfil.datebirth = res.datebirth || '';
+      },
+      error: (err) => console.error('Error al precargar el perfil lateral:', err)
+    });
+  }
+
+  guardarCambiosPerfilLateral() {
+    this.mensajePerfil = '';
+    
+    // Si los campos de password están vacíos, los enviamos en blanco
+    const payload = { ...this.formPerfil };
+    if (!payload.newPassword) payload.newPassword = '';
+    if (!payload.oldPassword) payload.oldPassword = '';
+
+    this.userService.updateProfile(payload).subscribe({
+      next: (res: any) => {
+        this.esErrorPerfil = false;
+        this.mensajePerfil = res.message || '¡Perfil actualizado con éxito!';
+        this.formPerfil.oldPassword = '';
+        this.formPerfil.newPassword = '';
+        this.cargarDatosPerfilLateral(); // Refrescar info inmutable
+        
+        // ¡LA SOLUCIÓN! Le decimos a Angular que refresque la alerta inmediatamente
+        this.cdr.detectChanges(); 
+      },
+      error: (err) => {
+        this.esErrorPerfil = true;
+        this.mensajePerfil = err.error?.message || 'Error al intentar actualizar los datos.';
+        
+        // ¡LA SOLUCIÓN! Le decimos a Angular que refresque la alerta inmediatamente
+        this.cdr.detectChanges(); 
+      }
+    });
+  }
+  
+  // Espacio listo para añadir la lógica que me pasarás luego
+  eliminarCuenta() {
+    const confirmar = confirm('¿Estás completamente seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');
+    if (confirmar) {
+      alert('Funcionalidad de eliminación en desarrollo según tus especificaciones futuras.');
+    }
   }
 
   loadMovies() {
@@ -54,35 +140,53 @@ export class Home implements OnInit {
   }
 
   iniciarSesion() {
+    this.mensajeAuth = ''; // Limpiamos mensajes anteriores
+    
     if (!this.loginData.email || !this.loginData.password) {
-      alert('Por favor ingresa tu correo y contrasena');
+      this.esErrorAuth = true;
+      this.mensajeAuth = 'Por favor ingresa tu correo y contraseña.';
       return;
     }
+
     this.authService.login(this.loginData).subscribe({
       next: () => {
-        document.getElementById('cerrarLogin')?.click();
-        this.router.navigate(['/admin/dashboard']);
+        this.esErrorAuth = false;
+        this.mensajeAuth = '¡Sesión iniciada con éxito! Entrando...';
+        
+        // Le damos 1.5 segundos para que el usuario lea el mensaje verde antes de cerrar
+        setTimeout(() => {
+          document.getElementById('btn-cerrar-panel')?.click();
+          this.isLogged = true;
+          this.userEmail = this.authService.getEmail() || this.loginData.email;
+          this.loginData = { email: '', password: '' };
+          this.mensajeAuth = '';
+          this.cargarDatosPerfilLateral();
+        }, 1500); 
       },
       error: (err: any) => {
-        console.error('Error al iniciar sesion:', err);
-        alert('Correo o contrasena incorrectos');
+        this.esErrorAuth = true;
+        this.mensajeAuth = 'Correo o contraseña incorrectos.';
       }
     });
   }
 
   registrarse() {
+    this.mensajeAuth = '';
+    
     this.authService.register(this.registerData).subscribe({
       next: () => {
-        // Como authService.ts ya guardó el token, el usuario ya está "logueado"
-        document.getElementById('btn-cerrar-panel')?.click(); // Cerramos el modal
+        this.esErrorAuth = false;
+        this.mensajeAuth = '¡Registro exitoso! Redirigiendo...';
         
-        // Recargamos o redirigimos según lo que quieras
-        alert('¡Bienvenido a CineMax!');
-        window.location.reload(); 
+        // Le damos 2 segundos para que lea el éxito y recargamos
+        setTimeout(() => {
+          document.getElementById('btn-cerrar-panel')?.click(); 
+          window.location.reload(); 
+        }, 2000);
       },
       error: (err: any) => {
-        console.error('Error al registrarse:', err);
-        alert('Error al registrarse. Intenta de nuevo.');
+        this.esErrorAuth = true;
+        this.mensajeAuth = err.error?.message || 'Error al registrarse. Asegúrate de cumplir los requisitos.';
       }
     });
   }
@@ -90,9 +194,6 @@ export class Home implements OnInit {
 irAMovies() {
   this.router.navigate(['/movies']);
 }
-
-vistaActiva: string = 'login'; 
-
   cambiarVista(vista: string, event?: Event) {
     if (event) {
         event.preventDefault();

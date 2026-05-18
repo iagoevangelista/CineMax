@@ -16,6 +16,8 @@ import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.repository.VenueRepository;
+import com.cinemax.backend.model.dto.user.UserUpdateDTO;
+import com.cinemax.backend.model.entity.UserAccount;
 
 import lombok.RequiredArgsConstructor;
 
@@ -220,6 +222,59 @@ public class UserServiceImpl implements UserService {
 
         // Si pasa las validaciones (nadie ha ocupado su puesto), lo reactivamos con seguridad
         user.setStatus("Activo");
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserResponseDTO getMyProfile(String email) {
+        UserAccount user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        // Convertimos la entidad a DTO de respuesta para enviarlo limpio a Angular
+        UserResponseDTO response = new UserResponseDTO();
+        response.setIdUser(user.getIdUser());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setEmail(user.getEmail());
+        response.setStatus(user.getStatus());
+        response.setDocumentNumber(user.getDocumentNumber());
+        response.setPhone(user.getPhoneNumber()); // <-- Usa getPhoneNumber()
+        response.setDatebirth(user.getBirthDate()); // <-- Usa getBirthDate()
+
+        if (user.getRole() != null) {
+            response.setRoleName(user.getRole().getRoleName());
+            response.setIdRole(user.getRole().getIdRole());
+        }
+        return response;
+    }
+
+    @Override
+    public void updateMyProfile(String email, UserUpdateDTO request) {
+        UserAccount user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhoneNumber(request.getPhone());
+        user.setBirthDate(request.getDatebirth());
+
+        // --- LÓGICA DE CAMBIO DE CONTRASEÑA SEGURO ---
+        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+
+            // 1. Validar que haya enviado la contraseña actual
+            if (request.getOldPassword() == null || request.getOldPassword().trim().isEmpty()) {
+                throw new RuntimeException("Debe ingresar su contraseña actual para poder registrar una nueva.");
+            }
+
+            // 2. Comparar la contraseña ingresada con el hash guardado en la BD
+            if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+                throw new RuntimeException("La contraseña actual ingresada es incorrecta.");
+            }
+
+            // 3. Si pasó la prueba, encriptamos y guardamos la nueva
+            user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        }
+
         userRepository.save(user);
     }
 
