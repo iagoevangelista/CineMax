@@ -45,12 +45,16 @@ ngOnInit() {
   });
 }
   volver() {
-  window.location.href = '/movies';
+    this.router.navigate(['/movies']);
 }
 
   empezarCompra() {
     if (this.movie) {
-      this.bookingService.guardarPelicula(this.movie);
+      // Le mandamos a la "bandeja" tanto la película como el horario exacto
+      // (Asegúrate de que tu BookingService tenga una función que acepte ambos)
+      //this.bookingService.iniciarReserva(this.movie, idShowtime);
+      
+      // Viajamos a la selección de asientos
       this.router.navigate(['/seats']);
     }
   }

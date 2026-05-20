@@ -45,6 +45,10 @@ public class SecurityConfig {
                         // Rutas públicas: Películas (cartelera pública)
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
 
+
+                        .requestMatchers("/api/v1/showtimes/**").permitAll() 
+                        .requestMatchers("/api/v1/seats/**").permitAll()
+
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers("/api/v1/auth/reset-password").permitAll()
@@ -53,6 +57,7 @@ public class SecurityConfig {
 
                         // 4. Cualquier otra ruta requiere estar autenticado
                         .anyRequest().authenticated()
+                        
                 )
 
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

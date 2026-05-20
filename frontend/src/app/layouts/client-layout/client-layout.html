@@ -1,31 +1,47 @@
-<nav class="navbar navbar-expand-lg sticky-top navbar-dark">
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark-custom border-bottom-custom">
   <div class="container-fluid px-4">
-    <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
-    <div class="collapse navbar-collapse justify-content-start ms-4">
-      <ul class="navbar-nav gap-lg-4">
+    <a class="navbar-brand logo d-flex align-items-center" routerLink="/">
+      <img src="/Imagenes/logo_CINEMAX.jpeg" alt="CINEMAX" style="height: 45px;"> 
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#CabeceraCinemax">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse justify-content-between" id="CabeceraCinemax">
+      <ul class="navbar-nav mb-2 mb-lg-0 gap-lg-4 ms-4">
         <li class="nav-item"><a class="nav-link b-header" routerLink="/movies">Cartelera</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Sedes</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Promociones</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
       </ul>
-    </div>
-    <div class="zona-perfil-manual" style="position: relative; display: flex; align-items: center; z-index: 999999;">
-      <div *ngIf="!isLogged" (click)="cambiarVista('login')" style="cursor: pointer; color: white; font-size: 24px;" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
-        <i class="fa-regular fa-circle-user"></i>
-      </div>
-      <ng-container *ngIf="isLogged">
-        <div (click)="toggleMenu($event)" style="cursor: pointer; color: white; font-size: 28px; display: flex;">
-          <i class="fa-regular fa-circle-user"></i>
+      
+      <div class="zona-perfil-manual d-flex align-items-center" style="position: relative; z-index: 999999;">
+        
+        <div *ngIf="!isLogged" (click)="cambiarVista('login')" style="cursor: pointer;" data-bs-toggle="offcanvas" data-bs-target="#authOffcanvas">
+          <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil" style="width: 40px; height: 40px;">
         </div>
-        <div [style.display]="menuAbierto ? 'block' : 'none'" style="position: absolute; top: 45px; right: 0; width: 200px; background-color: #ffffff; border: 2px solid #333; border-radius: 8px; padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
-          <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 8px;">
-            <small style="color: #666; font-size: 11px;">USUARIO ACTIVO:</small><br>
-            <strong style="font-size: 13px; color: #d63384;">{{ userEmail }}</strong>
+        
+        <ng-container *ngIf="isLogged">
+          <div (click)="toggleMenu($event)" style="cursor: pointer; display: flex;">
+            <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil" style="width: 40px; height: 40px; border: 2px solid #d63384; border-radius: 50%;">
           </div>
-          <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;"><i class="fa-solid fa-ticket me-2"></i> Mis Entradas</div>
-          <div (click)="cerrarSesion()" style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;"><i class="fa-solid fa-power-off me-2"></i> Salir</div>
-        </div>
-      </ng-container>
+          
+          <div [style.display]="menuAbierto ? 'block' : 'none'" style="position: absolute; top: 50px; right: 0; width: 200px; background-color: #ffffff; border: 2px solid #333; border-radius: 8px; padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
+            <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 8px;">
+              <small style="color: #666; font-size: 11px;">USUARIO ACTIVO:</small><br>
+              <strong style="font-size: 13px; color: #d63384;">{{ userEmail }}</strong>
+            </div>
+            <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;">
+              <i class="fa-solid fa-ticket me-2"></i> Mis Entradas
+            </div>
+            <div (click)="cerrarSesion()" style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;">
+              <i class="fa-solid fa-power-off me-2"></i> Salir
+            </div>
+          </div>
+        </ng-container>
+        
+      </div>
     </div>
   </div>
 </nav>
@@ -40,21 +56,45 @@
         <ul class="list-unstyled footer-links">
           <li><a href="#">Sobre CineMax.</a></li>
           <li><a href="#">Trabaja con nosotros.</a></li>
+          <li><a href="#">Ventas corporativas (Para empresas).</a></li>
+          <li><a href="#">Nuestras Sedes.</a></li>
         </ul>
       </div>
       <div class="col-md-4 border-end-purple ps-md-5">
         <h5 class="footer-title">AYUDA</h5>
         <ul class="list-unstyled footer-links">
-          <li><a href="#">Preguntas Frecuentes.</a></li>
-          <li><a href="#">Contacto.</a></li>
+          <li><a href="#">Preguntas Frecuentes (FAQ).</a></li>
+          <li><a href="#">Protocolos de Seguridad.</a></li>
+          <li><a href="#">Comprobantes Electrónicos.</a></li>
+          <li><a href="#">Contacto / WhatsApp de atención.</a></li>
         </ul>
       </div>
       <div class="col-md-4 ps-md-5">
-        <h5 class="footer-title">SÍGUENOS</h5>
-        <div class="d-flex flex-wrap gap-3 mb-3">
-          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+        <h5 class="footer-title">SIGUENOS</h5>
+        <div class="row align-items-center">
+          <div class="col-6">
+            <div class="d-flex flex-wrap gap-3">
+              <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+              <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+              <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+              <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex flex-column gap-2">
+              <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" class="app-badge" alt="Google Play"></a>
+              <a href="#"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" class="app-badge" alt="App Store"></a>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+    <div class="border-top-purple pt-4">
+      <div class="d-flex flex-wrap justify-content-between gap-3 text-center">
+        <a href="#" class="legal-link">TERMINOS Y CONDICIONES</a>
+        <a href="#" class="legal-link">POLITICA Y PRIVACIDAD</a>
+        <a href="#" class="legal-link">POLITICA Y USO DE COOKIES</a>
+        <a href="#" class="legal-link">LIBRO DE RECLAMACIONES</a>
       </div>
     </div>
   </div>

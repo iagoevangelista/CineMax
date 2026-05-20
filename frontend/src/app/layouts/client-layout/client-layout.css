@@ -1,142 +1,118 @@
-/* NAVBAR (image_ef9ad3.png) */
-.navbar {
-    background-color: #121212 !important; /* Fondo negro profundo */
-    padding: 0.8rem 1rem;
-    border-bottom: 1px solid #222;
-  }
-  
-  .logo {
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: #a29bfe !important; /* Morado claro/lavanda de la imagen */
-    letter-spacing: 1px;
+/* =========================================
+   1. NAVBAR (CABECERA)
+   ========================================= */
+   .bg-dark-custom { 
+    background-color: var(--background-color); 
+}
+.border-bottom-custom { 
+    border-bottom: 0.2rem solid var(--surface-color); 
+}
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+.b-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-light);
+    transition: color 0.3s;
+}
+.b-header:hover { 
+    color: var(--secondary-color); 
+}
+.b-perfil {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 0.8rem;
+    filter: brightness(0) invert(1);
+    transition: 0.3s;
+}
+.b-perfil:hover {
+    transform: scale(1.1);
+    border: 2px solid var(--primary-color);
+    filter: invert(92%) sepia(10%) saturate(836%) hue-rotate(215deg) brightness(101%) contrast(97%);
+}
+
+/* =========================================
+   2. FOOTER (PIE DE PÁGINA)
+   ========================================= */
+.footer-cine {
+    background-color: var(--surface-color);
+    color: var(--text-light);
+    margin-top: 5rem;
+    padding: 2rem 0;
+}
+.footer-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+.footer-links a {
+    color: #b0b0b0;
     text-decoration: none;
-  }
-  
-  .b-header {
-    color: #ffffff !important; /* Texto blanco puro */
-    font-weight: 700;
-    font-size: 0.95rem;
     transition: 0.3s;
-  }
-  
-  .b-header:hover {
-    color: #a29bfe !important;
-  }
-  
-  .user-icon {
+    font-size: 0.9rem;
+}
+.footer-links a:hover { 
+    color: var(--primary-color); 
+    padding-left: 5px; 
+}
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--background-color);
     color: white;
-    font-size: 1.8rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
     transition: 0.3s;
-  }
-  
-  /* MODAL DE LOGIN (image_ef9ab4.png) */
-  .login-panel {
-    background-color: #222222 !important; /* Gris oscuro de la imagen */
-    width: 400px !important;
-    color: white;
-  }
-  
-  .login-title {
-    font-weight: 700;
-    font-size: 1.5rem;
-    line-height: 1.2;
-  }
-  
-  /* Inputs con ícono a la derecha */
-  .custom-input-group {
-    background-color: #2a2a2a;
-    border: 1px solid #444;
+}
+.social-icon:hover { 
+    background-color: var(--primary-color); 
+}
+
+/* =========================================
+   3. PANEL DE LOGIN (OFFCANVAS)
+   ========================================= */
+.login-panel {
+    background-color: #242424; 
+    border-left: 1px solid var(--surface-color);
+    width: 400px; 
+}
+.custom-input-group {
+    border: 1px solid #555;
     border-radius: 8px;
     overflow: hidden;
-  }
-  
-  .custom-input-group .form-control {
-    background: transparent !important;
-    border: none !important;
-    color: #bbb !important;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    padding: 12px 15px;
-  }
-  
-  .custom-input-group .input-group-text {
-    background: transparent !important;
-    border: none !important;
-    color: #eee;
-    padding-right: 15px;
-  }
-  
-  /* Botón Morado Vibrante */
-  .btn-login {
-    background-color: #8a2be2; /* Morado de la imagen */
+    background-color: #242424;
+}
+.custom-input-group .form-control {
+    background-color: transparent;
     border: none;
+    color: white;
+    padding: 14px 15px;
+    font-size: 0.9rem;
+}
+.custom-input-group .form-control::placeholder {
+    color: #888;
+}
+.custom-input-group .input-group-text {
+    background-color: transparent;
+    border: none;
+    color: white;
+}
+.btn-login {
+    background-color: #9b59b6; 
+    padding: 12px;
     border-radius: 8px;
-    padding: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    border: none;
     transition: 0.3s;
-  }
-  
-  .btn-login:hover {
-    background-color: #7020c0;
-  }
-  
-  .login-links a {
-    font-size: 0.75rem;
-    color: #999;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  
-  .register-link {
-    color: #fff !important;
-    font-weight: 800 !important;
-  }
-
-  /* Quitar la flechita del dropdown si no la quieres */
-.dropdown-toggle::after {
-  display: none !important;
 }
-
-.user-icon {
-  font-size: 1.8rem;
-  color: white;
-  transition: transform 0.2s;
+.btn-login:hover {
+    background-color: #8e44ad;
 }
-
-.user-icon:hover {
-  transform: scale(1.1);
-  color: #00d2ff; /* O el color principal de tu web */
-}
-
-/* Estilo del menú desplegable */
-.dropdown-menu.show {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Evita que el icono se mueva */
-.user-icon {
-  font-size: 2rem;
-  color: white;
-}
-.perfil-usuario-wrapper {
-  z-index: 10000;
-}
-
-.menu-item-link:hover {
-  background-color: #343a40;
-  border-radius: 5px;
-}
-
-/* Evita que el menú desaparezca detrás del contenido de abajo */
-.mi-menu-personalizado {
-  animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+.login-links {
+    font-size: 0.85rem;
 }
