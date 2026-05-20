@@ -2,66 +2,90 @@
   
   <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
     <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Sedes</h2>
-    <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevaSede">
-  <i class="fa-solid fa-plus me-2"></i>Nueva Sede
-</button>
+    <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevaSede" (click)="prepararCreacion()">
+      <i class="fa-solid fa-plus me-2"></i>Nueva Sede
+    </button>
   </div>
 
 
   
-  <div class="table-responsive shadow-lg rounded" style="background-color: var(--surface-color);">
-
-    <div *ngIf="cargando" class="text-center my-5">
-      <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status">
-        <span class="visually-hidden">Cargando...</span>
-      </div>
-      <h4 class="mt-3 text-info fw-bold">Consultando a Azure...</h4>
-    </div>
-
-    <div *ngIf="!cargando" class="table-responsive shadow-lg rounded" style="background-color: var(--surface-color);">
-      <table class="table table-dark table-hover mb-0 align-middle">
-
-      <table class="table table-dark table-hover mb-0 align-middle">
-      <thead>
-        <tr style="border-bottom: 2px solid var(--primary-color);">
-          <th class="p-3">ID</th>
-          <th class="p-3">Nombre del Cine</th>
-          <th class="p-3">Dirección</th>
-          <th class="p-3">Departamento</th>
-          <th class="p-3">Distrito</th>
-          <th class="p-3">Estado</th>
-          <th class="p-3 text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let sede of listaSedes">
-          <td class="p-3 fw-bold">{{ sede.idVenue }}</td>
-          <td class="p-3">{{ sede.nameVenue }}</td>
-          <td class="p-3">{{ sede.addressVenue }}</td>
-          <td class="p-3">{{ sede.departmentName }}</td>
-          <td class="p-3">{{ sede.districtName }}</td>
-          <td class="p-3">
-            <span class="badge" [ngClass]="sede.status === 'Activo' ? 'bg-success' : 'bg-danger'">
+  <div *ngIf="!cargando" class="shadow-lg rounded p-4" style="background-color: var(--background-color);">
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      
+      <div class="col" *ngFor="let sede of listaSedes">
+        
+        <div class="card h-100 text-white shadow-sm hover-card" style="background-color: #161619; border: 1px solid #333; border-radius: 12px; overflow: hidden;">
+          
+          <div class="position-relative" style="height: 190px; background-color: #0d0d11; border-bottom: 2px solid var(--primary-color);">
+            
+            <img *ngIf="sede.imageUrl" [src]="sede.imageUrl" 
+                 class="w-100 h-100" 
+                 alt="{{ sede.nameVenue }}" 
+                 style="object-fit: cover;">
+            
+            <div *ngIf="!sede.imageUrl" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-secondary">
+               <i class="fa-solid fa-camera fs-2 mb-2" style="opacity: 0.3;"></i>
+               <small style="opacity: 0.5; letter-spacing: 2px; font-weight: 600;">SIN IMAGEN</small>
+            </div>
+            
+            <span class="badge position-absolute top-0 end-0 m-3 shadow-sm px-3 py-2" 
+                  [ngClass]="sede.status === 'Activo' ? 'bg-success' : 'bg-danger'"
+                  style="border-radius: 6px; font-weight: 700; letter-spacing: 0.5px;">
               {{ sede.status }}
             </span>
-          </td>
-          <td class="p-3 text-center">
-            <button class="btn btn-sm btn-outline-info me-2"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-</table>
+          </div>
+
+          <div class="card-body d-flex flex-column p-4">
+            <h4 class="card-title fw-bold mb-1" style="color: var(--primary-color);">{{ sede.nameVenue }}</h4>
+            <p class="text-muted small mb-3 border-bottom border-secondary pb-3">
+              <i class="fa-solid fa-map-location-dot me-1"></i> {{ sede.departmentName || 'Dpto. No asignado' }}
+            </p>
+            
+            <div class="mb-2 flex-grow-1">
+              <p class="mb-2" style="font-size: 0.9rem;"><i class="fa-solid fa-location-dot text-secondary me-2"></i> {{ sede.addressVenue }}</p>
+              <p class="mb-0" style="font-size: 0.9rem;"><i class="fa-solid fa-city text-secondary me-2"></i> {{ sede.districtName || 'Distrito' }}</p>
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent p-3 d-flex justify-content-between align-items-center" style="border-top: 1px solid #333;">
+            <small class="text-secondary fw-bold">ID: {{ sede.idVenue }}</small>
+            
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-info btn-sm shadow-sm px-3" 
+                      data-bs-toggle="modal" 
+                      data-bs-target="#modalNuevaSede" 
+                      (click)="prepararEdicion(sede)"
+                      style="border-radius: 6px;"
+                      title="Editar Sede">
+                <i class="fa-solid fa-pen me-1"></i> Editar
+              </button>
+              
+              <button class="btn btn-sm shadow-sm px-3" 
+                      [ngClass]="sede.status === 'Activo' ? 'btn-outline-danger' : 'btn-outline-success'" 
+                      (click)="toggleEstado(sede)"
+                      [title]="sede.status === 'Activo' ? 'Desactivar Sede' : 'Activar Sede'"
+                      style="border-radius: 6px;">
+                <i class="fa-solid" [ngClass]="sede.status === 'Activo' ? 'fa-ban' : 'fa-check'"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
     </div>
   </div>
+</div>
 
-  <div class="modal fade text-dark" id="modalNuevaSede" tabindex="-1" aria-labelledby="modalNuevaSedeLabel" aria-hidden="true">
+<div class="modal fade text-white" id="modalNuevaSede" tabindex="-1" aria-labelledby="modalNuevaSedeLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="background-color: #f8f9fa;">
+    <div class="modal-content bg-dark text-white border-secondary">
       
-      <div class="modal-header" style="background-color: var(--primary-color); color: white;">
-        <h5 class="modal-title fw-bold" id="modalNuevaSedeLabel">Registrar Nueva Sede</h5>
+      <div class="modal-header border-secondary" style="background-color: var(--primary-dark); color: white;">
+        <h5 class="modal-title fw-bold" id="modalNuevaSedeLabel">
+          {{ esEdicion ? 'Editar Sede' : 'Registrar Nueva Sede' }}
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -70,23 +94,23 @@
           <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label fw-bold">Nombre del Cine</label>
-                <input type="text" class="form-control" [(ngModel)]="nuevaSede.nameVenue" name="name" placeholder="Ej: CineMax San Miguel">
+                <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.nameVenue" name="name" placeholder="Ej: CineMax San Miguel">
             </div>
             
             <div class="col-md-6">
               <label class="form-label fw-bold">Teléfono</label>
-              <input type="text" class="form-control" [(ngModel)]="nuevaSede.phoneNumber" name="phone" placeholder="Ej: 01-456-7890">
+              <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.phoneNumber" name="phone" placeholder="Ej: 01-456-7890">
             </div>
 
             <div class="col-md-12">
               <label class="form-label fw-bold">Dirección Exacta</label>
-              <input type="text" class="form-control" [(ngModel)]="nuevaSede.addressVenue" name="address" placeholder="Ej: Av. La Marina 2000">
+              <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.addressVenue" name="address" placeholder="Ej: Av. La Marina 2000">
             </div>
 
             <div class="col-md-4">
                 <label class="form-label fw-bold">Departamento</label>
-                <select class="form-select" [(ngModel)]="nuevaSede.idDepartment"    name="department" (change)="onDepartamentoChange()">
-                    <option [value]="0" selected>Seleccione...</option>
+                <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.idDepartment" name="department" (change)="onDepartamentoChange()">
+                    <option [value]="0">Seleccione...</option>
                     <option *ngFor="let dep of listaDepartamentos" [value]="dep.idDepartment">
                         {{ dep.nameDepartment }}
                     </option>
@@ -95,8 +119,8 @@
 
             <div class="col-md-4">
                 <label class="form-label fw-bold">Provincia</label>
-                <select class="form-select" [(ngModel)]="nuevaSede.idProvince" name="province" (change)="onProvinciaChange()" [disabled]="listaProvincias.length === 0">
-                    <option [value]="0" selected>Seleccione...</option>
+                <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.idProvince" name="province" (change)="onProvinciaChange()" [disabled]="listaProvincias.length === 0">
+                    <option [value]="0">Seleccione...</option>
                     <option *ngFor="let prov of listaProvincias" [value]="prov.idProvince">
                         {{ prov.nameProvince }}
                     </option>
@@ -105,29 +129,47 @@
 
             <div class="col-md-4">
                 <label class="form-label fw-bold">Distrito</label>
-                <select class="form-select" [(ngModel)]="nuevaSede.idDistrict" name="district" [disabled]="listaDistritos.length === 0">
-                    <option [value]="0" selected>Seleccione...</option>
+                <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevaSede.idDistrict" name="district" [disabled]="listaDistritos.length === 0">
+                    <option [value]="0">Seleccione...</option>
                     <option *ngFor="let dist of listaDistritos" [value]="dist.idDistrict">
                         {{ dist.nameDistrict }}
                     </option>
                 </select>
             </div>
 
-            <div class="col-md-6 mt-4">
-              <label class="form-label fw-bold">Estado Inicial</label>
-              <select class="form-select border-success">
-                <option value="Activo" selected>Activo</option>
-                <option value="Inactivo">Inactivo</option>
-              </select>
+            <div class="col-md-12 mt-3">
+              <label class="form-label fw-bold">Imagen de la Sede</label>
+              
+              <div class="drag-drop-zone p-4 text-center rounded bg-dark border border-secondary"
+                  style="border-style: dashed !important; cursor: pointer; transition: 0.3s;"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event)"
+                  (click)="fileInput.click()">
+                  
+                <i class="fa-solid fa-cloud-arrow-up fs-1 text-info mb-2"></i>
+                <p class="fw-bold mb-0">Arrastra y suelta tu imagen aquí o <span class="text-primary">examina</span></p>
+                <small class="text-muted">Formatos: JPG, PNG, WEBP (Máx. 2MB)</small>
+                
+                <input type="file" #fileInput class="d-none" (change)="onFileSelected($event)" accept="image/*">
+              </div>
+
+              <div *ngIf="imagenPrevia || nuevaSede.imageUrl" class="mt-3 text-center position-relative">
+                <img [src]="imagenPrevia || nuevaSede.imageUrl" alt="Vista previa" class="img-thumbnail bg-dark border-secondary" style="max-height: 200px; object-fit: cover;">
+                <button type="button" class="btn btn-sm btn-danger mt-2 d-block mx-auto fw-bold" (click)="quitarImagen()">
+                  <i class="fa-solid fa-trash me-1"></i> Quitar Imagen
+                </button>
+              </div>
             </div>
+
           </div>
         </form>
       </div>
 
-      <div class="modal-footer">
-         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-         <button type="button" class="btn btn-success fw-bold" (click)="guardarSede()">Guardar Sede</button>
-        </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal" id="btnCerrarModalSede">Cancelar</button>
+        <button type="button" class="btn btn-success fw-bold text-white" (click)="guardarSede()">Guardar Cambios</button>
+      </div>
 
     </div>
   </div>

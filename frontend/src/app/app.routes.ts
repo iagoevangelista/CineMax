@@ -37,7 +37,7 @@ export const routes: Routes = [
     component: AdminLayout,
     children: [
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRole: 'GERENTE_GRAL' } },
+      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRole: 'GERENTE_GENERAL' } },
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRole: 'ADMIN' } },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

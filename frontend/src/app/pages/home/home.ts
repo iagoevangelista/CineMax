@@ -160,7 +160,18 @@ export class Home implements OnInit {
           this.userEmail = this.authService.getEmail() || this.loginData.email;
           this.loginData = { email: '', password: '' };
           this.mensajeAuth = '';
-          this.cargarDatosPerfilLateral();
+
+          // --- RESTRICCIÓN Y REDIRECCIÓN SEGÚN EL ROL ---
+          const userRole = this.authService.getRole();
+          
+          if (userRole === 'ADMIN' || userRole.startsWith('GERENTE')) {
+            // Es staff interno: lo redirigimos a su portal administrativo
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            // Es un cliente: se queda en la vista y le cargamos su perfil lateral
+            this.cargarDatosPerfilLateral();
+          }
+
         }, 1500); 
       },
       error: (err: any) => {

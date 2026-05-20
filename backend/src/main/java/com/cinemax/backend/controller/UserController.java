@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GRAL', 'ADMIN', 'GERENTE_GRAL')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL', 'ADMIN', 'GERENTE_GENERAL')")
     public ResponseEntity<Void> activateUser(@PathVariable Integer id) {
         userService.activateUser(id);
         return ResponseEntity.ok().build();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cinemax.backend.model.dto.venue.VenueDropdownDTO;
 import com.cinemax.backend.model.dto.venue.VenueRequestDTO;
@@ -12,6 +13,7 @@ import com.cinemax.backend.model.entity.District;
 import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.DistrictRepository;
 import com.cinemax.backend.repository.VenueRepository;
+import com.cinemax.backend.service.cloudinary.CloudinaryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,7 @@ public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
     private final DistrictRepository districtRepository;
+    private final CloudinaryService cloudinaryService; // <-- Inyectamos el servicio de Cloudinary
 
     @Override
     public List<VenueResponseDTO> getAllVenues() {
@@ -34,6 +37,7 @@ public class VenueServiceImpl implements VenueService {
             dto.setAddressVenue(sede.getAddress());
             dto.setPhoneNumber(sede.getPhoneNumber());
             dto.setStatus(sede.getStatus());
+            dto.setImageUrl(sede.getImageUrl()); // <-- Agregamos la URL de la imagen
 
             if (sede.getDistrict() != null) {
                 dto.setDistrictName(sede.getDistrict().getNameDistrict());
@@ -55,9 +59,19 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public VenueResponseDTO createVenue(VenueRequestDTO request) {
+    public VenueResponseDTO createVenue(VenueRequestDTO request, MultipartFile image) {
         District dist = districtRepository.findById(request.getIdDistrict())
                 .orElseThrow(() -> new RuntimeException("Distrito no encontrado"));
+
+        String imageUrl = null;
+        // Si viene una imagen, la subimos a Cloudinary
+        if (image != null && !image.isEmpty()) {
+            try {
+                imageUrl = cloudinaryService.uploadImage(image);
+            } catch (Exception e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
 
         Venue nuevaSede = Venue.builder()
                 .nameVenue(request.getNameVenue())
@@ -65,6 +79,7 @@ public class VenueServiceImpl implements VenueService {
                 .phoneNumber(request.getPhoneNumber())
                 .status(request.getStatus())
                 .district(dist)
+                .imageUrl(imageUrl) // <-- Guardamos la URL
                 .build();
 
         Venue guardada = venueRepository.save(nuevaSede);
@@ -75,6 +90,7 @@ public class VenueServiceImpl implements VenueService {
         response.setAddressVenue(guardada.getAddress());
         response.setPhoneNumber(guardada.getPhoneNumber());
         response.setStatus(guardada.getStatus());
+        response.setImageUrl(guardada.getImageUrl()); // <-- URL al DTO
         
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());
@@ -93,12 +109,22 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public VenueResponseDTO updateVenue(Integer idVenue, VenueRequestDTO request) {
+    public VenueResponseDTO updateVenue(Integer idVenue, VenueRequestDTO request, MultipartFile image) {
         Venue sedeExistente = venueRepository.findById(idVenue)
                 .orElseThrow(() -> new RuntimeException("Sede no encontrada"));
 
         District dist = districtRepository.findById(request.getIdDistrict())
                 .orElseThrow(() -> new RuntimeException("Distrito no encontrado"));
+
+        // Si mandan una nueva imagen, la subimos y actualizamos la URL
+        if (image != null && !image.isEmpty()) {
+            try {
+                String newImageUrl = cloudinaryService.uploadImage(image);
+                sedeExistente.setImageUrl(newImageUrl); // <-- Reemplazamos la URL anterior
+            } catch (Exception e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
 
         sedeExistente.setNameVenue(request.getNameVenue());
         sedeExistente.setAddress(request.getAddressVenue());
@@ -114,6 +140,7 @@ public class VenueServiceImpl implements VenueService {
         response.setAddressVenue(actualizada.getAddress());
         response.setPhoneNumber(actualizada.getPhoneNumber());
         response.setStatus(actualizada.getStatus());
+        response.setImageUrl(actualizada.getImageUrl()); // <-- URL al DTO
         
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());

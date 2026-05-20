@@ -15,4 +15,5 @@ public class VenueResponseDTO {
     private Integer idDepartment;
     private Integer idProvince;
     private Integer idDistrict;
+    private String imageUrl;
 }
