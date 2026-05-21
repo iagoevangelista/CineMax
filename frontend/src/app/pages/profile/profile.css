@@ -1,0 +1,8 @@
+/* Efecto hover sólido y sutil para las pestañas de perfil */
+.btn-menu-profile {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-menu-profile:hover {
+  background-color: #2a2a32 !important;
+}

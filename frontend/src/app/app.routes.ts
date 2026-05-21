@@ -20,6 +20,7 @@ export const routes: Routes = [
     component: ClientLayout,
     children: [
       { path: '', component: Home },
+      { path: 'profile', component: Profile },
       { path: 'movies', component: Movies },
       { 
         path: 'movie/:id', 

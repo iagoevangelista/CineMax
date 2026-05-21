@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
@@ -16,6 +17,7 @@ import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.repository.VenueRepository;
+import com.cinemax.backend.service.cloudinary.CloudinaryService;
 import com.cinemax.backend.model.dto.user.UserUpdateDTO;
 import com.cinemax.backend.model.entity.UserAccount;
 
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final VenueRepository venueRepository; // Inyectar
     private final PasswordEncoder passwordEncoder; // Inyectar
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
@@ -227,10 +230,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getMyProfile(String email) {
+        // Buscamos al usuario en la BD
         UserAccount user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Convertimos la entidad a DTO de respuesta para enviarlo limpio a Angular
+        // Empaquetamos TODOS los datos en el DTO
         UserResponseDTO response = new UserResponseDTO();
         response.setIdUser(user.getIdUser());
         response.setFirstName(user.getFirstName());
@@ -238,44 +242,58 @@ public class UserServiceImpl implements UserService {
         response.setEmail(user.getEmail());
         response.setStatus(user.getStatus());
         response.setDocumentNumber(user.getDocumentNumber());
-        response.setPhone(user.getPhoneNumber()); // <-- Usa getPhoneNumber()
-        response.setDatebirth(user.getBirthDate()); // <-- Usa getBirthDate()
-
-        if (user.getRole() != null) {
-            response.setRoleName(user.getRole().getRoleName());
-            response.setIdRole(user.getRole().getIdRole());
-        }
+        response.setPhone(user.getPhoneNumber()); 
+        response.setDatebirth(user.getBirthDate());
+        response.setImageUrl(user.getImageUrl()); 
+        
         return response;
     }
 
     @Override
-    public void updateMyProfile(String email, UserUpdateDTO request) {
+    public UserResponseDTO updateProfile(UserUpdateDTO updateDTO, MultipartFile image, String email) {
         UserAccount user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhoneNumber(request.getPhone());
-        user.setBirthDate(request.getDatebirth());
-
-        // --- LÓGICA DE CAMBIO DE CONTRASEÑA SEGURO ---
-        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
-
-            // 1. Validar que haya enviado la contraseña actual
-            if (request.getOldPassword() == null || request.getOldPassword().trim().isEmpty()) {
-                throw new RuntimeException("Debe ingresar su contraseña actual para poder registrar una nueva.");
+        // Subida de imagen
+        if (image != null && !image.isEmpty()) {
+            try {
+                String uploadedUrl = cloudinaryService.uploadImage(image);
+                user.setImageUrl(uploadedUrl);
+            } catch (Exception e) {
+                // Loguea el error real aquí
+                throw new RuntimeException("Error al subir imagen a Cloudinary");
             }
-
-            // 2. Comparar la contraseña ingresada con el hash guardado en la BD
-            if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
-                throw new RuntimeException("La contraseña actual ingresada es incorrecta.");
-            }
-
-            // 3. Si pasó la prueba, encriptamos y guardamos la nueva
-            user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        userRepository.save(user);
+        // Actualización de campos (usando Optional para evitar nulos si vienen del JSON)
+        if (updateDTO.getFirstName() != null) user.setFirstName(updateDTO.getFirstName());
+        if (updateDTO.getLastName() != null) user.setLastName(updateDTO.getLastName());
+        if (updateDTO.getPhone() != null) user.setPhoneNumber(updateDTO.getPhone());
+        if (updateDTO.getDatebirth() != null) user.setBirthDate(updateDTO.getDatebirth());
+
+        // Contraseña
+        if (updateDTO.getNewPassword() != null && !updateDTO.getNewPassword().isEmpty()) {
+             if (updateDTO.getOldPassword() == null || !passwordEncoder.matches(updateDTO.getOldPassword(), user.getPasswordHash())) {
+                throw new RuntimeException("Contraseña actual incorrecta");
+             }
+             user.setPasswordHash(passwordEncoder.encode(updateDTO.getNewPassword()));
+        }
+
+        UserAccount updatedUser = userRepository.save(user);
+
+        // Retorno
+        UserResponseDTO response = new UserResponseDTO();
+        response.setIdUser(updatedUser.getIdUser());
+        response.setFirstName(updatedUser.getFirstName());
+        response.setLastName(updatedUser.getLastName());
+        response.setEmail(updatedUser.getEmail());
+        response.setStatus(updatedUser.getStatus());
+        response.setDocumentNumber(updatedUser.getDocumentNumber());
+        response.setPhone(updatedUser.getPhoneNumber());
+        response.setDatebirth(updatedUser.getBirthDate());
+        response.setImageUrl(updatedUser.getImageUrl());
+
+        return response;
     }
 
 }

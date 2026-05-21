@@ -22,5 +22,6 @@ public class UserResponseDTO {
     private String documentNumber;
     private String phone;
     private LocalDate datebirth;
+    private String imageUrl;
 
 }
