@@ -37,7 +37,9 @@ public class VenueServiceImpl implements VenueService {
             dto.setAddressVenue(sede.getAddress());
             dto.setPhoneNumber(sede.getPhoneNumber());
             dto.setStatus(sede.getStatus());
-            dto.setImageUrl(sede.getImageUrl()); // <-- Agregamos la URL de la imagen
+            dto.setImageUrl(sede.getImageUrl());
+            dto.setLatitude(sede.getLatitude());
+            dto.setLongitude(sede.getLongitude());
 
             if (sede.getDistrict() != null) {
                 dto.setDistrictName(sede.getDistrict().getNameDistrict());
@@ -79,7 +81,9 @@ public class VenueServiceImpl implements VenueService {
                 .phoneNumber(request.getPhoneNumber())
                 .status(request.getStatus())
                 .district(dist)
-                .imageUrl(imageUrl) // <-- Guardamos la URL
+                .imageUrl(imageUrl)
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .build();
 
         Venue guardada = venueRepository.save(nuevaSede);
@@ -90,7 +94,9 @@ public class VenueServiceImpl implements VenueService {
         response.setAddressVenue(guardada.getAddress());
         response.setPhoneNumber(guardada.getPhoneNumber());
         response.setStatus(guardada.getStatus());
-        response.setImageUrl(guardada.getImageUrl()); // <-- URL al DTO
+        response.setImageUrl(guardada.getImageUrl());
+        response.setLatitude(request.getLatitude());
+        response.setLongitude(request.getLongitude());
         
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());
@@ -131,6 +137,8 @@ public class VenueServiceImpl implements VenueService {
         sedeExistente.setPhoneNumber(request.getPhoneNumber());
         sedeExistente.setStatus(request.getStatus());
         sedeExistente.setDistrict(dist);
+        sedeExistente.setLatitude(request.getLatitude());
+        sedeExistente.setLongitude(request.getLongitude());
 
         Venue actualizada = venueRepository.save(sedeExistente);
 
@@ -140,8 +148,9 @@ public class VenueServiceImpl implements VenueService {
         response.setAddressVenue(actualizada.getAddress());
         response.setPhoneNumber(actualizada.getPhoneNumber());
         response.setStatus(actualizada.getStatus());
-        response.setImageUrl(actualizada.getImageUrl()); // <-- URL al DTO
-        
+        response.setImageUrl(actualizada.getImageUrl());
+        response.setLatitude(actualizada.getLatitude());
+        response.setLongitude(actualizada.getLongitude());
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());
         

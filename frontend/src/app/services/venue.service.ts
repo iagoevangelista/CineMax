@@ -18,6 +18,10 @@ export class VenueService {
     return this.http.get<Venue[]>(this.apiUrl);
   }
 
+   getPublicVenues(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/public`);
+    }
+
   // 2. Método para CREAR una nueva sede
   createVenue(venueData: FormData): Observable<any> {
     return this.http.post<any>(this.apiUrl, venueData);

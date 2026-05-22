@@ -16,4 +16,6 @@ public class VenueResponseDTO {
     private Integer idProvince;
     private Integer idDistrict;
     private String imageUrl;
+    private Double latitude;
+    private Double longitude;
 }

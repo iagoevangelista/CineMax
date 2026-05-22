@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { VenueService } from '../../../services/venue.service';
 import { LocationService } from '../../../services/location.service';
+import * as L from 'leaflet'; 
 
 export interface Venue {
   idVenue?: number;
@@ -17,6 +18,8 @@ export interface Venue {
   provinceName?: string;
   districtName?: string;
   imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 @Component({
@@ -37,6 +40,10 @@ export class Venues implements OnInit {
   listaDistritos: any[] = [];
 
   cargando: boolean = false;
+  textoBusquedaMapa: string = '';
+
+  map: L.Map | undefined;
+  marker: L.Marker | undefined;
 
   nuevaSede = {
     nameVenue: '',
@@ -46,7 +53,9 @@ export class Venues implements OnInit {
     idDepartment: 0, 
     idProvince: 0,   
     idDistrict: 0,
-    imageUrl: ''
+    imageUrl: '',
+    latitude: -12.046374, 
+    longitude: -77.042793
   };
 
   constructor(
@@ -120,10 +129,13 @@ export class Venues implements OnInit {
       idDepartment: 0, 
       idProvince: 0,   
       idDistrict: 0,
-      imageUrl: '' 
+      imageUrl: '',
+      latitude: -12.046374, 
+      longitude: -77.042793
     };
     this.listaProvincias = [];
     this.listaDistritos = [];
+    setTimeout(() => this.initMap(), 400);
   }
 
   prepararEdicion(sede: any) {
@@ -138,7 +150,9 @@ export class Venues implements OnInit {
       idDepartment: sede.idDepartment || 0,
       idProvince: sede.idProvince || 0,
       idDistrict: sede.idDistrict || 0,
-      imageUrl: sede.imageUrl || '' 
+      imageUrl: sede.imageUrl || '',
+      latitude: sede.latitude || -12.046374,
+      longitude: sede.longitude || -77.042793
     };
 
     if (this.nuevaSede.idDepartment > 0) {
@@ -153,23 +167,38 @@ export class Venues implements OnInit {
         }
       });
     }
+    setTimeout(() => this.initMap(), 400);
   }
 
   guardarSede() {
+    // 1. Validaciones
+    if (!this.nuevaSede.nameVenue.trim() || !this.nuevaSede.addressVenue.trim()) {
+      alert("El nombre y la dirección del cine son obligatorios.");
+      return;
+    }
+
     if (this.nuevaSede.idDepartment <= 0 || this.nuevaSede.idProvince <= 0 || this.nuevaSede.idDistrict <= 0) {
         alert("Por favor, selecciona Departamento, Provincia y Distrito.");
         return;
     }
 
-    // CREAMOS EL PAQUETE MULTIPART (FormData)
+    // 2. VENTANA DE CONFIRMACIÓN
+    const mensajeConfirmacion = this.esEdicion 
+      ? '¿Estás seguro de actualizar los datos de esta sede?' 
+      : '¿Estás seguro de registrar esta nueva sede en el sistema?';
+      
+    if (!confirm(mensajeConfirmacion)) {
+      return; // Si el usuario cancela, detenemos el proceso
+    }
+
+    // 3. Empaquetado
     const formData = new FormData();
-    // 1. Metemos el JSON de la sede
     formData.append('venue', new Blob([JSON.stringify(this.nuevaSede)], { type: 'application/json' }));
-    // 2. Metemos la imagen si es que seleccionaron una
     if (this.imagenSeleccionada) {
       formData.append('image', this.imagenSeleccionada);
     }
 
+    // 4. Envío al Backend
     if (this.esEdicion) {
       this.venueService.updateVenue(this.sedeAEditarId, formData).subscribe({
         next: () => {
@@ -177,7 +206,10 @@ export class Venues implements OnInit {
           this.cerrarModal();
           this.cargarSedes();
         },
-        error: (err) => alert('Error al actualizar la sede')
+        error: (err) => {
+          const msg = err.error?.message || 'Error al actualizar la sede';
+          alert(msg);
+        }
       });
     } else {
       this.venueService.createVenue(formData).subscribe({
@@ -186,32 +218,54 @@ export class Venues implements OnInit {
               this.cerrarModal();
               this.cargarSedes();
           },
-          error: (err) => alert('Error al guardar la sede')
+          error: (err) => {
+              const msg = err.error?.message || 'Error al guardar la sede';
+              alert(msg);
+          }
       });
     }
   }
 
   toggleEstado(sede: any) {
     const nuevoEstado = sede.status === 'Activo' ? 'Inactivo' : 'Activo';
+    const accionTexto = sede.status === 'Activo' ? 'desactivar (ocultar)' : 'reactivar';
     
-    // 1. Preparamos los datos de la sede con el nuevo estado
+    // 1. VENTANA DE CONFIRMACIÓN PARA ELIMINAR/DESACTIVAR
+    if (!confirm(`¿Estás completamente seguro de ${accionTexto} la sede "${sede.nameVenue}"?`)) {
+      return; // Si cancela, no hacemos nada
+    }
+
+    // 2. Preparamos los datos COMPLETOS para que Java no los rechace por el @Valid
     const requestBody = {
       nameVenue: sede.nameVenue,
       addressVenue: sede.addressVenue,
       phoneNumber: sede.phoneNumber,
       status: nuevoEstado,
-      idDistrict: sede.idDistrict || 0
+      
+      // ¡SOLUCIÓN AL ERROR! Ahora mandamos las IDs de ubicación obligatorias
+      idDepartment: sede.idDepartment || 0,
+      idProvince: sede.idProvince || 0,
+      idDistrict: sede.idDistrict || 0,
+      
+      // ¡Y mandamos las coordenadas para no perderlas en el mapa!
+      latitude: sede.latitude,
+      longitude: sede.longitude
     };
 
-    // 2. Empaquetamos en FormData (porque el Backend ahora lo exige)
+    // 3. Empaquetamos
     const formData = new FormData();
     formData.append('venue', new Blob([JSON.stringify(requestBody)], { type: 'application/json' }));
     
+    // 4. Enviamos al backend
     this.venueService.updateVenue(sede.idVenue, formData).subscribe({
       next: () => {
+        alert(`¡Sede ${accionTexto}a con éxito!`);
         this.cargarSedes(); // Refresca la tabla
       },
-      error: (err) => alert('Error al cambiar el estado de la sede')
+      error: (err) => {
+        const msg = err.error?.message || 'Error al cambiar el estado de la sede';
+        alert(msg);
+      }
     });
   }
 
@@ -230,7 +284,9 @@ export class Venues implements OnInit {
         idDepartment: 0, 
         idProvince: 0, 
         idDistrict: 0,
-        imageUrl: '' 
+        imageUrl: '',
+        latitude: -12.046374,
+        longitude: -77.042793 
       };
     }, 400);
   }
@@ -291,4 +347,84 @@ export class Venues implements OnInit {
     this.nuevaSede.imageUrl = ''; 
   }
 
+  initMap() {
+    // Si ya existe un mapa anterior, lo destruimos para crear uno limpio
+    if (this.map) {
+      this.map.remove();
+    }
+
+    // Dibujamos el mapa centrado en las coordenadas de la sede
+    this.map = L.map('mapa-sede').setView([this.nuevaSede.latitude, this.nuevaSede.longitude], 15);
+
+    // Cargamos el diseño visual del mapa desde OpenStreetMap (¡Es gratis!)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(this.map);
+
+    // Configuramos el ícono del Pin rojo (para evitar bugs visuales de Angular)
+    const customIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/2776/2776067.png', // Un pin bonito
+      iconSize: [35, 35],
+      iconAnchor: [17, 35]
+    });
+
+    // Colocamos el pin inicial
+    this.marker = L.marker([this.nuevaSede.latitude, this.nuevaSede.longitude], { icon: customIcon }).addTo(this.map);
+
+    // EVENTO MÁGICO: Cuando el usuario hace clic en el mapa
+    this.map.on('click', (e: any) => {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      
+      // Actualizamos variables para guardar en la BD
+      this.nuevaSede.latitude = lat;
+      this.nuevaSede.longitude = lng;
+
+      // Movemos el pin visualmente
+      if (this.marker) {
+        this.marker.setLatLng([lat, lng]);
+      }
+    });
+
+    // Arreglo para que el mapa no se vea gris dentro del Modal de Bootstrap
+    this.map.invalidateSize();
+  }
+
+  buscarUbicacionLibre() {
+    if (!this.textoBusquedaMapa || !this.textoBusquedaMapa.trim()) {
+      alert('Escribe un lugar de referencia para buscar en el mapa.');
+      return;
+    }
+
+    // Le agregamos "Perú" automáticamente para que no busque cosas en otros países
+    const query = `${this.textoBusquedaMapa}, Perú`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+
+          this.nuevaSede.latitude = lat;
+          this.nuevaSede.longitude = lon;
+
+          // Movemos el mapa a la ubicación encontrada (Zoom 15 para ver las calles)
+          if (this.map && this.marker) {
+            this.map.setView([lat, lon], 15);
+            this.marker.setLatLng([lat, lon]);
+          }
+          this.cdr.detectChanges();
+        } else {
+          // Si Nominatim no lo encuentra, le damos un buen consejo al gerente
+          alert('No se encontró el lugar exacto. Intenta buscar solo por el nombre del distrito o ciudad (Ej: "Cayma, Arequipa") y luego mueve el mapa con el ratón.');
+        }
+      })
+      .catch(err => {
+        console.error('Error en búsqueda de mapa:', err);
+        alert('Hubo un error de conexión con el mapa.');
+      });
+  }
+  
 }

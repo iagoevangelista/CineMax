@@ -46,6 +46,12 @@ public class Venue {
     @ManyToOne
     @JoinColumn(name = "id_district", nullable = false)
     private District district;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
     
 
 }

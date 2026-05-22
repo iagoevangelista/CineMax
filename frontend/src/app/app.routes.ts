@@ -13,6 +13,7 @@ import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
+import { Sedes } from './pages/sedes/sedes';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,7 @@ export const routes: Routes = [
       { path: '', component: Home },
       { path: 'profile', component: Profile },
       { path: 'movies', component: Movies },
+      { path: 'sedes', component: Sedes },
       { 
         path: 'movie/:id', 
         component: MovieDetail,
@@ -31,6 +33,7 @@ export const routes: Routes = [
       { path: 'tickets', component: Tickets },
       { path: 'snacks', component: Snacks },
       { path: 'reset-password', component: ResetPasswordComponent }
+      
     ]
   },
   {
