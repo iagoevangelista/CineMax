@@ -8,7 +8,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const esRutaAdmin = req.url.includes('/admin') || 
                        req.url.includes('/users') || 
                        req.url.includes('/venues') || 
-                       req.url.includes('/locations');
+                       req.url.includes('/locations') ||
+                       req.url.includes('/rooms') ||  
+                       req.url.includes('/seats');   
 
   if (token && esRutaAdmin) {
     // Si el body es FormData, NO enviamos 'Content-Type' (el navegador lo gestiona solo)

@@ -14,6 +14,7 @@ import { Snacks } from './pages/checkout/snacks/snacks';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
 import { Sedes } from './pages/sedes/sedes';
+import { Rooms } from './pages/admin/rooms/rooms';
 
 export const routes: Routes = [
   {
@@ -36,13 +37,21 @@ export const routes: Routes = [
       
     ]
   },
-  {
+    {
     path: 'admin',
     component: AdminLayout,
     children: [
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRole: 'GERENTE_GENERAL' } },
-      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRole: 'ADMIN' } },
+      
+      // Sedes: Solo Admin y Gerente General
+      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'ROLE_GERENTE_GENERAL'] } },
+      
+      // Salas: Admin, G. General y G. de Operaciones
+      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'ROLE_GERENTE_GENERAL', 'GERENTE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES'] } },
+      
+      // Usuarios: Solo Admin
+      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN', 'ROLE_ADMIN'] } },
+      
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

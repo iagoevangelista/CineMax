@@ -1,0 +1,31 @@
+.seat-box {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px 8px 4px 4px; /* Forma de butaca */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+.seat-box:hover {
+  transform: scale(1.1);
+  border-color: #fff;
+}
+
+/* Colores de los estados */
+.seat-activo { background-color: #28a745; color: white; } /* Verde */
+.seat-wheelchair { background-color: #0dcaf0; color: white; } /* Azul claro */
+.seat-mantenimiento { background-color: #dc3545; color: white; } /* Rojo */
+.seat-oculto { background-color: transparent; border: 1px dashed #444; opacity: 0.5; } /* Vacío */
+
+/* Pantalla del cine */
+.cinema-screen {
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+  border-top-left-radius: 50% 10px;
+  border-top-right-radius: 50% 10px;
+  border-top: 5px solid #fff;
+  filter: drop-shadow(0 15px 15px rgba(255,255,255,0.1));
+}

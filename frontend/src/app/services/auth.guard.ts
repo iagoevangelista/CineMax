@@ -12,15 +12,17 @@ export const authGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // 2. ¿La ruta exige un rol específico? (NUEVO)
-  const rolExigido = route.data['expectedRole']; 
+  // 2. ¿La ruta exige roles específicos? (MODIFICADO PARA ARREGLOS)
+  const rolesPermitidos = route.data['expectedRoles'] as Array<string>; 
   const rolUsuario = authService.getRole();
 
-  // Si la ruta pide un rol y el usuario no lo tiene, lo rebotamos
-  if (rolExigido && rolExigido !== rolUsuario) {
-    alert('Acceso Denegado: No tienes permisos para ver esta pantalla.');
-    router.navigate(['/admin/dashboard']); // Lo mandamos a un lugar seguro
-    return false;
+  // Si la ruta pide roles, validamos si el rol del usuario está dentro de esa lista
+  if (rolesPermitidos && rolesPermitidos.length > 0) {
+    if (!rolesPermitidos.includes(rolUsuario)) {
+      alert('Acceso Denegado: No tienes permisos para ver esta pantalla.');
+      router.navigate(['/admin/dashboard']); // Lo mandamos a un lugar seguro
+      return false;
+    }
   }
 
   return true; // Si todo está bien, lo deja pasar

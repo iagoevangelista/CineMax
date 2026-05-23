@@ -43,9 +43,9 @@ public class SeatServiceImpl implements SeatService {
         for (Seat asiento : todosLosAsientos) {
             SeatStatusDTO dto = new SeatStatusDTO();
             dto.setIdSeat(asiento.getIdSeat());
-            dto.setRowLetter(asiento.getRowLetter());
+            dto.setRowLetter(asiento.getRowName());
             dto.setColumnNumber(asiento.getColumnNumber());
-            dto.setNameSeatType(asiento.getSeatType().getNameSeatType());
+            dto.setNameSeatType(asiento.getSeatType());
             
             if (idsOcupados.contains(asiento.getIdSeat())) {
                 dto.setIsOccupied(true);

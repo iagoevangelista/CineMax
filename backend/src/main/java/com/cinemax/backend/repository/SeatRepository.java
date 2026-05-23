@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
     List<Seat> findByRoom_IdRoom(Integer idRoom);
+    List<Seat> findByRoom_IdRoomOrderByRowNameAscColumnNumberAsc(Integer idRoom);
 }
