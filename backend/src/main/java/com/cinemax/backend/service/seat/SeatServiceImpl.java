@@ -25,37 +25,41 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public List<SeatStatusDTO> getSeatsStatusByShowtime(Integer idShowtime) {
-        
+
         Showtime funcion = showtimeRepository.findById(idShowtime)
                 .orElseThrow(() -> new RuntimeException("Horario no encontrado con ID: " + idShowtime));
-                
+
         List<Seat> todosLosAsientos = seatRepository.findByRoom_IdRoom(funcion.getRoom().getIdRoom());
-        
+
         List<SaleTicketDetail> ticketsVendidos = ticketDetailRepository.findByShowtime_IdShowtime(idShowtime);
-        
+
         Set<Integer> idsOcupados = new HashSet<>();
         for (SaleTicketDetail ticket : ticketsVendidos) {
             idsOcupados.add(ticket.getSeat().getIdSeat());
         }
-                
+
         List<SeatStatusDTO> response = new ArrayList<>();
-        
+
         for (Seat asiento : todosLosAsientos) {
             SeatStatusDTO dto = new SeatStatusDTO();
             dto.setIdSeat(asiento.getIdSeat());
             dto.setRowLetter(asiento.getRowName());
             dto.setColumnNumber(asiento.getColumnNumber());
-            dto.setNameSeatType(asiento.getSeatType());
-            
+
+            // CORREGIDO: Ahora usa 'asiento' en lugar de 'seat'
+            if (asiento.getSeatType() != null) {
+                dto.setNameSeatType(asiento.getSeatType().getNameSeatType());
+            }
+
             if (idsOcupados.contains(asiento.getIdSeat())) {
                 dto.setIsOccupied(true);
             } else {
                 dto.setIsOccupied(false);
             }
-            
+
             response.add(dto);
         }
-        
+
         return response;
     }
 }

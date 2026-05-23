@@ -170,29 +170,22 @@ export class Rooms implements OnInit {
   }
 
   aplicarPincel(asiento: any) {
-    // 1. Cambiamos visualmente el estado/tipo según el pincel seleccionado
     if (this.pincelSeleccionado === 'ACTIVO' || this.pincelSeleccionado === 'MANTENIMIENTO' || this.pincelSeleccionado === 'OCULTO') {
       asiento.status = this.pincelSeleccionado;
-      if (this.pincelSeleccionado === 'OCULTO') asiento.seatType = 'REGULAR'; // Si lo oculta, pierde la silla de ruedas
+      if (this.pincelSeleccionado === 'OCULTO') asiento.idSeatType = 1; // 1 es REGULAR
     } else if (this.pincelSeleccionado === 'WHEELCHAIR') {
       asiento.status = 'ACTIVO'; 
-      asiento.seatType = 'WHEELCHAIR';
+      asiento.idSeatType = 2; // Asumiendo que 2 es Silla de Ruedas en tu BD
     }
 
-    // 2. Disparamos el guardado automático al Backend (sin que el gerente tenga que darle a "Guardar")
-    this.seatService.updateSeat(asiento.idSeat, asiento).subscribe({
-      error: () => {
-        alert("Error al actualizar la butaca. Intente nuevamente.");
-      }
-    });
+    this.seatService.updateSeat(asiento.idSeat, asiento).subscribe({error: () => { alert("Error al actualizar la butaca. Intente nuevamente."); }});
   }
 
-  // Clase CSS dinámica según el estado para pintarlo en el mapa
   obtenerClaseAsiento(asiento: any): string {
     if (asiento.status === 'OCULTO') return 'seat-oculto';
     if (asiento.status === 'MANTENIMIENTO') return 'seat-mantenimiento';
-    if (asiento.seatType === 'WHEELCHAIR') return 'seat-wheelchair';
-    return 'seat-activo'; // Verde por defecto
+    if (asiento.idSeatType === 2) return 'seat-wheelchair'; // Cambiado a idSeatType
+    return 'seat-activo'; 
   }
   
 }

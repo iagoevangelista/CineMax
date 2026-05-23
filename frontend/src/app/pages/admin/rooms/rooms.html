@@ -16,14 +16,14 @@
     </select>
   </div>
 
-  <div *ngIf="esAdminGlobal && sedeFiltroId === 0" class="text-center py-5 text-muted">
+  <div *ngIf="esAdminGlobal && sedeFiltroId === 0" class="text-center py-5 text-white">
     <i class="fa-solid fa-arrow-pointer fs-1 mb-3 opacity-50"></i>
     <h5>Seleccione una sede en el menú superior para ver sus salas.</h5>
   </div>
 
   <div class="row row-cols-1 row-cols-md-3 g-4" *ngIf="!esAdminGlobal || sedeFiltroId > 0">
     
-    <div class="col-12 text-center text-muted py-4" *ngIf="listaSalas.length === 0">
+    <div class="col-12 text-center text-white py-4" *ngIf="listaSalas.length === 0">
       <i class="fa-solid fa-couch fs-2 mb-2 opacity-50"></i>
       <p>Este cine aún no tiene salas registradas.</p>
     </div>
@@ -35,7 +35,7 @@
           <h4 class="fw-bold text-white">{{ sala.nameRoom }}</h4>
           <span class="badge mb-3" [ngClass]="sala.status === 'Activo' ? 'bg-success' : 'bg-danger'">{{ sala.status }}</span>
           
-          <div class="d-flex justify-content-center gap-4 text-muted small mt-2 border-top border-secondary pt-3">
+          <div class="d-flex justify-content-center gap-4 text-white small mt-2 border-top border-secondary pt-3">
             <div><i class="fa-solid fa-users me-1"></i> {{ sala.capacity }} Asientos</div>
             <div><i class="fa-solid fa-building me-1"></i> Sede ID: {{ sala.idVenue }}</div>
           </div>
@@ -67,26 +67,26 @@
           <div class="mb-4">
             <label class="form-label fw-bold">Identificador de la Sala</label>
             <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevaSala.nameRoom" name="name" placeholder="Ej: Sala 1, Sala XD, Prime 1" required>
-            <small class="text-muted">El sistema validará que este nombre no se repita en esta sede.</small>
+            <small class="text-white">Se validará que este nombre no se repita en esta sede.</small>
           </div>
           
           <h6 class="text-info fw-bold mb-3 border-bottom border-secondary pb-2">Distribución Base de Butacas</h6>
           
           <div class="row g-3 mb-3">
             <div class="col-6">
-              <label class="form-label text-muted small fw-bold">CANTIDAD DE FILAS</label>
+              <label class="form-label text-white small fw-bold">CANTIDAD DE FILAS</label>
               <input type="number" class="form-control bg-dark text-white border-secondary fs-4 text-center" 
                      [(ngModel)]="nuevaSala.numRows" name="rows" min="1" max="26" (input)="calcularCapacidad()">
             </div>
             <div class="col-6">
-              <label class="form-label text-muted small fw-bold">ASIENTOS POR FILA</label>
+              <label class="form-label text-white small fw-bold">ASIENTOS POR FILA</label>
               <input type="number" class="form-control bg-dark text-white border-secondary fs-4 text-center" 
                      [(ngModel)]="nuevaSala.seatsPerRow" name="cols" min="1" max="50" (input)="calcularCapacidad()">
             </div>
           </div>
 
           <div class="p-3 rounded text-center" style="background-color: #1a1a1f; border: 1px dashed var(--primary-color);">
-            <span class="text-muted small d-block mb-1">CAPACIDAD TOTAL GENERADA</span>
+            <span class="text-white small d-block mb-1">CAPACIDAD TOTAL GENERADA</span>
             <span class="fs-2 fw-bold text-white">{{ nuevaSala.capacity }}</span> <span class="text-secondary">Butacas</span>
           </div>
         </form>
@@ -107,7 +107,7 @@
       
       <div class="modal-header border-secondary" style="background-color: var(--primary-dark);">
         <h5 class="modal-title fw-bold">
-          <i class="fa-solid fa-pen-ruler me-2"></i>Esculpir Sala: {{ salaSeleccionadaMatriz?.nameRoom }}
+          <i class="fa-solid fa-pen-ruler me-2"></i>Diseñar Sala: {{ salaSeleccionadaMatriz?.nameRoom }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -117,7 +117,7 @@
           
           <div class="col-md-3 border-end border-secondary">
             <h6 class="text-info fw-bold mb-3"><i class="fa-solid fa-paint-roller me-2"></i>Herramientas</h6>
-            <p class="small text-muted mb-4">Selecciona un pincel y haz clic en los asientos del mapa para aplicar los cambios instantáneamente.</p>
+            <p class="small text-white mb-4">Selecciona un pincel y haz clic en los asientos del mapa para aplicar los cambios instantáneamente.</p>
             
             <div class="d-grid gap-2">
               <button class="btn text-start text-white" [ngClass]="pincelSeleccionado === 'OCULTO' ? 'btn-secondary fw-bold' : 'btn-outline-secondary'" (click)="seleccionarPincel('OCULTO')">
@@ -141,7 +141,7 @@
           <div class="col-md-9 text-center overflow-auto" style="max-height: 60vh;">
             
             <div class="cinema-screen w-75 mx-auto mb-5 d-flex align-items-end justify-content-center pb-1">
-              <span class="text-muted small fw-bold tracking-widest">PANTALLA</span>
+              <span class="text-white small fw-bold tracking-widest">PANTALLA</span>
             </div>
 
             <div *ngIf="matrizFilas.length === 0" class="spinner-border text-info my-5"></div>
@@ -157,9 +157,9 @@
                      (click)="aplicarPincel(asiento)"
                      [title]="'Fila ' + fila.fila + ' - Butaca ' + asiento.columnNumber">
                   
-                  <i class="fa-solid fa-wheelchair fa-xs" *ngIf="asiento.seatType === 'WHEELCHAIR'"></i>
+                  <i class="fa-solid fa-wheelchair fa-xs" *ngIf="asiento.idSeatType === 2"></i>
                   <i class="fa-solid fa-wrench fa-xs" *ngIf="asiento.status === 'MANTENIMIENTO'"></i>
-                  <span class="small" style="font-size: 0.6rem;" *ngIf="asiento.status === 'ACTIVO' && asiento.seatType !== 'WHEELCHAIR'">{{ asiento.columnNumber }}</span>
+                  <span class="small" style="font-size: 0.6rem;" *ngIf="asiento.status === 'ACTIVO' && asiento.idSeatType !== 2">{{ asiento.columnNumber }}</span>
                 
                 </div>
               </div>

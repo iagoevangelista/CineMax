@@ -8,5 +8,5 @@ public class SeatDTO {
     private String rowName;
     private Integer columnNumber;
     private String status;      // "ACTIVO", "MANTENIMIENTO", "OCULTO"
-    private String seatType;    // "REGULAR", "WHEELCHAIR"
+    private Integer idSeatType;
 }

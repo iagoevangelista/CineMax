@@ -18,7 +18,7 @@ public class Seat {
     @Column(name = "id_seat")
     private Integer idSeat;
 
-    @Column(name = "row_letter", length = 5, nullable = false) // Cambiado de row_name a row_letter
+    @Column(name = "row_name", length = 5, nullable = false)
     private String rowName;
 
     @Column(name = "column_number", nullable = false)
@@ -30,11 +30,13 @@ public class Seat {
     private String status = "ACTIVO";
 
     // TIPO: "REGULAR", "WHEELCHAIR"
-    @Builder.Default
-    @Column(name = "seat_type", length = 20)
-    private String seatType = "REGULAR";
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_seat_type", nullable = false)
+    private SeatType seatType;
 
     @ManyToOne
     @JoinColumn(name = "id_room", nullable = false)
     private Room room;
+
+
 }

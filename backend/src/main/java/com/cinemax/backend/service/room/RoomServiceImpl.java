@@ -4,8 +4,10 @@ import com.cinemax.backend.model.dto.room.RoomRequestDTO;
 import com.cinemax.backend.model.dto.room.RoomResponseDTO;
 import com.cinemax.backend.model.entity.Room;
 import com.cinemax.backend.model.entity.Seat;
+import com.cinemax.backend.model.entity.SeatType;
 import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.RoomRepository;
+import org.springframework.transaction.annotation.Transactional;
 import com.cinemax.backend.repository.SeatRepository;
 import com.cinemax.backend.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,7 @@ public class RoomServiceImpl implements RoomService {
         return dto;
     }
 
+    @Transactional
     @Override
     public RoomResponseDTO createRoom(RoomRequestDTO request) {
 
@@ -96,6 +99,8 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         Room savedRoom = roomRepository.save(room);
+        SeatType tipoRegular = new SeatType();
+        tipoRegular.setIdSeatType(1);
 
         // 4. MAGIA (HU-18): Generación Automática del Tablero de Asientos
         List<Seat> seatsToSave = new java.util.ArrayList<>();
@@ -110,7 +115,7 @@ public class RoomServiceImpl implements RoomService {
                         .rowName(rowLetter)
                         .columnNumber(c)
                         .status("ACTIVO")      // Estado Físico: Todos nacen sanos
-                        .seatType("REGULAR")   // Tipo: Butaca normal
+                        .seatType(tipoRegular)   // Tipo: Butaca normal
                         .build();
                 seatsToSave.add(seat);
             }
