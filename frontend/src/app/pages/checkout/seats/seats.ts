@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BookingService } from '../../../services/booking';
+import { BookingService } from '../../../services/booking'; // Ajusta la ruta
 import { AuthService } from '../../../services/auth.service';
 import { ShowtimeService } from '../../../services/showtime.service';
 import { SeatService } from '../../../services/seat.service';
@@ -22,7 +22,12 @@ export class Seats implements OnInit {
   asientosOcupados: string[] = []; 
   asientosDiscapacitados: string[] = []; 
   asientosSeleccionados: string[] = [];
-  resumenActual: any = {};
+  resumenActual: any = {
+    pelicula: { nombre: '', poster: '', formato: '' },
+    cine: '',
+    fechaHora: '',
+    asientos: []
+  };
 
   constructor(
     private router: Router,
@@ -30,47 +35,64 @@ export class Seats implements OnInit {
     private authService: AuthService,
     private seatService: SeatService,
     private showtimeService: ShowtimeService,
-    private cdr: ChangeDetectorRef // Para forzar el refresco visual
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit() {
-    const ID_PRUEBA = 1; 
-    this.bookingService.iniciarReserva(ID_PRUEBA);
+    const ID_PRUEBA = 9; 
+    const estadoPrevio = this.bookingService.obtenerResumen();
+    
     this.resumenActual = this.bookingService.obtenerResumen();
   
-    // 1. CARGA DE PELÍCULA (Usando tus nombres de ShowtimeSummaryDTO)
+    if (!estadoPrevio || !estadoPrevio.horarioId || estadoPrevio.horarioId !== ID_PRUEBA) {
+      // Si no había reserva o era de otra película, creamos una nueva "en blanco"
+      console.log("Iniciando nueva reserva desde cero...");
+      this.bookingService.iniciarReserva(ID_PRUEBA);
+      this.resumenActual = this.bookingService.obtenerResumen();
+    } else {
+      // ¡MAGIA! Si ya había una reserva (el usuario retrocedió), la recuperamos
+      console.log("Recuperando reserva existente...");
+      this.resumenActual = estadoPrevio; // Mantenemos la referencia
+      // Restauramos los asientos verdes en el mapa
+      this.asientosSeleccionados = [...this.resumenActual.asientos]; 
+    }
+
+    // 1. CARGA DE PELÍCULA
     this.showtimeService.getShowtimeSummary(ID_PRUEBA).subscribe({
       next: (data) => {
-        console.log("🔍 Datos de Película:", data);
         this.resumenActual.pelicula = { 
-          nombre: data.titleMovie,   // 👈 Exacto como tu DTO
-          poster: data.posterUrl,    // 👈 Exacto como tu DTO
+          nombre: data.titleMovie,   // 👈 Lo que viene de Java lo guardamos como 'nombre'
+          poster: data.posterUrl,    // 👈 Lo guardamos como 'poster'
           formato: data.languageFormat 
         };
         this.resumenActual.cine = data.nameVenue;
         this.resumenActual.fechaHora = `${data.showDate} - ${data.startTime}`;
-        this.cdr.detectChanges();
+        
+        console.log("✅ Objeto listo para el HTML:", this.resumenActual.pelicula);
+        this.cdr.detectChanges(); 
       },
-      error: (err) => console.error("❌ Error 404 o conexión en Showtime:", err)
+      error: (err) => console.error("❌ Error en Showtime:", err)
     });
   
-    // 2. CARGA DE ASIENTOS (Usando tus nombres de SeatStatusDTO)
+    // 2. CARGA DE ASIENTOS
     this.seatService.getSeatsStatusByShowtime(ID_PRUEBA).subscribe({
       next: (asientos) => {
         console.log("🔍 Datos de Asientos:", asientos);
         this.asientosOcupados = [];
+        this.asientosDiscapacitados = []; // Reiniciamos por si acaso
   
         asientos.forEach(a => {
-          // Unimos 'rowLetter' (A) y 'columnNumber' (4) -> "A4"
           const codigo = `${a.rowLetter}${a.columnNumber}`;
           
-          // En tu DTO es un Boolean, no un String
           if (a.isOccupied === true) { 
             this.asientosOcupados.push(codigo);
           }
           
+          // Si tu DTO trae el tipo, lo marcamos aquí
+          if (a.nameSeatType === 'Discapacitado') {
+            this.asientosDiscapacitados.push(codigo);
+          }
         });
-        console.log("✅ Asientos ocupados en mapa:", this.asientosOcupados);
         this.cdr.detectChanges();
       }
     });
@@ -90,7 +112,6 @@ export class Seats implements OnInit {
       }
       this.asientosSeleccionados.push(asientoId);
     }
-    // Opcional: Actualizar el resumen en tiempo real para que el HTML lateral se refresque
     this.resumenActual.asientos = [...this.asientosSeleccionados];
   }
 
@@ -107,23 +128,13 @@ export class Seats implements OnInit {
       return;
     }
 
-    // Guardamos definitivamente los asientos en la bandeja
     this.bookingService.guardarAsientos(this.asientosSeleccionados);
     
-    const isUserLoggedIn = this.authService.isLoggedIn();
-    
-    if (isUserLoggedIn) {
+    if (this.authService.isLoggedIn()) {
       this.router.navigate(['/tickets']);
     } else {
-      console.log("No hay sesión. Abriendo panel de login...");
-      // Intentamos abrir tu panel lateral offcanvas
       const loginTrigger = document.querySelector('.user-icon') as HTMLElement;
-      if (loginTrigger) {
-        loginTrigger.click(); 
-      } else {
-        const alternativeTrigger = document.querySelector('[data-bs-target="#authOffcanvas"]') as HTMLElement;
-        alternativeTrigger?.click();
-      }
+      loginTrigger?.click(); 
     }
   }
 }

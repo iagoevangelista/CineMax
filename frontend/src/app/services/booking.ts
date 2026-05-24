@@ -8,8 +8,8 @@ export class BookingService {
   private reserva = {
     horarioId: null as number | null,
     pelicula: { nombre: '', formato: '', imagen: '' }, 
-    cine: 'CINEMAX - PLAZA ANGAMOS',
-    fechaHora: '19 MAYO - 3:45pm',
+    cine: '',
+    fechaHora: '',
     asientos: [] as string[],
     boletos: { adulto: 0, nino: 0 },
     snacks: [] as any[],
@@ -23,7 +23,7 @@ export class BookingService {
   iniciarReserva(idShowtime: number) {
     this.reserva = {
       horarioId: idShowtime,
-      pelicula: { nombre: '', formato: '', imagen: '' }, 
+      pelicula: { nombre: '', formato: '', imagen: '' },
       cine: '', 
       fechaHora: '',
       asientos: [],

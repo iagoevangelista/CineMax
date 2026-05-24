@@ -1,116 +1,119 @@
-
-
 <div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   
-    <div class="progress-wrapper mb-5 mx-auto shadow-sm">
-      <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
-        <div class="progress-line position-absolute" style="z-index: 1;"></div>
-        <div class="progress-step active position-relative" style="z-index: 2;"><i class="fa-solid fa-couch"></i></div>
-        <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-ticket"></i></div>
-        <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-burger"></i></div>
-        <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-regular fa-credit-card"></i></div>
+  <div class="progress-wrapper mb-5 mx-auto shadow-sm">
+    <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
+      <div class="progress-line position-absolute" style="z-index: 1;"></div>
+      <div class="progress-step active position-relative" style="z-index: 2;"><i class="fa-solid fa-couch"></i></div>
+      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-ticket"></i></div>
+      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-burger"></i></div>
+      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-regular fa-credit-card"></i></div>
+    </div>
+  </div>
+
+  <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">SELECCIONA TU ASIENTO</h3>
+
+  <div class="row g-5">
+    <div class="col-lg-8">
+      <div class="screen-curve mx-auto mb-5 text-center">
+        PANTALLA
+      </div>
+
+      <div class="d-flex flex-column align-items-center mb-5">
+        <div class="d-flex align-items-center mb-2" *ngFor="let fila of filas">
+          <span class="me-3 fw-bold text-indicator">{{ fila }}</span>
+          
+          <div class="d-flex gap-2">
+            <div *ngFor="let col of columnas" class="d-flex align-items-center">
+              <div *ngIf="col === 3 || col === 7" class="ms-4"></div>
+
+              <button 
+                class="seat-box"
+                [ngClass]="estadoAsiento(fila + col)"
+                (click)="seleccionarAsiento(fila + col)"
+                [disabled]="estadoAsiento(fila + col) === 'ocupado'">
+                
+                <span *ngIf="estadoAsiento(fila + col) !== 'discapacitado'">{{ fila }}{{ col }}</span>
+                <i *ngIf="estadoAsiento(fila + col) === 'discapacitado'" class="fa-solid fa-wheelchair"></i>
+              </button>
+            </div>
+          </div>
+          
+          <span class="ms-3 fw-bold text-indicator">{{ fila }}</span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-4 flex-wrap fw-bold mt-4 text-light" style="font-size: 0.9rem;">
+        <div class="d-flex align-items-center gap-2">
+          <div class="seat-box mini disponible"></div> DISPONIBLE
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="seat-box mini ocupado"></div> NO DISPONIBLE
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="seat-box mini seleccionado"></div> MI SELECCIÓN
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="seat-box mini discapacitado text-center"><i class="fa-solid fa-wheelchair"></i></div> DISCAPACITADO
+        </div>
       </div>
     </div>
-  
-    <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">SELECCIONA TU ASIENTO</h3>
-  
-    <div class="row g-5">
-      <div class="col-lg-8">
+
+    <div class="col-lg-4">
+      <div class="p-4 rounded-4 summary-card shadow">
+        <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
         
-        <div class="screen-curve mx-auto mb-5">
-          PANTALLA
-        </div>
-  
-        <div class="d-flex flex-column align-items-center mb-5">
-          <div class="d-flex align-items-center mb-2" *ngFor="let fila of filas">
-            <span class="me-3 fw-bold text-indicator">{{ fila }}</span>
-            
-            <div class="d-flex gap-2">
-              <div *ngFor="let col of columnas">
-                <div *ngIf="col === 3" class="ms-4"></div> 
-                <div *ngIf="col === 7" class="ms-4"></div>
-  
-                <button 
-                  class="seat-box"
-                  [ngClass]="estadoAsiento(fila + col)"
-                  (click)="seleccionarAsiento(fila + col)"
-                  [disabled]="estadoAsiento(fila + col) === 'ocupado'">
-                  
-                  <span *ngIf="estadoAsiento(fila + col) !== 'discapacitado'">{{ fila }}{{ col }}</span>
-                  <i *ngIf="estadoAsiento(fila + col) === 'discapacitado'" class="fa-solid fa-wheelchair"></i>
-                </button>
-              </div>
-            </div>
-            
-            <span class="ms-3 fw-bold text-indicator">{{ fila }}</span>
-          </div>
-        </div>
-  
-        <div class="d-flex justify-content-center gap-4 flex-wrap fw-bold mt-4 text-light" style="font-size: 0.9rem;">
-          <div class="d-flex align-items-center gap-2">
-            <div class="seat-box mini disponible"></div> DISPONIBLE
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <div class="seat-box mini ocupado"></div> NO DISPONIBLE
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <div class="seat-box mini seleccionado"></div> MI SELECCIÓN
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <div class="seat-box mini discapacitado text-center"><i class="fa-solid fa-wheelchair"></i></div> DISCAPACITADO
-          </div>
-        </div>
-      </div>
-  
-      <div class="col-lg-4">
-        <div class="p-4 rounded-4 summary-card">
-          <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
+        <div class="d-flex gap-3 mb-4 align-items-center">
+          <img [src]="resumenActual.pelicula?.poster" 
+               alt="Pelicula" width="65" class="rounded-3 shadow">
           
-          <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
-          <div class="d-flex gap-3 mb-4 align-items-center">
-            <img [src]="resumenActual.pelicula?.poster" alt="Pelicula" width="65" class="rounded-3 shadow">
-            <div>
-              <p class="mb-1 fw-bold text-white lh-sm fs-5">{{ resumenActual.pelicula.nombre }}</p>
-              <span class="badge py-1 px-2 pastel-badge">{{ resumenActual.pelicula.formato }}</span>
-            </div>
+          <div>
+            <p class="mb-1 fw-bold text-white lh-sm fs-5">
+              {{ resumenActual.pelicula?.nombre }}
+            </p>
+            
+            <span class="badge py-1 px-2 pastel-badge">
+              {{ resumenActual.pelicula?.formato }}
+            </span>
           </div>
-  
-          <hr class="border-secondary mb-4 opacity-50">
-  
-          <h6 class="text-uppercase fw-bold summary-label mb-2">Cine, Día y Función</h6>
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="icon-box">
-              <i class="fa-regular fa-calendar text-white fs-5"></i>
-            </div>
-            <div>
-              <p class="mb-1 fw-bold text-white fs-6">{{ resumenActual.cine }}</p>
-              <p class="mb-0 text-light small">{{ resumenActual.fechaHora }}</p>
-            </div>
-          </div>
-  
-          <hr class="border-secondary mb-4 opacity-50">
-  
-          <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
-          <div class="d-flex align-items-center gap-3 mb-5">
-            <div class="icon-box">
-              <i class="fa-solid fa-couch text-white fs-5"></i>
-            </div>
-            <div>
-              <p class="mb-0 fw-bold selection-text">
-                {{ asientosSeleccionados.length > 0 ? asientosSeleccionados.join(', ') : 'Ninguno' }}
-              </p>
-            </div>
-          </div>
-  
-          <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
-                  (click)="irSiguientePaso()">
-            CONTINUAR <i class="fa-solid fa-arrow-right"></i>
-          </button>
-          
-          <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel">
-            CANCELAR <i class="fa-regular fa-circle-xmark"></i>
-          </button>
         </div>
+
+        <hr class="border-secondary mb-4 opacity-50">
+
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Cine, Día y Función</h6>
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="icon-box">
+            <i class="fa-regular fa-calendar text-white fs-5"></i>
+          </div>
+          <div>
+            <p class="mb-1 fw-bold text-white fs-6">{{ resumenActual.cine }}</p>
+            <p class="mb-0 text-light small">{{ resumenActual.fechaHora }}</p>
+          </div>
+        </div>
+
+        <hr class="border-secondary mb-4 opacity-50">
+
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
+        <div class="d-flex align-items-center gap-3 mb-5">
+          <div class="icon-box">
+            <i class="fa-solid fa-couch text-white fs-5"></i>
+          </div>
+          <div>
+            <p class="mb-0 fw-bold selection-text text-white">
+              {{ asientosSeleccionados.length > 0 ? asientosSeleccionados.join(', ') : 'Ninguno' }}
+            </p>
+          </div>
+        </div>
+
+        <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
+                (click)="irSiguientePaso()">
+          CONTINUAR <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        
+        <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel">
+          CANCELAR <i class="fa-regular fa-circle-xmark"></i>
+        </button>
       </div>
     </div>
   </div>
+</div>

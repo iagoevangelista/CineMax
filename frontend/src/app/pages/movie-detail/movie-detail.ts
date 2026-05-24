@@ -52,7 +52,7 @@ ngOnInit() {
     if (this.movie) {
       // Le mandamos a la "bandeja" tanto la película como el horario exacto
       // (Asegúrate de que tu BookingService tenga una función que acepte ambos)
-      //this.bookingService.iniciarReserva(this.movie, idShowtime);
+      this.bookingService.iniciarReserva(9);
       
       // Viajamos a la selección de asientos
       this.router.navigate(['/seats']);

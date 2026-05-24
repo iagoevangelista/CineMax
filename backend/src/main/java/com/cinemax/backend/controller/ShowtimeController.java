@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1/showtimes")
 @RequiredArgsConstructor
@@ -24,12 +24,12 @@ public class ShowtimeController {
     }
 
     @GetMapping("/{id}/summary")
-    public ResponseEntity<ShowtimeSummaryDTO> getSummary(@PathVariable Integer id) {
+    public ResponseEntity<ShowtimeSummaryDTO> getSummary(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(showtimeService.getShowtimeSummary(id));
     }
 
     @GetMapping("/{id}/fares")
-    public ResponseEntity<List<TicketFareDTO>> getTicketFares(@PathVariable Integer id) {
+    public ResponseEntity<List<TicketFareDTO>> getTicketFares(@PathVariable("idShowtime") Integer id) {
         return ResponseEntity.ok(showtimeService.getTicketFares(id));
     }
 
