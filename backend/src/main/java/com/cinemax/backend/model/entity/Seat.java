@@ -1,7 +1,6 @@
 package com.cinemax.backend.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,32 +11,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "seat", uniqueConstraints = {
-    @UniqueConstraint(name = "uq_seat_position", columnNames = {"id_room", "row_letter", "column_number"})
-})
+@Table(name = "seat")
 public class Seat {
-    
     @Id
-    @Column(name = "id_seat")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_seat")
     private Integer idSeat;
 
-    @Column(name = "row_letter", nullable = false, length = 5)
-    private String rowLetter;
+    @Column(name = "row_name", length = 5, nullable = false)
+    private String rowName;
 
     @Column(name = "column_number", nullable = false)
-    private Integer columnNumber;
+    private Integer columnNumber; // Ej: 1, 2, 3
 
-    @Builder.Default    
+    // ESTADO FÍSICO: "ACTIVO", "MANTENIMIENTO", "OCULTO"
+    @Builder.Default
     @Column(name = "status", length = 20)
-    @Pattern(regexp = "Disponible|Mantenimiento", message = "El estado debe ser 'Disponible' o 'Mantenimiento'")
-    private String status = "Disponible";
+    private String status = "ACTIVO";
+
+    // TIPO: "REGULAR", "WHEELCHAIR"
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_seat_type", nullable = false)
+    private SeatType seatType;
 
     @ManyToOne
     @JoinColumn(name = "id_room", nullable = false)
     private Room room;
 
-    @ManyToOne
-    @JoinColumn(name = "id_seat_type", nullable = false)
-    private SeatType seatType;
+
 }

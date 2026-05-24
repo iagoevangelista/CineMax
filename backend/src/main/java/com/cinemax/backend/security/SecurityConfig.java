@@ -44,10 +44,12 @@ public class SecurityConfig {
 
                         // Rutas públicas: Películas (cartelera pública)
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+                        .requestMatchers("/api/v1/rooms/**").authenticated()
 
 
                         .requestMatchers("/api/v1/showtimes/**").permitAll() 
                         .requestMatchers("/api/v1/seats/**").permitAll()
+                        .requestMatchers("/api/v1/venues/public").permitAll()
 
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()

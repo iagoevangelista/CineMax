@@ -39,8 +39,19 @@ public class Venue {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // Añade esto debajo de tus otros atributos
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "id_district", nullable = false)
     private District district;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
     
+
 }

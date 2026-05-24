@@ -13,6 +13,8 @@ import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
+import { Sedes } from './pages/sedes/sedes';
+import { Rooms } from './pages/admin/rooms/rooms';
 
 export const routes: Routes = [
   {
@@ -20,7 +22,9 @@ export const routes: Routes = [
     component: ClientLayout,
     children: [
       { path: '', component: Home },
+      { path: 'profile', component: Profile },
       { path: 'movies', component: Movies },
+      { path: 'sedes', component: Sedes },
       { 
         path: 'movie/:id', 
         component: MovieDetail,
@@ -30,15 +34,24 @@ export const routes: Routes = [
       { path: 'tickets', component: Tickets },
       { path: 'snacks', component: Snacks },
       { path: 'reset-password', component: ResetPasswordComponent }
+      
     ]
   },
-  {
+    {
     path: 'admin',
     component: AdminLayout,
     children: [
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRole: 'GERENTE_GRAL' } },
-      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRole: 'ADMIN' } },
+      
+      // Sedes: Solo Admin y Gerente General
+      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL'] } },
+      
+      // Salas: Admin, G. General y G. de Operaciones
+      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
+      
+      // Usuarios: Solo Admin
+      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
+      
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

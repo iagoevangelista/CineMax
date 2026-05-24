@@ -1,5 +1,5 @@
 <div class="container mt-5 text-white">
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom         border-secondary pb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
         <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Usuarios</h2>
         <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
             <i class="fa-solid fa-plus me-2"></i>Nuevo Colaborador
@@ -25,7 +25,7 @@
       <label class="form-label fw-bold text-white mb-1"><i class="fa-solid fa-briefcase me-2"></i>Filtrar por Rol</label>
       <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroRol">
         <option value="TODOS">Todos los Roles</option>
-        <option *ngFor="let rol of rolesDisponibles" [value]="rol">{{ rol }}</option>
+        <option *ngFor="let rol of rolesDisponibles" [value]="rol">{{ ROLE_LABELS[rol.replace('ROLE_', '')] || rol }}</option>
       </select>
     </div>
 
@@ -60,7 +60,7 @@
           </td>
           <td class="p-3">{{ user.email }}</td>
           <td class="p-3">
-            <span class="badge bg-primary">{{ user.roleName }}</span>
+            <span class="badge bg-primary">{{ ROLE_LABELS[user.roleName.replace('ROLE_', '')] || user.roleName }}</span>
           </td>
           <td class="p-3 text-white">{{ user.venueName || 'Acceso Total' }}</td>
           <td class="p-3">
@@ -105,10 +105,10 @@
           <label class="form-label fw-bold">Selecciona el nuevo Rol:</label>
           <select class="form-select bg-dark text-white shadow-sm border-secondary" 
                   [(ngModel)]="nuevoIdRole" name="rolUpdate" (ngModelChange)="onRoleChangeUpdate()">
-            <option [ngValue]="1">ADMIN (Administrador Total)</option>
-            <option [ngValue]="2">GERENTE_GRAL (Gerente General)</option>
-            <option [ngValue]="3">GERENTE_MKT (Gerente de Marketing)</option>
-            <option [ngValue]="5">GERENTE_OPR (Gerente de Operaciones)</option>
+            <option [ngValue]="1">Administrador</option>
+            <option [ngValue]="2">Gerente General</option> 
+            <option [ngValue]="3">Gerente de Marketing</option> 
+            <option [ngValue]="5">Gerente de Operaciones</option>
           </select>
         </div>
 
@@ -136,7 +136,8 @@
 </div>
 
 <div class="modal fade text-dark" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content bg-dark text-white border-secondary">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> 
+    <div class="modal-content bg-dark text-white border-secondary">
       <div class="modal-header" style="background-color: var(--primary-dark); color: white;">
         <h5 class="modal-title fw-bold">Registrar Nuevo Colaborador</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="cerrarModalNuevoUser"></button>
@@ -179,6 +180,7 @@
                     [(ngModel)]="nuevoUsuario.idRole" 
                     name="idRole" 
                     (ngModelChange)="onRoleChangeCreate()">
+              <option [ngValue]="1">Administrador</option>
               <option [ngValue]="2">Gerente General</option>
               <option [ngValue]="3">Gerente de Marketing</option>
               <option [ngValue]="5">Gerente de Operaciones</option>

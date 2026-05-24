@@ -4,7 +4,7 @@
     <div class="role-badge">
       <span class="text-white fw-bold fs-5">Rol: </span>
       <span class="text-uppercase fw-bold fs-5" style="color: var(--primary-color);">
-        {{ rolActual }}
+        {{ ROLE_LABELS[rolActual.replace('ROLE_', '')] || rolActual }}
       </span>
     </div>
 

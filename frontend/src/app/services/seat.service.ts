@@ -6,12 +6,21 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SeatService {
+  
+  // URL directa a tu controlador de Asientos
   private apiUrl = 'http://localhost:8080/api/v1/seats';
 
   constructor(private http: HttpClient) {}
 
-  // Llama a: GET /api/v1/seats?idShowtime={id}
   getSeatsStatusByShowtime(idShowtime: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}?idShowtime=${idShowtime}`);
+  }
+
+  getSeatsByRoom(idRoom: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/room/${idRoom}`);
+  }
+
+  updateSeat(idSeat: number, seat: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${idSeat}`, seat);
   }
 }

@@ -23,9 +23,15 @@ public class Room {
     @Column(name = "name_room", nullable = false, length = 50)
     private String nameRoom;
 
-    @Positive(message = "Capacity must be a positive integer")
+    @Positive(message = "Capacidad debe ser un entero positivo")
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
+
+    @Column(name = "num_rows")
+    private Integer numRows;
+
+    @Column(name = "seats_per_row")
+    private Integer seatsPerRow;
 
     @Builder.Default
     @Column(name = "status", length = 20)

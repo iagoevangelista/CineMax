@@ -11,7 +11,7 @@
     <div class="collapse navbar-collapse justify-content-between" id="CabeceraCinemax">
       <ul class="navbar-nav mb-2 mb-lg-0 gap-lg-4 ms-4">
         <li class="nav-item"><a class="nav-link b-header" routerLink="/movies">Cartelera</a></li>
-        <li class="nav-item"><a class="nav-link b-header" href="#">Sedes</a></li>
+        <li class="nav-item"><a class="nav-link b-header" routerLink="/sedes">Sedes</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Promociones</a></li>
         <li class="nav-item"><a class="nav-link b-header" href="#">Dulcería</a></li>
       </ul>
@@ -23,21 +23,48 @@
         </div>
         
         <ng-container *ngIf="isLogged">
-          <div (click)="toggleMenu($event)" style="cursor: pointer; display: flex;">
-            <img class="b-perfil" src="/Imagenes/Imagen sesion.png" alt="Mi perfil" style="width: 40px; height: 40px; border: 2px solid #d63384; border-radius: 50%;">
+          <div (click)="toggleMenu($event)" class="shadow-sm" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background-color: var(--primary-color); color: white; font-weight: bold; font-size: 1.1rem; border: 2px solid #d63384; user-select: none;">
+            <img *ngIf="userImageUrl" [src]="userImageUrl" alt="Mi perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span *ngIf="!userImageUrl">{{ userInitials }}</span>
           </div>
           
-          <div [style.display]="menuAbierto ? 'block' : 'none'" style="position: absolute; top: 50px; right: 0; width: 200px; background-color: #ffffff; border: 2px solid #333; border-radius: 8px; padding: 10px; box-shadow: 0px 5px 15px rgba(0,0,0,0.5); color: #000;">
-            <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 8px;">
-              <small style="color: #666; font-size: 11px;">USUARIO ACTIVO:</small><br>
-              <strong style="font-size: 13px; color: #d63384;">{{ userEmail }}</strong>
+          <div [style.display]="menuAbierto ? 'block' : 'none'" class="shadow-lg p-0 rounded text-white" style="position: absolute; top: 55px; right: 0; width: 260px; background-color: #161619; border: 1px solid #333; z-index: 1050; overflow: hidden; border-radius: 12px;">
+            
+            <div class="d-flex align-items-center p-3" style="background-color: #1e1e24; border-bottom: 1px solid #333;">
+              <div class="me-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 45px; height: 45px; border-radius: 50%; background-color: var(--primary-color); color: white; font-weight: bold; font-size: 1.2rem;">
+                <span *ngIf="!userImageUrl">{{ userInitials }}</span>
+                <img *ngIf="userImageUrl" [src]="userImageUrl" alt="Mi perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+              </div>
+              <div style="overflow: hidden;">
+                <strong class="d-block text-truncate mb-1" style="font-size: 0.95rem; color: #fff; letter-spacing: 0.3px;">{{ userFullName }}</strong>
+                <small class="d-block text-truncate" style="color: #999; font-size: 0.75rem;">{{ userEmail }}</small>
+              </div>
             </div>
-            <div (click)="menuAbierto = false" style="padding: 5px 0; cursor: pointer; font-size: 14px;">
-              <i class="fa-solid fa-ticket me-2"></i> Mis Entradas
+
+            <div class="p-2">
+              <a (click)="menuAbierto = false" routerLink="/profile" class="text-decoration-none d-flex align-items-center py-2 px-3 text-white rounded mb-1" style="transition: background-color 0.2s ease; cursor: pointer;" onmouseover="this.style.backgroundColor='#2a2a32'" onmouseout="this.style.backgroundColor=''">
+                <i class="fa-solid fa-ticket me-3" style="width: 20px; text-align: center; color: var(--primary-color);"></i>
+                <span style="font-size: 0.9rem; font-weight: 500;">Mis Entradas</span>
+              </a>
+              
+              <a (click)="menuAbierto = false" routerLink="/profile" class="text-decoration-none d-flex align-items-center py-2 px-3 text-white rounded mb-1" style="transition: background-color 0.2s ease; cursor: pointer;" onmouseover="this.style.backgroundColor='#2a2a32'" onmouseout="this.style.backgroundColor=''">
+                <i class="fa-solid fa-gear me-3" style="width: 20px; text-align: center; color: var(--primary-color);"></i>
+                <span style="font-size: 0.9rem; font-weight: 500;">Configuración de Cuenta</span>
+              </a>
+              
+              <a (click)="menuAbierto = false" routerLink="/profile" class="text-decoration-none d-flex align-items-center py-2 px-3 text-white rounded" style="transition: background-color 0.2s ease; cursor: pointer;" onmouseover="this.style.backgroundColor='#2a2a32'" onmouseout="this.style.backgroundColor=''">
+                <i class="fa-solid fa-shield-halved me-3" style="width: 20px; text-align: center; color: var(--primary-color);"></i>
+                <span style="font-size: 0.9rem; font-weight: 500;">Seguridad</span>
+              </a>
             </div>
-            <div (click)="cerrarSesion()" style="padding: 5px 0; cursor: pointer; font-size: 14px; color: red; font-weight: bold; border-top: 1px solid #eee; margin-top: 5px;">
-              <i class="fa-solid fa-power-off me-2"></i> Salir
+
+            <div class="p-2" style="border-top: 1px solid #333;">
+              <a href="#" (click)="$event.preventDefault(); cerrarSesion()" class="text-decoration-none d-flex align-items-center py-2 px-3 text-danger rounded fw-bold" style="transition: background-color 0.2s ease; cursor: pointer;" onmouseover="this.style.backgroundColor='#3a1c1e'" onmouseout="this.style.backgroundColor=''">
+                <i class="fa-solid fa-power-off me-3" style="width: 20px; text-align: center;"></i>
+                <span style="font-size: 0.9rem;">Cerrar Sesión</span>
+              </a>
             </div>
+
           </div>
         </ng-container>
         
@@ -109,17 +136,34 @@
     <img src="Imagenes/Logo.png" alt="CINEMAX" class="mb-4" style="width: 120px;">
     
     <div class="w-100" *ngIf="vistaActiva === 'login'">
-      <h3 class="text-center login-title mb-5 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
+      <h3 class="text-center login-title mb-4 text-white fw-bold">¡Hola! Qué bueno verte por acá.</h3>
+      
+      <div *ngIf="mensajeAuth" class="alert small py-2 w-100 d-flex align-items-center mb-4 shadow-sm" 
+           [ngClass]="esErrorAuth ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+        <i class="fa-solid me-2" [ngClass]="esErrorAuth ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+        <div>{{ mensajeAuth }}</div>
+      </div>
+
       <form class="w-100" (ngSubmit)="iniciarSesion()">
         <div class="input-group mb-4 custom-input-group">
           <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
           <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
         </div>
+        
         <div class="input-group mb-5 custom-input-group">
-          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
-          <span class="input-group-text"><i class="fa-regular fa-eye-slash"></i></span>
+          <input [type]="mostrarPassword ? 'text' : 'password'" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
+          <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPassword()">
+            <i class="fa-regular" [ngClass]="mostrarPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
+          </span>
         </div>
-        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">INICIAR SESIÓN</button>
+
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 d-flex align-items-center justify-content-center gap-2" [disabled]="cargandoLogin" style="height: 50px;">
+          <span *ngIf="!cargandoLogin">INICIAR SESIÓN</span>
+          <span *ngIf="cargandoLogin" class="d-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            VALIDANDO...
+          </span>
+        </button>
       </form>
       <div class="mt-5 text-center login-links">
         <span style="cursor: pointer; display: block; color: #999; margin-bottom: 1rem;" (click)="cambiarVista('recuperar', $event)">¿OLVIDASTE TU CONTRASEÑA?</span>
@@ -129,7 +173,14 @@
     </div>
 
     <div class="w-100" *ngIf="vistaActiva === 'registro'">
-      <h3 class="text-center login-title mb-4" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
+      <h3 class="text-center login-title mb-3" style="color: var(--primary-color); font-weight: bold;">Crea tu cuenta</h3>
+      
+      <div *ngIf="mensajeAuth" class="alert small py-2 w-100 d-flex align-items-center mb-3 shadow-sm" 
+           [ngClass]="esErrorAuth ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+        <i class="fa-solid me-2" [ngClass]="esErrorAuth ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+        <div>{{ mensajeAuth }}</div>
+      </div>
+
       <form class="w-100" (ngSubmit)="registrarse()">
         <div class="input-group mb-3 custom-input-group">
           <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
@@ -155,9 +206,17 @@
         <div class="input-group mb-3 custom-input-group">
           <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
         </div>
-        <div class="input-group mb-5 custom-input-group">
-          <input type="password" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" required>
+
+        <div class="input-group mb-2 custom-input-group">
+          <input [type]="mostrarPasswordReg ? 'text' : 'password'" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" required>
+          <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPasswordReg()">
+            <i class="fa-regular" [ngClass]="mostrarPasswordReg ? 'fa-eye' : 'fa-eye-slash'"></i>
+          </span>
         </div>
+
+        <small class="text-start d-block text-white mb-4 w-100 ps-1" style="font-size: 12px; font-weight: 500;">
+         <i class="fa-solid fa-circle-info me-1 text-warning"></i> Mínimo 8 caracteres, al menos 1 letra y 1 número.
+        </small>
         <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
       </form>
       <div class="mt-4 text-center login-links">
@@ -169,15 +228,29 @@
     <div class="w-100" *ngIf="vistaActiva === 'recuperar'">
       <h3 class="text-center login-title mb-4" style="color: var(--primary-color);">Recuperar Acceso</h3>
       <p class="text-center text-secondary mb-4" style="font-size: 0.9rem;">Ingresa tu correo y te enviaremos un enlace seguro.</p>
+
+      <div *ngIf="mensajeRecuperacion" class="alert alert-{{ mensajeRecuperacion.tipo }} small py-2 d-flex align-items-center mb-3" role="alert">
+        <i class="fa-solid me-2" [ngClass]="mensajeRecuperacion.tipo === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'"></i>
+        <div>{{ mensajeRecuperacion.texto }}</div>
+      </div>
+
       <form class="w-100" (ngSubmit)="solicitarRecuperacion()">
         <div class="input-group mb-4 custom-input-group">
-          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="correoRecuperacion" [(ngModel)]="correoRecuperacion" required>
+          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="correoRecuperacion" [(ngModel)]="correoRecuperacion" required [disabled]="loadingRecuperacion">
           <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
         </div>
-        <button type="submit" class="btn btn-login w-100 text-white mb-3">ENVIAR ENLACE</button>
+        
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 mb-3" [disabled]="loadingRecuperacion">
+          <span *ngIf="!loadingRecuperacion">ENVIAR ENLACE</span>
+          <span *ngIf="loadingRecuperacion">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            ENVIANDO...
+          </span>
+        </button>
       </form>
+
       <div class="mt-3 text-center login-links">
-        <span style="cursor: pointer; color: #999; font-weight: bold;" (click)="cambiarVista('login', $event)">VOLVER AL LOGIN</span>
+        <span style="cursor: pointer; color: #999; font-weight: bold;" (click)="cambiarVista('login', $event)" *ngIf="!loadingRecuperacion">VOLVER AL LOGIN</span>
       </div>
     </div>
   </div>

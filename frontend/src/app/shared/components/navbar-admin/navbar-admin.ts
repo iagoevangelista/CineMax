@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ROLE_LABELS } from '../../../pages/utils/role-labels'; 
 import { AuthService } from '../../../services/auth.service';
-
 
 @Component({
   selector: 'app-navbar-admin',
@@ -12,12 +12,13 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class NavbarAdmin implements OnInit {
   
-  rolActual: string = 'Cargando...'; 
+  // Exponemos la función al HTML
+  public ROLE_LABELS = ROLE_LABELS;
+  rolActual: string = '';
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    // Le pedimos al servicio que lea el token y nos diga el rol
-    this.rolActual = this.authService.getRole();
+    this.rolActual = this.authService.getRole() || '';
   }
 }

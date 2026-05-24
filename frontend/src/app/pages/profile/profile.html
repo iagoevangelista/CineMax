@@ -1,79 +1,218 @@
-<nav class="navbar navbar-dark bg-dark-custom border-bottom-custom px-4">
-  <a class="navbar-brand logo" routerLink="/">CINEMAX</a>
-  <button class="btn btn-outline-primary btn-sm" routerLink="/"><i class="fa-solid fa-arrow-left me-2"></i>Volver al Inicio</button>
-</nav>
-
-<div class="container mt-5 text-white pb-5" style="max-width: 750px;">
-  <h2 class="fw-bold mb-4 text-uppercase"><i class="fa-solid fa-user-astronaut me-2 text-primary"></i>Configuración de Mi Perfil</h2>
-
-  <div *ngIf="mensajeFeedback" class="alert mb-4 shadow" [ngClass]="esError ? 'alert-danger' : 'alert-success'" role="alert">
-    <i class="fa-solid me-2" [ngClass]="esError ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
-    {{ mensajeFeedback }}
+<div class="container my-5 text-white" style="min-height: 70vh;">
+  
+  <div class="mb-4 border-bottom border-secondary pb-3">
+    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Mi Panel de Control</h2>
+    <p class="text-secondary small mb-0">Administra tus datos, revisa tus entradas y gestiona tu seguridad en CineMax.</p>
   </div>
 
-  <div class="card border-0 shadow-lg" style="background-color: #16161a; border-radius: 12px;">
-    <div class="card-body p-4 p-md-5">
-      <form (ngSubmit)="guardarCambios()">
-        
-        <h5 class="text-primary fw-bold mb-3"><i class="fa-solid fa-lock me-2"></i>Información del Sistema (No modificable)</h5>
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label text-secondary small fw-bold">CORREO ELECTRÓNICO</label>
-            <input type="text" class="form-control text-muted border-0" style="background-color: #24242b;" [value]="datosUsuario.email" disabled>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label text-secondary small fw-bold">NÚMERO DE DOCUMENTO (DNI/CE)</label>
-            <input type="text" class="form-control text-muted border-0" style="background-color: #24242b;" [value]="datosUsuario.documentNumber" disabled>
-          </div>
-        </div>
-
-        <h5 class="text-primary fw-bold mb-3 border-top border-secondary pt-4"><i class="fa-solid fa-user-pen me-2"></i>Datos Personales</h5>
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Nombre</label>
-            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="firstName" [(ngModel)]="formUpdate.firstName" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Apellidos</label>
-            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="lastName" [(ngModel)]="formUpdate.lastName" required>
-          </div>
-        </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Teléfono Celular</label>
-            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="phone" [(ngModel)]="formUpdate.phone">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-bold">Dirección Residencial</label>
-            <input type="text" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="address" [(ngModel)]="formUpdate.address">
-          </div>
-        </div>
-
-        <h5 class="text-primary fw-bold mb-3 border-top border-secondary pt-4"><i class="fa-solid fa-key me-2"></i>Cambiar Contraseña</h5>
-        <div class="mb-4">
-          <label class="form-label fw-bold">Nueva Contraseña <span class="text-muted fw-normal">(Opcional)</span></label>
-          <input type="password" class="form-control border-secondary text-white" style="background-color: #0d0d11;" name="password" [(ngModel)]="formUpdate.password" placeholder="Dejar en blanco para mantener la contraseña actual">
-          <small class="text-start d-block text-white mt-2 ps-1" style="font-size: 11px;">
-            <i class="fa-solid fa-circle-info me-1 text-warning"></i> Si decides cambiarla, debe tener mínimo 8 caracteres, al menos 1 letra y 1 número.
-          </small>
-        </div>
-
-        <div class="d-grid gap-2 mt-5">
-          <button type="submit" class="btn btn-login text-white fw-bold py-2 fs-5">
-            <i class="fa-solid fa-floppy-disk me-2"></i>Guardar Cambios en mi Perfil
-          </button>
-        </div>
-
-        <div class="mt-5 pt-4 border-top border-danger border-dashed">
-          <h5 class="text-danger fw-bold mb-2"><i class="fa-solid fa-skull-crossbones me-2"></i>Zona de Peligro</h5>
-          <p class="text-muted small mb-3">Las siguientes acciones son irreversibles y afectarán tu cuenta de forma permanente.</p>
-          <button type="button" class="btn btn-outline-danger btn-sm fw-bold">
-            <i class="fa-solid fa-user-slash me-2"></i>Eliminar mi cuenta definitivamente
-          </button>
-        </div>
-
-      </form>
+  <div *ngIf="cargando" class="text-center my-5">
+    <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Cargando...</span>
     </div>
+    <h5 class="mt-3 text-secondary">Sincronizando información...</h5>
+  </div>
+
+  <div class="row g-4" *ngIf="!cargando">
+    
+    <div class="col-md-4 col-lg-3">
+      <div class="p-2 rounded shadow-lg" style="background-color: #161619; border: 1px solid #333;">
+        <div class="list-group list-group-flush">
+          
+          <button (click)="cambiarPestana('datos')" 
+                  class="list-group-item list-group-item-action border-0 rounded text-white py-3 px-4 mb-1 d-flex align-items-center bg-transparent btn-menu-profile"
+                  [style.backgroundColor]="pestanaActiva === 'datos' ? '#2a2a32' : 'transparent'"
+                  [style.color]="pestanaActiva === 'datos' ? 'var(--primary-color)' : 'white'">
+            <i class="fa-solid fa-user-gear me-3 fs-5" [style.color]="pestanaActiva === 'datos' ? 'var(--primary-color)' : '#999'"></i>
+            <span class="fw-semibold">Mis Datos</span>
+          </button>
+
+          <button (click)="cambiarPestana('compras')" 
+                  class="list-group-item list-group-item-action border-0 rounded text-white py-3 px-4 mb-1 d-flex align-items-center bg-transparent btn-menu-profile"
+                  [style.backgroundColor]="pestanaActiva === 'compras' ? '#2a2a32' : 'transparent'"
+                  [style.color]="pestanaActiva === 'compras' ? 'var(--primary-color)' : 'white'">
+            <i class="fa-solid fa-ticket me-3 fs-5" [style.color]="pestanaActiva === 'compras' ? 'var(--primary-color)' : '#999'"></i>
+            <span class="fw-semibold">Mis Compras</span>
+          </button>
+
+          <button (click)="cambiarPestana('seguridad')" 
+                  class="list-group-item list-group-item-action border-0 rounded text-white py-3 px-4 mb-1 d-flex align-items-center bg-transparent btn-menu-profile"
+                  [style.backgroundColor]="pestanaActiva === 'seguridad' ? '#2a2a32' : 'transparent'"
+                  [style.color]="pestanaActiva === 'seguridad' ? 'var(--primary-color)' : 'white'">
+            <i class="fa-solid fa-shield-halved me-3 fs-5" [style.color]="pestanaActiva === 'seguridad' ? 'var(--primary-color)' : '#999'"></i>
+            <span class="fw-semibold">Seguridad</span>
+          </button>
+
+          <button (click)="cambiarPestana('eliminar')" 
+                  class="list-group-item list-group-item-action border-0 rounded py-3 px-4 d-flex align-items-center bg-transparent btn-menu-profile text-danger"
+                  [style.backgroundColor]="pestanaActiva === 'eliminar' ? 'rgba(220, 53, 69, 0.1)' : 'transparent'">
+            <i class="fa-solid fa-user-xmark me-3 fs-5"></i>
+            <span class="fw-bold">Eliminar Cuenta</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8 col-lg-9">
+      <div class="p-4 rounded shadow-lg h-100" style="background-color: #161619; border: 1px solid #333;">
+        
+        <div *ngIf="mensaje" class="alert small py-2 d-flex align-items-center mb-4 shadow-sm" 
+             [ngClass]="esError ? 'alert-danger' : 'alert-success'" style="border-radius: 8px;">
+          <i class="fa-solid me-2" [ngClass]="esError ? 'fa-triangle-exclamation' : 'fa-circle-check'"></i>
+          <div>{{ mensaje }}</div>
+        </div>
+
+        <div *ngIf="pestanaActiva === 'datos'">
+          <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Información Personal</h4>
+          
+          <form (ngSubmit)="guardarDatosPersonales()">
+            
+            <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary" style="border-color: #333 !important;">
+              <div class="position-relative me-4">
+                
+                <div class="rounded-circle shadow d-flex align-items-center justify-content-center overflow-hidden" 
+                     style="width: 100px; height: 100px; background-color: #2a2a32; font-size: 2.5rem; color: white; border: 2px solid #555;">
+                  <img *ngIf="imagenPrevia || formDatos.imageUrl" [src]="imagenPrevia || formDatos.imageUrl" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                  <span *ngIf="!imagenPrevia && !formDatos.imageUrl">{{ formDatos.firstName.charAt(0) | uppercase }}{{ formDatos.lastName.charAt(0) | uppercase }}</span>
+                </div>
+                
+                <label for="avatarUpload" class="position-absolute bottom-0 end-0 rounded-circle shadow d-flex justify-content-center align-items-center" 
+                       style="cursor: pointer; right: -5px; bottom: 0px; background-color: var(--primary-color); border: 3px solid #161619; width: 34px; height: 34px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                  <i class="fa-solid fa-camera text-white" style="font-size: 0.85rem;"></i>
+                </label>
+                <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)" accept="image/*">
+                
+              </div>
+              <div>
+                <h5 class="fw-bold text-white mb-1">Tu Foto de Perfil</h5>
+                <p class="small text-secondary mb-0">Recomendado: 1:1 (Cuadrado).<br>Formatos admitidos: JPG, PNG, WEBP.</p>
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Nombre</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formDatos.firstName" name="firstName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Apellidos</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formDatos.lastName" name="lastName" required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label text-secondary fw-semibold small">Correo Electrónico (No modificable)</label>
+                <input type="email" class="form-control bg-dark text-secondary border-secondary" [value]="formDatos.email" disabled style="cursor: not-allowed;">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-secondary fw-semibold small">Tipo Documento</label>
+                <select class="form-select bg-dark text-secondary border-secondary" [(ngModel)]="formDatos.idDocumentType" name="idDocumentType" disabled style="cursor: not-allowed;">
+                  <option [ngValue]="1">DNI</option>
+                  <option [ngValue]="2">Carnet de Extranjería</option>
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label text-secondary fw-semibold small">N° de Documento</label>
+                <input type="text" class="form-control bg-dark text-secondary border-secondary" [value]="formDatos.documentNumber" disabled style="cursor: not-allowed;">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Teléfono / Celular</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formDatos.phone" name="phone" placeholder="Ej: 987654321">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Fecha de Nacimiento</label>
+                <input type="date" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formDatos.datebirth" name="datebirth">
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success fw-bold text-white px-4 mt-4" 
+                    [disabled]="guardando" 
+                    style="border-radius: 8px; background-color: #d63384; border: none; min-width: 180px;">
+              <div class="d-flex align-items-center justify-content-center">
+                <span *ngIf="guardando" class="spinner-border spinner-border-sm me-2"></span>
+                <span *ngIf="!guardando"><i class="fa-solid fa-floppy-disk me-2"></i>Guardar Cambios</span>
+                <span *ngIf="guardando">Guardando...</span>
+              </div>
+            </button>
+          </form>
+        </div>
+
+        <div *ngIf="pestanaActiva === 'compras'">
+          <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Historial de Entradas</h4>
+          
+          <div *ngIf="misCompras.length === 0" class="text-center py-5">
+            <i class="fa-solid fa-receipt fs-1 text-secondary mb-3" style="opacity: 0.3;"></i>
+            <p class="text-muted">Aún no has realizado ninguna compra en CineMax.</p>
+          </div>
+
+          <div class="row g-3" *ngIf="misCompras.length > 0">
+            <div class="col-12" *ngFor="let compra of misCompras">
+              <div class="p-3 rounded border border-secondary d-flex justify-content-between align-items-center flex-wrap gap-3" style="background-color: #0d0d11;">
+                <div>
+                  <h5 class="fw-bold mb-1 text-white">{{ compra.movieTitle }}</h5>
+                  <p class="mb-1 small text-secondary"><i class="fa-solid fa-film me-2"></i>{{ compra.venueName }} — {{ compra.roomName }}</p>
+                  <p class="mb-0 small text-secondary">
+                    <i class="fa-solid fa-calendar-day me-2"></i>{{ compra.date }} a las {{ compra.time }} | <i class="fa-solid fa-chair ms-1 me-2"></i>Asientos: <strong>{{ compra.seats }}</strong>
+                  </p>
+                </div>
+                <div class="text-md-end border-start border-secondary ps-3">
+                  <span class="badge bg-success mb-2 d-block">Compra Exitosa</span>
+                  <small class="text-muted d-block mb-1">Ticket ID: #{{ compra.idSale }}</small>
+                  <strong style="color: var(--primary-color); font-size: 1.1rem;">S/. {{ compra.amount | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="pestanaActiva === 'seguridad'">
+          <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Actualizar Contraseña</h4>
+          <form (ngSubmit)="actualizarContrasena()">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label text-secondary fw-semibold small">Contraseña Actual</label>
+                <input type="password" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formSeguridad.oldPassword" name="oldPassword">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Nueva Contraseña</label>
+                <input type="password" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formSeguridad.newPassword" name="newPassword">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-secondary fw-semibold small">Confirmar Nueva Contraseña</label>
+                <input type="password" class="form-control bg-dark text-white border-secondary" [(ngModel)]="formSeguridad.confirmPassword" name="confirmPassword">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning fw-bold text-dark px-4 mt-4" 
+                    [disabled]="guardando" 
+                    style="border-radius: 8px; font-weight: 700; min-width: 220px;">
+              <div class="d-flex align-items-center justify-content-center">
+                <span *ngIf="guardando" class="spinner-border spinner-border-sm me-2"></span>
+                <span *ngIf="!guardando"><i class="fa-solid fa-key me-2"></i>Modificar Contraseña</span>
+                <span *ngIf="guardando">Procesando...</span>
+              </div>
+            </button>
+          </form>
+        </div>
+
+        <div *ngIf="pestanaActiva === 'eliminar'">
+          <h4 class="fw-bold text-danger mb-3">Eliminar Cuenta</h4>
+          <div class="p-3 rounded mb-4" style="background-color: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3);">
+            <h5 class="fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>¿Qué significa borrar tu cuenta?</h5>
+            <p class="mb-0 small text-secondary" style="line-height: 1.5;">
+              Al hacer clic en el botón de abajo, solicitarás la baja de tu cuenta en CineMax. Se cerrará tu sesión de inmediato y tus datos personales e historial de compras serán desactivados de nuestra base de datos. Esta acción no se puede deshacer.
+            </p>
+          </div>
+          <button type="button" (click)="eliminarCuenta()" 
+                  class="btn btn-danger fw-bold px-4 shadow-sm" 
+                  [disabled]="guardando"
+                  style="min-width: 250px;">
+            <div class="d-flex align-items-center justify-content-center">
+              <span *ngIf="guardando" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="!guardando"><i class="fa-solid fa-user-xmark me-2"></i>Eliminar mi Cuenta</span>
+              <span *ngIf="guardando">Eliminando...</span>
+            </div>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>

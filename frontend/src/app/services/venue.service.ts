@@ -18,16 +18,27 @@ export class VenueService {
     return this.http.get<Venue[]>(this.apiUrl);
   }
 
+   getPublicVenues(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/public`);
+    }
+
   // 2. Método para CREAR una nueva sede
-  createVenue(venueData: any): Observable<Venue> {
-    // Como tu endpoint tiene @PreAuthorize("hasAuthority('ADMIN')"), 
-    // pronto necesitaremos enviarle el Token JWT, pero por ahora armamos la estructura.
-    return this.http.post<Venue>(this.apiUrl, venueData);
+  createVenue(venueData: FormData): Observable<any> {
+    return this.http.post<any>(this.apiUrl, venueData);
   }
 
   // NUEVO: Método para traer sedes filtradas según el rol
   getAvailableVenuesForRole(roleId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/available-for-role/${roleId}`);
+  }
+
+  // ... dentro de VenueService
+  updateVenue(id: number, venueData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, venueData);
+  }
+
+  deleteVenue(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
 }

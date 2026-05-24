@@ -81,6 +81,9 @@ public class UserAccount implements UserDetails {
     @Column(name = "token_expiry_date")
     private LocalDateTime tokenExpiryDate;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     // ====================================================================
     // MÉTODOS OBLIGATORIOS DE SPRING SECURITY (Interfaz UserDetails)
     // ====================================================================
