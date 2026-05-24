@@ -120,10 +120,6 @@ export class ClientLayout implements OnInit {
           const rolUsuario = this.authService.getRole(); 
           if (rolUsuario === 'ADMIN' || (rolUsuario && rolUsuario.toUpperCase().startsWith('GERENTE'))) {
             this.router.navigate(['/admin/dashboard']); 
-          } else {
-            if (!this.router.url.includes('/seats') && !this.router.url.includes('/tickets')) {
-               if(this.router.url === '/') window.location.reload();
-            }
           }
         }, 1500);
       },

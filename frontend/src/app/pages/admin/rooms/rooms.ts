@@ -56,6 +56,7 @@ export class Rooms implements OnInit {
       this.esAdminGlobal = false;
       this.userService.getProfile().subscribe({
         next: (perfil) => {
+          console.log("DATOS DEL PERFIL RECIBIDOS:", perfil);
           this.sedeAsignadaId = perfil.idVenue; // El ID de su cine
           this.nuevaSala.idVenue = this.sedeAsignadaId;
           this.cargarSalasPorSede(this.sedeAsignadaId);
@@ -170,15 +171,43 @@ export class Rooms implements OnInit {
   }
 
   aplicarPincel(asiento: any) {
-    if (this.pincelSeleccionado === 'ACTIVO' || this.pincelSeleccionado === 'MANTENIMIENTO' || this.pincelSeleccionado === 'OCULTO') {
-      asiento.status = this.pincelSeleccionado;
-      if (this.pincelSeleccionado === 'OCULTO') asiento.idSeatType = 1; // 1 es REGULAR
-    } else if (this.pincelSeleccionado === 'WHEELCHAIR') {
-      asiento.status = 'ACTIVO'; 
-      asiento.idSeatType = 2; // Asumiendo que 2 es Silla de Ruedas en tu BD
+    // 1. Manejamos la lógica de cambio de estado y tipo de asiento
+    switch (this.pincelSeleccionado) {
+      case 'ACTIVO':
+        asiento.status = 'ACTIVO';
+        asiento.idSeatType = 1; // 1 = Estándar (Reseteamos de 2 a 1)
+        break;
+
+      case 'MANTENIMIENTO':
+        asiento.status = 'MANTENIMIENTO';
+        asiento.idSeatType = 1; // Normalmente en mantenimiento no debería ser VIP/Wheelchair
+        break;
+
+      case 'OCULTO':
+        asiento.status = 'OCULTO';
+        asiento.idSeatType = 1; 
+        break;
+
+      case 'WHEELCHAIR':
+        asiento.status = 'ACTIVO';
+        asiento.idSeatType = 2; // 2 = Discapacitados
+        break;
+        
+      default:
+        return;
     }
 
-    this.seatService.updateSeat(asiento.idSeat, asiento).subscribe({error: () => { alert("Error al actualizar la butaca. Intente nuevamente."); }});
+    // 2. Guardamos los cambios
+    this.seatService.updateSeat(asiento.idSeat, asiento).subscribe({
+      next: () => {
+        // Opcional: refrescar localmente si es necesario, 
+        // aunque el objeto ya está actualizado por referencia.
+        this.cdr.detectChanges();
+      },
+      error: () => { 
+        alert("Error al actualizar la butaca. Intente nuevamente."); 
+      }
+    });
   }
 
   obtenerClaseAsiento(asiento: any): string {

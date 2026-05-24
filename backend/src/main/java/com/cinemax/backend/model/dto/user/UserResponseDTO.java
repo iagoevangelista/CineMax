@@ -17,6 +17,7 @@ public class UserResponseDTO {
     private String email;
     private Integer idRole;
     private String roleName;
+    private Integer idVenue;
     private String venueName;
     private String status;
     private String documentNumber;

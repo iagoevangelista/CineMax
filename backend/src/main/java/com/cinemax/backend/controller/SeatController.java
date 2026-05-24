@@ -29,7 +29,7 @@ public class SeatController {
     }
 
     @GetMapping("/room/{idRoom}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<SeatDTO>> getSeatsByRoom(@PathVariable Integer idRoom) {
         List<SeatDTO> seats = seatRepository.findByRoom_IdRoomOrderByRowNameAscColumnNumberAsc(idRoom)
                 .stream()
@@ -40,7 +40,7 @@ public class SeatController {
 
     // 2. ACTUALIZAR ESTADO O TIPO DE UN ASIENTO (Al hacer clic en el panel)
     @PutMapping("/{idSeat}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<SeatDTO> updateSeat(@PathVariable Integer idSeat, @RequestBody SeatDTO request) {
         Seat seat = seatRepository.findById(idSeat)
                 .orElseThrow(() -> new RuntimeException("Asiento no encontrado"));

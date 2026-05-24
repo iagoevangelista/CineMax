@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { UserService } from '../../../services/user.service';
 import { VenueService } from '../../../services/venue.service';
+// 1. Importación correcta
+import { ROLE_LABELS } from '../../utils/role-labels';
 
 @Component({
   selector: 'app-users',
@@ -13,27 +15,20 @@ import { VenueService } from '../../../services/venue.service';
 })
 export class Users implements OnInit {
   listaUsuarios: any[] = [];
-  listaSedes: any[] = []; // Se llenará dinámicamente con sedes libres
+  listaSedes: any[] = []; 
   cargando: boolean = false;
+  public ROLE_LABELS = ROLE_LABELS;
+  // 2. Exponemos la función importada al HTML
 
-  // <-- Variables para el modal de Cambiar Rol -->
   usuarioSeleccionado: any = null;
   nuevoIdRole: number = 0;
 
-  // <-- Objeto para crear un Nuevo Colaborador -->
   nuevoUsuario = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    documentNumber: '', 
-    idDocumentType: 1,  
-    idRole: 2, // Por defecto empieza en Gerente General
-    idVenue: 0,
+    firstName: '', lastName: '', email: '', password: '',
+    documentNumber: '', idDocumentType: 1, idRole: 2, idVenue: 0,
   };
 
   mostrarSedeCreate = false; 
-
   mostrarSedeUpdate = false;
   nuevoIdVenue: number = 0;
 
@@ -67,9 +62,9 @@ export class Users implements OnInit {
 
   ngOnInit(): void {
     this.cargarUsuarios(); 
-    // Fíjate que al iniciar ya no cargamos sedes. 
-    // Las cargaremos SOLO cuando el usuario elija el rol 3 o 5.
   }
+
+  // ELIMINAMOS EL MÉTODO LOCAL 'getRoleLabel' QUE CAUSABA CONFLICTO
 
   cargarUsuarios() {
     this.cargando = true;
@@ -87,42 +82,28 @@ export class Users implements OnInit {
     });
   }
 
-  // --- NUEVA FUNCIÓN ESTRELLA ---
-  // Esta función se activará desde el HTML cada vez que toques el <select> de Rol
-  // --- FUNCIÓN PARA EL MODAL DE ACTUALIZAR ROL ---
   onRoleChangeUpdate() {
     if (this.nuevoIdRole == 1 || this.nuevoIdRole == 2) {
       this.mostrarSedeUpdate = false;
       this.nuevoIdVenue = 0;
     } else {
       this.mostrarSedeUpdate = true;
-      
-      // QUITAMOS getVenues() Y VOLVEMOS AL MÉTODO QUE FILTRA DESDE EL BACKEND
       this.venueService.getAvailableVenuesForRole(this.nuevoIdRole).subscribe({
-        next: (sedesDisponibles) => {
-          this.listaSedes = sedesDisponibles;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error("Error al traer sedes filtradas:", err)
+        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
+        error: (err) => console.error("Error al traer sedes:", err)
       });
     }
   }
 
-  // --- FUNCIÓN PARA EL MODAL DE CREAR NUEVO COLABORADOR ---
   onRoleChangeCreate() {
     if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
       this.mostrarSedeCreate = false;
       this.nuevoUsuario.idVenue = 0;
     } else {
       this.mostrarSedeCreate = true;
-      
-      // QUITAMOS getVenues() Y VOLVEMOS AL MÉTODO QUE FILTRA DESDE EL BACKEND
       this.venueService.getAvailableVenuesForRole(this.nuevoUsuario.idRole).subscribe({
-        next: (sedesDisponibles) => {
-          this.listaSedes = sedesDisponibles;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error("Error al traer sedes filtradas:", err)
+        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
+        error: (err) => console.error("Error al traer sedes:", err)
       });
     }
   }
@@ -130,20 +111,18 @@ export class Users implements OnInit {
   abrirModalRol(usuario: any) {
     this.usuarioSeleccionado = usuario;
     this.nuevoIdRole = usuario.idRole; 
-    this.nuevoIdVenue = usuario.idVenue || 0; // Cargamos su sede actual si tiene
-    this.onRoleChangeUpdate(); // Verificamos si debemos mostrar el selector de sede al abrir el modal
+    this.nuevoIdVenue = usuario.idVenue || 0; 
+    this.onRoleChangeUpdate(); 
   }
 
   guardarNuevoRol() {
     if (!this.usuarioSeleccionado || this.nuevoIdRole === 0) return;
 
-    // Validación: Si es gerente 3 o 5, debe tener sede
     if ((this.nuevoIdRole == 3 || this.nuevoIdRole == 5) && this.nuevoIdVenue == 0) {
       alert("¡Atención! Un Gerente de Marketing u Operaciones DEBE tener una nueva sede asignada.");
       return;
     }
 
-    // Armamos el "paquete" con los nuevos datos
     const payloadUpdate = {
       idRole: this.nuevoIdRole,
       idVenue: this.nuevoIdVenue == 0 ? null : this.nuevoIdVenue
@@ -168,13 +147,11 @@ export class Users implements OnInit {
       return;
     }
 
-    // --- NUEVA VALIDACIÓN: CORREO CORPORATIVO ---
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/;
     if (!emailRegex.test(this.nuevoUsuario.email)) {
       alert('Por favor ingresa un correo válido. Debe contener un "@" y terminar en ".com" (Ejemplo: colaborador@empresa.com).');
       return;
     }
-    // --------------------------------------------
 
     if (this.nuevoUsuario.idRole == 1 || this.nuevoUsuario.idRole == 2) {
       this.nuevoUsuario.idVenue = 0; 
@@ -191,7 +168,6 @@ export class Users implements OnInit {
         document.getElementById('cerrarModalNuevoUser')?.click();
         this.cargarUsuarios(); 
         
-        // Al limpiar, volvemos a bajar la bandera de sede para el siguiente usuario que se vaya a crear
         this.mostrarSedeCreate = false; 
         this.nuevoUsuario = { 
           firstName: '', lastName: '', email: '', password: '', 
@@ -213,16 +189,15 @@ export class Users implements OnInit {
 
   desactivarUsuario(idUser: number) {
     const confirmar = confirm('¿Estás seguro de que deseas desactivar a este colaborador?');
-    
     if (confirmar) {
       this.userService.deleteUser(idUser).subscribe({
         next: (res) => {
           alert('Colaborador desactivado con éxito.');
-          this.cargarUsuarios(); // Recargamos la tabla automáticamente para ver el estado 'Inactivo'
+          this.cargarUsuarios(); 
         },
         error: (err) => {
           console.error("Error al desactivar:", err);
-          alert('Hubo un error al intentar desactivar el usuario. Revisa la consola.');
+          alert('Hubo un error al intentar desactivar el usuario.');
         }
       });
     }
@@ -238,13 +213,9 @@ export class Users implements OnInit {
         },
         error: (err) => {
           console.error("Error al reactivar:", err);
-          
-          const mensajeBackend = err.error?.message || err.error || 'Hubo un error al intentar reactivar el usuario.';
-          
-          alert(mensajeBackend);
+          alert(err.error?.message || err.error || 'Hubo un error al intentar reactivar el usuario.');
         }
       });
     }
   }
-
 }

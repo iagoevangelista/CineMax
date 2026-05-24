@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL', 'ADMIN', 'GERENTE_GENERAL')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL')")
     public ResponseEntity<Map<String, String>> activateUser(@PathVariable Integer id) { 
         // <-- Ejemplo de uso de Map para devolver un JSON simple: {"message": "Usuario activado"}
         userService.activateUser(id);

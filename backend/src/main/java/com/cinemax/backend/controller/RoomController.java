@@ -21,26 +21,26 @@ public class RoomController {
 
     // Obtener todas las salas (Lo usará el Admin general)
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<RoomResponseDTO>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
     // Obtener salas de un cine en específico (Súper útil para cuando hagamos las Funciones)
     @GetMapping("/venue/{idVenue}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<RoomResponseDTO>> getRoomsByVenue(@PathVariable Integer idVenue) {
         return ResponseEntity.ok(roomService.getRoomsByVenue(idVenue));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<RoomResponseDTO> createRoom(@Valid @RequestBody RoomRequestDTO request) {
         return ResponseEntity.ok(roomService.createRoom(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_OPERACIONES', 'GERENTE_GENERAL', 'GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<RoomResponseDTO> updateRoom(
             @PathVariable Integer id,
             @Valid @RequestBody RoomRequestDTO request) {

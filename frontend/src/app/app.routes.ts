@@ -44,13 +44,13 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
       
       // Sedes: Solo Admin y Gerente General
-      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'ROLE_GERENTE_GENERAL'] } },
+      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL'] } },
       
       // Salas: Admin, G. General y G. de Operaciones
-      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'ROLE_GERENTE_GENERAL', 'GERENTE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES'] } },
+      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
       // Usuarios: Solo Admin
-      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN', 'ROLE_ADMIN'] } },
+      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
       
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
