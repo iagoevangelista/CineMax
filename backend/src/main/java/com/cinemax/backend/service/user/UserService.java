@@ -4,8 +4,6 @@ import com.cinemax.backend.model.dto.user.UserCreateDTO;
 import com.cinemax.backend.model.dto.user.UserResponseDTO;
 import com.cinemax.backend.model.dto.user.UserRoleUpdateDTO;
 import com.cinemax.backend.model.dto.user.UserUpdateDTO;
-import com.cinemax.backend.model.entity.UserAccount;
-
 import java.util.List;
 
 public interface UserService {

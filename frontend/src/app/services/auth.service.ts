@@ -35,13 +35,19 @@ export class AuthService {
   }
 
   getRole(): string {
-  const token = this.getToken();
-  if (token) {
-    const decoded: any = jwtDecode(token);
-    return decoded.role || 'USUARIO'; // 'role' es el nombre que pusimos en el Backend
+    const token = this.getToken();
+    if (token) {
+      const decoded: any = jwtDecode(token);
+      let role = decoded.role || 'USUARIO';
+      
+      // Limpiamos el prefijo 'ROLE_' si es que viene del backend
+      if (role.startsWith('ROLE_')) {
+        role = role.replace('ROLE_', '');
+      }
+      return role;
+    }
+    return 'INVITADO';
   }
-  return 'INVITADO';
-}
 
 register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data).pipe(

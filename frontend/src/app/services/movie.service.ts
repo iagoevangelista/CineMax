@@ -6,15 +6,16 @@ export interface Movie {
   idMovie: number;
   titleMovie: string;
   synopsis: string;
-  duration_minutes: number;
+  durationMinutes: number;
   posterUrl: string;
-  release_date: string;
+  releaseDate: string;
   director: string;
   status: string;
-  isActive: boolean;
+  isActive?: boolean;
   premiereWeek: boolean;
   rating?: string;
-  classificationName?: string; 
+  classificationName?: string;
+  genreNames?: string[];
 }
 
 @Injectable({
@@ -35,6 +36,18 @@ export class MovieService {
 
   getMoviesByStatus(status: string): Observable<Movie[]> {
     return this.http.get<Movie[]>(`${this.apiUrl}/movies?status=${status}`);
+  }
+
+  createMovie(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/movies`, formData);
+  }
+
+  updateMovie(id: number, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/movies/${id}`, formData);
+  }
+
+  deleteMovie(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/movies/${id}`);
   }
   
 }

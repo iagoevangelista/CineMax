@@ -2,6 +2,7 @@ package com.cinemax.backend.controller;
 
 import com.cinemax.backend.model.dto.movie.MovieDetailDTO;
 import com.cinemax.backend.model.dto.movie.MovieListDTO;
+import com.cinemax.backend.model.dto.movie.MovieRequestDTO;
 import com.cinemax.backend.service.movie.MovieService;
 import com.cinemax.backend.service.cloudinary.CloudinaryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,13 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") 
 @RestController
 @RequestMapping("/api/v1/movies")
 @RequiredArgsConstructor
@@ -25,7 +27,6 @@ public class MovieController {
     private final MovieService movieService;
     private final CloudinaryService cloudinaryService;
 
-    // ❌ BORRAMOS la línea de 'private final ObjectMapper objectMapper;' de aquí.
 
     @GetMapping
     public ResponseEntity<List<MovieListDTO>> getMoviesByStatus(
@@ -41,31 +42,63 @@ public class MovieController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
     public ResponseEntity<?> createMovie(
             @RequestPart("movie") String movieJson,
             @RequestPart("file") MultipartFile file) {
 
         try {
-            // 1. Subir la imagen a Cloudinary
             String imageUrl = cloudinaryService.uploadImage(file);
 
-            // ✅ CREAMOS el ObjectMapper directamente aquí adentro
             ObjectMapper objectMapper = new ObjectMapper();
 
-            // 2. Convertir el String JSON a tu DTO
-            MovieDetailDTO movieDTO = objectMapper.readValue(movieJson, MovieDetailDTO.class);
+            MovieRequestDTO movieDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
-            // 3. Asignar la URL generada al DTO
-            movieDTO.setPosterUrl(imageUrl);
+            MovieDetailDTO savedMovie = movieService.createMovie(movieDTO, imageUrl);
 
-            // 4. Guardar en BD (Descomenta esto cuando tu servicio esté listo para guardar)
-            // MovieDetailDTO savedMovie = movieService.createMovie(movieDTO);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("Película guardada con URL: " + imageUrl);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedMovie);
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al subir la imagen: " + e.getMessage());
+                    .body("Error al procesar los datos o subir el póster: " + e.getMessage());
+        } 
+    }
+
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    public ResponseEntity<MovieDetailDTO> updateMovie(
+            @PathVariable Integer id,
+            @RequestPart("movie") String movieJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        try {
+            String imageUrl = null;
+            // Solo si el administrador seleccionó un archivo nuevo, lo subimos a Cloudinary
+            if (file != null && !file.isEmpty()) {
+                imageUrl = cloudinaryService.uploadImage(file);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MovieRequestDTO requestDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
+
+            // Ejecutamos la actualización pasándole el ID de la URL de Angular
+            MovieDetailDTO updatedMovie = movieService.updateMovie(id, requestDTO, imageUrl);
+            
+            return ResponseEntity.ok(updatedMovie);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
+        movieService.deleteMovie(id);
+        // Retornamos un 204 No Content para confirmar que la operación fue exitosa
+        return ResponseEntity.noContent().build();
+    }
+    
+
 }
