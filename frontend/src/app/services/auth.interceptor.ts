@@ -1,35 +1,24 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('cinemax_token');
 
-  // Ajustamos la lógica de rutas:
-  const esRutaAdmin = req.url.includes('/admin') || 
-                      req.url.includes('/users') || 
-                      req.url.includes('/venues') || 
-                      req.url.includes('/locations') ||
-                      req.url.includes('/rooms') ||  
-                      req.url.includes('/seats') ||
-                      (req.url.includes('/movies') && req.method !== 'GET');
+  // Siempre adjuntamos el token si existe — el backend decide los permisos
+  const esRutaProtegida = req.url.includes('/api/v1/') &&
+    !req.url.includes('/api/v1/auth/login') &&
+    !req.url.includes('/api/v1/auth/register') &&
+    !req.url.includes('/api/v1/auth/forgot');
 
-  if (token && esRutaAdmin) {
-    // Si el body es FormData, NO enviamos 'Content-Type' (el navegador lo gestiona solo)
+  if (token && esRutaProtegida) {
     if (req.body instanceof FormData) {
-      const cloned = req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` }
-      });
-      return next(cloned);
-    } 
-    
-    // Si es JSON normal, sí enviamos cabeceras completas
-    const cloned = req.clone({
+      return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
+    }
+    return next(req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
-    });
-    return next(cloned);
+    }));
   }
 
   return next(req);
