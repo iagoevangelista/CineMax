@@ -17,7 +17,8 @@ import { Sedes } from './pages/sedes/sedes';
 import { Rooms } from './pages/admin/rooms/rooms';
 import { AdminMovies } from './pages/admin/movies/movies';
 import { AdminShowtimes } from './pages/admin/showtimes/showtimes';
-
+import { Confiteria } from './pages/admin/confiteria/confiteria';
+import { Confiteria as ConfiteriaPublica } from './pages/confiteria/confiteria';
 export const routes: Routes = [
   {
     path: '',
@@ -27,6 +28,7 @@ export const routes: Routes = [
       { path: 'profile', component: Profile },
       { path: 'movies', component: Movies },
       { path: 'sedes', component: Sedes },
+      { path: 'confiteria', component: ConfiteriaPublica },
       { 
         path: 'movie/:id', 
         component: MovieDetail,
@@ -54,12 +56,10 @@ export const routes: Routes = [
       // Movies: G. de Operaciones
       { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
-      // Usuarios: Solo Admin
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
-
-      { path: 'funciones', component: AdminShowtimes, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+
     ]
   },
 

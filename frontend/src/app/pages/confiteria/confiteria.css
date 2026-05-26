@@ -1,0 +1,219 @@
+.confiteria-page {
+  background-color: #0d0d0f;
+  min-height: 100vh;
+  color: white;
+}
+
+.conf-header {
+  background: linear-gradient(180deg, #1a1a1f 0%, #0d0d0f 100%);
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.conf-titulo {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.conf-subtitulo {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Tabs */
+.conf-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.conf-tab {
+  background: #1e1e24;
+  border: 1px solid #333;
+  color: #aaa;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.conf-tab:hover { border-color: #8B5CF6; color: #fff; }
+.conf-tab.active { background: #8B5CF6; border-color: #8B5CF6; color: #fff; }
+
+/* Grid */
+.snacks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 20px;
+}
+
+.snack-card {
+  background: #1a1a1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.snack-card:hover { border-color: #8B5CF6; transform: translateY(-2px); }
+
+.snack-img-wrap {
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+}
+
+.snack-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.snack-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+}
+
+.placeholder-logo {
+  width: 70px;
+  opacity: 0.15;
+  filter: grayscale(100%);
+}
+
+.snack-info { padding: 10px 12px 4px; flex: 1; }
+
+.snack-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.snack-desc {
+  font-size: 0.7rem;
+  color: #777;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.snack-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #8B5CF6;
+  margin: 0;
+}
+
+.snack-actions { padding: 10px 12px 12px; }
+
+.btn-agregar {
+  width: 100%;
+  background: #8B5CF6;
+  border: none;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 7px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-agregar:hover { background: #7C3AED; }
+
+.snack-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2a2a32;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.snack-counter span { font-weight: 700; font-size: 0.9rem; }
+
+.counter-btn {
+  background: none;
+  border: none;
+  color: #8B5CF6;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Resumen */
+.resumen-box {
+  background: #1a1a1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 24px;
+  position: sticky;
+  top: 80px;
+}
+
+.resumen-titulo {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.resumen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.resumen-item-info { display: flex; flex-direction: column; }
+.resumen-item-name { font-size: 0.82rem; color: #ddd; font-weight: 500; }
+.resumen-item-qty { font-size: 0.75rem; color: #777; }
+.resumen-item-price { font-size: 0.82rem; color: #8B5CF6; font-weight: 700; white-space: nowrap; }
+
+.resumen-divider { border-top: 1px solid #2a2a2a; margin: 16px 0; }
+
+.resumen-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #aaa;
+}
+
+.total-price { color: #fff; font-size: 1rem; }
+
+.btn-continuar {
+  background: #8B5CF6;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-continuar:hover:not(:disabled) { background: #7C3AED; }
+.btn-continuar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.text-pink { color: #8B5CF6; }

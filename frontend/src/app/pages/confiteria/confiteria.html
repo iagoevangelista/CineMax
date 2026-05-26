@@ -1,0 +1,102 @@
+<div class="confiteria-page">
+
+  <!-- Header -->
+  <div class="conf-header text-center py-5">
+    <h1 class="conf-titulo">SELECCIONE SUS SNACKS</h1>
+    <p class="conf-subtitulo">Haz tu visita aún más especial</p>
+  </div>
+
+  <div class="container-fluid px-4 pb-5">
+    <div class="row g-4">
+
+      <!-- Columna izquierda: catálogo -->
+      <div class="col-lg-8">
+
+        <!-- Tabs de categorías -->
+        <div class="conf-tabs mb-4">
+          <button
+            *ngFor="let cat of categories"
+            class="conf-tab"
+            [class.active]="categoriaActiva?.idSnackCategory === cat.idSnackCategory"
+            (click)="categoriaActiva = cat">
+            {{ cat.nameSnackCategory | uppercase }}
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="cargando" class="text-center py-5">
+          <div class="spinner-border text-pink" role="status"></div>
+        </div>
+
+        <!-- Grid de productos -->
+        <div *ngIf="!cargando" class="snacks-grid">
+          <div *ngFor="let snack of snacksFiltrados" class="snack-card">
+            <div class="snack-img-wrap">
+              <img
+                *ngIf="snack.imageUrlSnack"
+                [src]="snack.imageUrlSnack"
+                [alt]="snack.nameSnack"
+                class="snack-img">
+              <div *ngIf="!snack.imageUrlSnack" class="snack-placeholder">
+                <img src="/Imagenes/logo_CINEMAX.jpeg" alt="CINEMAX" class="placeholder-logo">
+              </div>
+            </div>
+            <div class="snack-info">
+              <p class="snack-name">{{ snack.nameSnack | uppercase }}</p>
+              <p class="snack-desc">{{ snack.descriptionSnack }}</p>
+              <p class="snack-price">S/ {{ snack.price | number:'1.2-2' }}</p>
+            </div>
+            <div class="snack-actions">
+              <ng-container *ngIf="cantidadEnCarrito(snack) === 0; else contador">
+                <button class="btn-agregar" (click)="agregarAlCarrito(snack)">AGREGAR</button>
+              </ng-container>
+              <ng-template #contador>
+                <div class="snack-counter">
+                  <button class="counter-btn" (click)="quitarDelCarrito(snack)">−</button>
+                  <span>{{ cantidadEnCarrito(snack) }}</span>
+                  <button class="counter-btn" (click)="agregarAlCarrito(snack)">+</button>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <div *ngIf="snacksFiltrados.length === 0" class="text-center text-secondary py-5 w-100">
+            No hay productos en esta categoría.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha: resumen -->
+      <div class="col-lg-4">
+        <div class="resumen-box">
+          <h5 class="resumen-titulo">RESUMEN</h5>
+
+          <div *ngIf="carrito.length === 0" class="text-secondary text-center py-4" style="font-size: 0.85rem;">
+            Aún no agregaste productos
+          </div>
+
+          <div *ngFor="let item of carrito" class="resumen-item">
+            <div class="resumen-item-info">
+              <span class="resumen-item-name">{{ item.snack.nameSnack }}</span>
+              <span class="resumen-item-qty">x{{ item.cantidad }}</span>
+            </div>
+            <span class="resumen-item-price">S/ {{ (item.snack.price * item.cantidad) | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="resumen-divider"></div>
+
+          <div class="resumen-total">
+            <span>TOTAL A CANCELAR</span>
+            <span class="total-price">S/ {{ totalCarrito | number:'1.2-2' }}</span>
+          </div>
+
+          <button class="btn-continuar w-100 mt-4" [disabled]="carrito.length === 0">
+            CONTINUAR →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
