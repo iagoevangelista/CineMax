@@ -81,15 +81,15 @@ export class Confiteria implements OnInit {
 
   guardarSnack() {
     const formData = new FormData();
-    const snackData = {
+    const snackData = JSON.stringify({
       nameSnack: this.currentSnack.nameSnack,
       descriptionSnack: this.currentSnack.descriptionSnack,
-      price: this.currentSnack.price,
-      stock: this.currentSnack.stock,
+      price: Number(this.currentSnack.price),
+      stock: Number(this.currentSnack.stock),
       status: this.currentSnack.status || 'Activo',
-      idSnackCategory: this.currentSnack.idSnackCategory
-    };
-    formData.append('snack', JSON.stringify(snackData));
+      idSnackCategory: Number(this.currentSnack.idSnackCategory)
+    });
+    formData.append('snack', new Blob([snackData], { type: 'application/json' }));
     if (this.selectedFile) formData.append('file', this.selectedFile);
 
     const headers = this.getHeaders();
@@ -120,15 +120,15 @@ export class Confiteria implements OnInit {
     const snack = this.snacks.find(s => s.idSnack === id);
     if (!snack) return;
     const formData = new FormData();
-    const snackData = {
+    const snackData = JSON.stringify({
       nameSnack: snack.nameSnack,
       descriptionSnack: snack.descriptionSnack,
-      price: snack.price,
-      stock: snack.stock,
+      price: Number(snack.price),
+      stock: Number(snack.stock),
       status: 'Activo',
-      idSnackCategory: snack.idSnackCategory
-    };
-    formData.append('snack', JSON.stringify(snackData));
+      idSnackCategory: Number(snack.idSnackCategory)
+    });
+    formData.append('snack', new Blob([snackData], { type: 'application/json' }));
     const headers = this.getHeaders();
     this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
       next: () => { this.cargarSnacks(); alert('Producto habilitado'); },

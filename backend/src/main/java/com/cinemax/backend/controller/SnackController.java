@@ -42,7 +42,7 @@ public class SnackController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('GERENTE_GENERAL', 'GERENTE_DE_MARKETING')")
     public ResponseEntity<SnackResponseDTO> createSnack(
-            @RequestPart("snack") String snackJson,
+            @RequestParam("snack") String snackJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         String imageUrl = null;
@@ -60,7 +60,7 @@ public class SnackController {
     @PreAuthorize("hasAnyAuthority('GERENTE_GENERAL', 'GERENTE_DE_MARKETING')")
     public ResponseEntity<SnackResponseDTO> updateSnack(
             @PathVariable Integer id,
-            @RequestPart("snack") String snackJson,
+            @RequestParam("snack") String snackJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         String imageUrl = null;
