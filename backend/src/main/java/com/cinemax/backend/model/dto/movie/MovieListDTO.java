@@ -10,4 +10,5 @@ public class MovieListDTO {
     private String status;
     private Boolean premiereWeek;
     private String rating;
+    private Integer durationMinutes;
 }

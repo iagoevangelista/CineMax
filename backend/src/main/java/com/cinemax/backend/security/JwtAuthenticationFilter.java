@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        
 
         // 3. Extraemos el token (quitamos los primeros 7 caracteres de "Bearer ")
         jwt = authHeader.substring(7);

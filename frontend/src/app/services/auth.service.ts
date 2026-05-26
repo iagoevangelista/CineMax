@@ -75,11 +75,30 @@ register(data: any): Observable<any> {
     if (token) {
       try {
         const decoded: any = jwtDecode(token);
-        // Spring Security guarda el correo (username) en la variable 'sub' por defecto
         return decoded.sub || decoded.email || null;
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
+    }
+    return null;
+  }
+
+  getIdVenue(): number | null {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        return decoded.idVenue ?? null;
+      } catch (e) { return null; }
+    }
+    return null;
+  }
+
+  getFirstName(): string | null {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        return decoded.firstName ?? null;
+      } catch (e) { return null; }
     }
     return null;
   }

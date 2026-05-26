@@ -6,6 +6,7 @@ import com.cinemax.backend.model.dto.movie.MovieRequestDTO;
 import com.cinemax.backend.service.movie.MovieService;
 import com.cinemax.backend.service.cloudinary.CloudinaryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,8 +43,9 @@ public class MovieController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<?> createMovie(
+
             @RequestPart("movie") String movieJson,
             @RequestPart("file") MultipartFile file) {
 
@@ -51,6 +53,7 @@ public class MovieController {
             String imageUrl = cloudinaryService.uploadImage(file);
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
 
             MovieRequestDTO movieDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
@@ -66,7 +69,7 @@ public class MovieController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<MovieDetailDTO> updateMovie(
             @PathVariable Integer id,
             @RequestPart("movie") String movieJson,
@@ -80,6 +83,7 @@ public class MovieController {
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
             MovieRequestDTO requestDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
             // Ejecutamos la actualización pasándole el ID de la URL de Angular
@@ -89,16 +93,28 @@ public class MovieController {
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            
         }
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
         movieService.deleteMovie(id);
         // Retornamos un 204 No Content para confirmar que la operación fue exitosa
         return ResponseEntity.noContent().build();
     }
     
+
+    @PostMapping(value = "/test-json", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_GERENTE_DE_OPERACIONES')")
+    public ResponseEntity<?> testJson(@RequestBody MovieRequestDTO dto) {
+        return ResponseEntity.ok("JSON recibido correctamente");
+    }
+
+    @GetMapping("/test-acceso")
+    public ResponseEntity<String> testAcceso() {
+        return ResponseEntity.ok("ACCESO CONCEDIDO");
+    }
 
 }
