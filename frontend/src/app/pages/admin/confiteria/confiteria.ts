@@ -92,15 +92,19 @@ export class Confiteria implements OnInit {
     formData.append('snack', JSON.stringify(snackData));
     if (this.selectedFile) formData.append('file', this.selectedFile);
 
-    : this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
-    const req = this.isEditMode && this.currentSnackId
-      ? this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
-      : this.http.post(`${this.apiUrl}/snacks`, formData, { headers });
+    const headers = this.getHeaders();
 
-    req.subscribe({
-      next: () => { this.cargarSnacks(); alert(this.isEditMode ? 'Snack actualizado' : 'Snack creado'); },
-      error: (err) => alert('Error: ' + err.message)
-    });
+    if (this.isEditMode && this.currentSnackId) {
+      this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers }).subscribe({
+        next: () => { this.cargarSnacks(); alert('Snack actualizado'); },
+        error: (err) => alert('Error: ' + err.message)
+      });
+    } else {
+      this.http.post(`${this.apiUrl}/snacks`, formData, { headers }).subscribe({
+        next: () => { this.cargarSnacks(); alert('Snack creado'); },
+        error: (err) => alert('Error: ' + err.message)
+      });
+    }
   }
 
   inhabilitarSnack(id: number) {
@@ -113,24 +117,22 @@ export class Confiteria implements OnInit {
   }
 
   habilitarSnack(id: number) {
-  const snack = this.snacks.find(s => s.idSnack === id);
-  if (!snack) return;
-  
-  const formData = new FormData();
-  const snackData = {
-    nameSnack: snack.nameSnack,
-    descriptionSnack: snack.descriptionSnack,
-    price: snack.price,
-    stock: snack.stock,
-    status: 'Activo',
-    idSnackCategory: snack.idSnackCategory
-  };
-  formData.append('snack', JSON.stringify(snackData));
-  
-  : this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
-  this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
-    next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
-    error: (err) => alert('Error: ' + err.message)
-  });
-}
+    const snack = this.snacks.find(s => s.idSnack === id);
+    if (!snack) return;
+    const formData = new FormData();
+    const snackData = {
+      nameSnack: snack.nameSnack,
+      descriptionSnack: snack.descriptionSnack,
+      price: snack.price,
+      stock: snack.stock,
+      status: 'Activo',
+      idSnackCategory: snack.idSnackCategory
+    };
+    formData.append('snack', JSON.stringify(snackData));
+    const headers = this.getHeaders();
+    this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
+      next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
+      error: (err) => alert('Error: ' + err.message)
+    });
+  }
 }
