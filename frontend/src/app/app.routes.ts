@@ -16,6 +16,7 @@ import { Profile } from './pages/profile/profile';
 import { Sedes } from './pages/sedes/sedes';
 import { Rooms } from './pages/admin/rooms/rooms';
 import { AdminMovies } from './pages/admin/movies/movies';
+import { Confiteria } from './pages/admin/confiteria/confiteria';
 
 export const routes: Routes = [
   {
@@ -57,6 +58,9 @@ export const routes: Routes = [
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
       
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+
+      // Confitería: G. General y G. de Marketing
+      { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING'] } },
     ]
   },
 
