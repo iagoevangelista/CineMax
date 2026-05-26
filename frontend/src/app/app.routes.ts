@@ -16,6 +16,7 @@ import { Profile } from './pages/profile/profile';
 import { Sedes } from './pages/sedes/sedes';
 import { Rooms } from './pages/admin/rooms/rooms';
 import { AdminMovies } from './pages/admin/movies/movies';
+import { AdminShowtimes } from './pages/admin/showtimes/showtimes';
 
 export const routes: Routes = [
   {
@@ -48,13 +49,15 @@ export const routes: Routes = [
       { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL'] } },
       
       // Salas: Admin, G. General y G. de Operaciones
-      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_OPERACIONES'] } },
+      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
 
       // Movies: G. de Operaciones
-      { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_OPERACIONES', 'GERENTE_DE_OPERACIONES'] } },
+      { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
       // Usuarios: Solo Admin
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
+
+      { path: 'funciones', component: AdminShowtimes, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

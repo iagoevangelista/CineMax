@@ -1,0 +1,69 @@
+<div class="container mt-4 text-white">
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Funciones</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalShowtime" (click)="abrirModalNuevo()">Nueva Función</button>
+  </div>
+
+  <div class="row mb-4 bg-dark p-3 rounded border border-secondary">
+    <div class="col-md-6">
+      <label class="fw-bold mb-1">Película</label>
+      <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroPeliculaId" (change)="buscarFunciones()">
+        <option *ngFor="let p of movies" [value]="p.idMovie">{{ p.titleMovie }}</option>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="fw-bold mb-1">Fecha</label>
+      <input type="date" class="form-control bg-dark text-white border-secondary" [(ngModel)]="filtroFecha" (change)="buscarFunciones()">
+    </div>
+  </div>
+
+  <table class="table table-dark table-hover align-middle">
+    <thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Formato</th><th class="text-center">Acciones</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let f of showtimes">
+        <td>{{ f.idShowtime }}</td><td>{{ f.showDate }}</td><td>{{ f.startTime }}</td><td>{{ f.languageFormat }}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#modalShowtime" (click)="abrirModalEditar(f)">Editar</button>
+          <button class="btn btn-sm btn-outline-danger" (click)="cancelarFuncion(f.idShowtime)">Cancelar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal fade" id="modalShowtime" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content bg-dark text-white border-secondary">
+      <div class="modal-header" style="background-color: var(--primary-color);"><h5 class="modal-title">Programar</h5></div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6"><label>Película</label>
+            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.idMovie">
+              <option *ngFor="let p of movies" [value]="p.idMovie">{{ p.titleMovie }}</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label>Sala</label>
+            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.idRoom">
+              <option *ngFor="let r of rooms" [value]="r.idRoom">{{ r.nameRoom }}</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label>Formato</label>
+            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.languageFormat">
+              <option>Doblada 2D</option><option>Subtitulada 2D</option><option>Doblada 3D</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label>Precio</label>
+            <input type="number" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.baseTicketPrice">
+          </div>
+          <div class="col-md-6"><label>Fecha</label>
+            <input type="date" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.showDate">
+          </div>
+          <div class="col-md-6"><label>Hora</label>
+            <input type="time" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.startTime">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-success" (click)="guardarFuncion()" data-bs-dismiss="modal">Guardar</button></div>
+    </div>
+  </div>
+</div>

@@ -42,7 +42,7 @@ public class MovieController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<?> createMovie(
             @RequestPart("movie") String movieJson,
             @RequestPart("file") MultipartFile file) {
@@ -66,13 +66,18 @@ public class MovieController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
+    //@PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<MovieDetailDTO> updateMovie(
             @PathVariable Integer id,
             @RequestPart("movie") String movieJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
         try {
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+    System.out.println("--- DEBUG SEGURIDAD ---");
+    for (var authority : auth.getAuthorities()) {
+        System.out.println("Rol detectado: [" + authority.getAuthority() + "]");
+    }
             String imageUrl = null;
             // Solo si el administrador seleccionó un archivo nuevo, lo subimos a Cloudinary
             if (file != null && !file.isEmpty()) {
@@ -89,6 +94,7 @@ public class MovieController {
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            
         }
     }
 
@@ -100,5 +106,16 @@ public class MovieController {
         return ResponseEntity.noContent().build();
     }
     
+
+    @PostMapping(value = "/test-json", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_GERENTE_OPERACIONES')")
+    public ResponseEntity<?> testJson(@RequestBody MovieRequestDTO dto) {
+        return ResponseEntity.ok("JSON recibido correctamente");
+    }
+
+    @GetMapping("/test-acceso")
+    public ResponseEntity<String> testAcceso() {
+        return ResponseEntity.ok("ACCESO CONCEDIDO");
+    }
 
 }

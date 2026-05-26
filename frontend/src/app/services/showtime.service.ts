@@ -14,4 +14,20 @@ export class ShowtimeService {
     getShowtimeSummary(idShowtime: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/${idShowtime}/summary`);
     }
+
+    getShowtimesByMovie(idMovie: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}?idMovie=${idMovie}`);
+    }
+    
+    createShowtime(data: any): Observable<any> {
+        return this.http.post(this.apiUrl, data);
+    }
+    
+    updateShowtime(id: number, data: any): Observable<any> {
+        return this.http.put(`${this.apiUrl}/${id}`, data);
+    }
+    
+    cancelShowtime(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/${id}`);
+    }
 }

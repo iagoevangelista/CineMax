@@ -51,11 +51,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/seats/**").permitAll()
                         .requestMatchers("/api/v1/venues/public").permitAll()
 
+                        .requestMatchers( "/api/v1/genres/**").permitAll()
+                        .requestMatchers( "/api/v1/classifications/**").permitAll()
+
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers("/api/v1/auth/reset-password").permitAll()
                         // 3. Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_OPERACIONES", "GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL", "GERENTE_GENERAL")
+    .requestMatchers(HttpMethod.PUT, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_OPERACIONES", "GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL", "GERENTE_GENERAL")
+    .requestMatchers(HttpMethod.DELETE, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_OPERACIONES", "GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL", "GERENTE_GENERAL")
 
                         // 4. Cualquier otra ruta requiere estar autenticado
                         .anyRequest().authenticated()

@@ -41,6 +41,7 @@ public class MovieServiceImpl implements MovieService {
             dto.setPosterUrl(peli.getPosterUrl());
             dto.setStatus(peli.getStatus());
             dto.setPremiereWeek(peli.getPremiereWeek());
+            dto.setDurationMinutes(peli.getDurationMinutes());
 
             if (peli.getClassification() != null) {
                 dto.setRating(peli.getClassification().getNameClassification());

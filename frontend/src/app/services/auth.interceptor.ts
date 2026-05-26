@@ -6,11 +6,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Ajustamos la lógica de rutas:
   const esRutaAdmin = req.url.includes('/admin') || 
-                       req.url.includes('/users') || 
-                       req.url.includes('/venues') || 
-                       req.url.includes('/locations') ||
-                       req.url.includes('/rooms') ||  
-                       req.url.includes('/seats');   
+                      req.url.includes('/users') || 
+                      req.url.includes('/venues') || 
+                      req.url.includes('/locations') ||
+                      req.url.includes('/rooms') ||  
+                      req.url.includes('/seats') ||
+                      (req.url.includes('/movies') && req.method !== 'GET');
 
   if (token && esRutaAdmin) {
     // Si el body es FormData, NO enviamos 'Content-Type' (el navegador lo gestiona solo)

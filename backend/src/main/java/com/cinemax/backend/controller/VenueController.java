@@ -23,7 +23,7 @@ public class VenueController {
     private final VenueService venueService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<VenueResponseDTO>> getAllVenues() {
         return ResponseEntity.ok(venueService.getAllVenues());
     }
