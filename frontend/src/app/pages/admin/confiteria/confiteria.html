@@ -1,1 +1,88 @@
-<p>confiteria works!</p>
+<div class="container mt-5 text-white">
+
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Confitería</h2>
+    <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalNuevo()">
+      <i class="fa-solid fa-plus me-2"></i>Nuevo Producto
+    </button>
+  </div>
+
+  <div *ngIf="cargando" class="text-center my-5">
+    <div class="spinner-border text-info" role="status"></div>
+    <p class="text-info mt-2">Cargando productos...</p>
+  </div>
+
+  <div *ngIf="!cargando" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+    <div class="col" *ngFor="let snack of snacks">
+      <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
+        <img [src]="snack.imageUrlSnack || 'https://via.placeholder.com/300x200?text=Sin+imagen'"
+             class="card-img-top" style="height: 200px; object-fit: cover;">
+        <div class="card-body">
+          <h5 class="card-title fw-bold" style="color: var(--secondary-color);">{{ snack.nameSnack }}</h5>
+          <p class="card-text small text-secondary">{{ snack.descriptionSnack }}</p>
+          <p class="mb-1"><i class="fa-solid fa-tag me-1 text-info"></i> S/. {{ snack.price }}</p>
+          <p class="mb-1"><i class="fa-solid fa-box me-1 text-info"></i> Stock: {{ snack.stock }}</p>
+          <div>
+            <span class="badge" [ngClass]="snack.status === 'Activo' ? 'bg-success' : 'bg-danger'">
+              {{ snack.status }}
+            </span>
+            <span class="badge bg-secondary ms-2">{{ snack.nameCategory }}</span>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-top border-secondary d-flex justify-content-between">
+          <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalEditar(snack)">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="inhabilitarSnack(snack.idSnack)">
+            <i class="fa-solid fa-ban"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando && snacks.length === 0" class="text-center my-5">
+    <p class="text-secondary">No hay productos registrados aún.</p>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade text-dark" id="modalSnack" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title fw-bold">{{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Nombre</label>
+            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="currentSnack.nameSnack">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Categoría</label>
+            <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="currentSnack.idSnackCategory">
+              <option [ngValue]="null" disabled>Seleccione...</option>
+              <option *ngFor="let c of categories" [ngValue]="c.idSnackCategory">{{ c.nameCategory }}</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-bold">Descripción</label>
+            <textarea class="form-control bg-dark text-white border-secondary" rows="2" [(ngModel)]="currentSnack.descriptionSnack"></textarea>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Precio (S/.)</label>
+            <input type="number" class="form-control bg-dark text-white border-secondary" [(ngModel)]="currentSnack.price">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Stock</label>
+            <input type="number" class="form-control bg-dark text-white border-secondary" [(ngModel)]="currentSnack.stock">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Estado</label>
+            <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="currentSnack.status">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
