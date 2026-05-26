@@ -40,42 +40,38 @@ public class SnackController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('GERENTE_GENERAL', 'GERENTE_DE_MARKETING')")
+    
     public ResponseEntity<SnackResponseDTO> createSnack(
-            @RequestParam("snack") String snackJson,
+            @RequestPart("snack") String snackJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         String imageUrl = null;
         if (file != null && !file.isEmpty()) {
             imageUrl = cloudinaryService.uploadImage(file);
         }
-
         ObjectMapper mapper = new ObjectMapper();
         SnackRequestDTO request = mapper.readValue(snackJson, SnackRequestDTO.class);
-
         return ResponseEntity.ok(snackService.createSnack(request, imageUrl));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('GERENTE_GENERAL', 'GERENTE_DE_MARKETING')")
+    
     public ResponseEntity<SnackResponseDTO> updateSnack(
             @PathVariable Integer id,
-            @RequestParam("snack") String snackJson,
+            @RequestPart("snack") String snackJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         String imageUrl = null;
         if (file != null && !file.isEmpty()) {
             imageUrl = cloudinaryService.uploadImage(file);
         }
-
         ObjectMapper mapper = new ObjectMapper();
         SnackRequestDTO request = mapper.readValue(snackJson, SnackRequestDTO.class);
-
         return ResponseEntity.ok(snackService.updateSnack(id, request, imageUrl));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('GERENTE_GENERAL', 'GERENTE_DE_MARKETING')")
+    
     public ResponseEntity<Void> deleteSnack(@PathVariable Integer id) {
         snackService.deleteSnack(id);
         return ResponseEntity.noContent().build();

@@ -89,11 +89,9 @@ export class Confiteria implements OnInit {
       status: this.currentSnack.status || 'Activo',
       idSnackCategory: Number(this.currentSnack.idSnackCategory)
     });
-    formData.append('snack', new Blob([snackData], { type: 'application/json' }));
+    formData.append('snack', snackData);
     if (this.selectedFile) formData.append('file', this.selectedFile);
-
     const headers = this.getHeaders();
-
     if (this.isEditMode && this.currentSnackId) {
       this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers }).subscribe({
         next: () => { this.cargarSnacks(); alert('Snack actualizado'); },
@@ -128,7 +126,7 @@ export class Confiteria implements OnInit {
       status: 'Activo',
       idSnackCategory: Number(snack.idSnackCategory)
     });
-    formData.append('snack', new Blob([snackData], { type: 'application/json' }));
+    formData.append('snack', snackData);
     const headers = this.getHeaders();
     this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
       next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
