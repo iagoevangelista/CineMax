@@ -80,6 +80,16 @@ export class Confiteria implements OnInit {
   }
 
   guardarSnack() {
+   
+    if (!this.currentSnack.nameSnack || this.currentSnack.nameSnack.trim() === '') {
+      alert('El nombre del producto es obligatorio');
+      return;
+    }
+    if (!this.currentSnack.price || Number(this.currentSnack.price) <= 0) {
+      alert('El precio debe ser mayor a S/. 0.00');
+      return;
+    }
+    
     const formData = new FormData();
     const snackData = JSON.stringify({
       nameSnack: this.currentSnack.nameSnack,
