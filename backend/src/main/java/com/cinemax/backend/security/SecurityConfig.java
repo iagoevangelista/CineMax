@@ -50,6 +50,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/showtimes/**").permitAll() 
                         .requestMatchers("/api/v1/seats/**").permitAll()
                         .requestMatchers("/api/v1/venues/public").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/snacks/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/snack-categories/**").permitAll()
+
 
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
