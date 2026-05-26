@@ -81,12 +81,21 @@ export class Confiteria implements OnInit {
 
   guardarSnack() {
     const formData = new FormData();
-    formData.append('snack', JSON.stringify(this.currentSnack));
+    const snackData = {
+      nameSnack: this.currentSnack.nameSnack,
+      descriptionSnack: this.currentSnack.descriptionSnack,
+      price: this.currentSnack.price,
+      stock: this.currentSnack.stock,
+      status: this.currentSnack.status || 'Activo',
+      idSnackCategory: this.currentSnack.idSnackCategory
+    };
+    formData.append('snack', JSON.stringify(snackData));
     if (this.selectedFile) formData.append('file', this.selectedFile);
 
+    : this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
     const req = this.isEditMode && this.currentSnackId
-      ? this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` }) })
-      : this.http.post(`${this.apiUrl}/snacks`, formData, { headers: new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` }) });
+      ? this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
+      : this.http.post(`${this.apiUrl}/snacks`, formData, { headers });
 
     req.subscribe({
       next: () => { this.cargarSnacks(); alert(this.isEditMode ? 'Snack actualizado' : 'Snack creado'); },
@@ -102,4 +111,26 @@ export class Confiteria implements OnInit {
       });
     }
   }
+
+  habilitarSnack(id: number) {
+  const snack = this.snacks.find(s => s.idSnack === id);
+  if (!snack) return;
+  
+  const formData = new FormData();
+  const snackData = {
+    nameSnack: snack.nameSnack,
+    descriptionSnack: snack.descriptionSnack,
+    price: snack.price,
+    stock: snack.stock,
+    status: 'Activo',
+    idSnackCategory: snack.idSnackCategory
+  };
+  formData.append('snack', JSON.stringify(snackData));
+  
+  : this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers })
+  this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
+    next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
+    error: (err) => alert('Error: ' + err.message)
+  });
+}
 }

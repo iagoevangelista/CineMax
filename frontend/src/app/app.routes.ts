@@ -54,13 +54,12 @@ export const routes: Routes = [
       // Movies: G. de Operaciones
       { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_OPERACIONES', 'GERENTE_DE_OPERACIONES'] } },
       
-      // Usuarios: Solo Admin
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
-      
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 
       // Confitería: G. General y G. de Marketing
       { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING'] } },
+      
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
