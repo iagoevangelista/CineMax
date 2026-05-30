@@ -1,84 +1,201 @@
-<div class="container py-5">
-    <div class="row">
-      <div class="col-lg-8">
-        <h2 class="text-white fw-bold mb-4">CONFITERÍA</h2>
-        
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-          <div class="col">
-            <div class="card bg-dark text-white border-secondary h-100">
-              <img src="https://images.unsplash.com/photo-1572177191856-3cde618dee1f?q=80&w=500" class="card-img-top" alt="Popcorn">
-              <div class="card-body">
-                <h5 class="card-title text-info">Combo Dúo</h5>
-                <p class="card-text small text-muted">1 Popcorn gigante + 2 gaseosas grandes.</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="fs-4 fw-bold">S/ 45.90</span>
-                  <div class="btn-group border border-secondary rounded">
-                    <button class="btn btn-dark btn-sm px-3">-</button>
-                    <span class="px-3 py-1">0</span>
-                    <button class="btn btn-dark btn-sm px-3">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-  
-          <div class="col">
-            <div class="card bg-dark text-white border-secondary h-100">
-              <img src="https://images.unsplash.com/photo-1621263764491-7298e28bd7a0?q=80&w=500" class="card-img-top" alt="Soda">
-              <div class="card-body">
-                <h5 class="card-title text-info">Gaseosa Grande</h5>
-                <p class="card-text small text-muted">Vaso de 32oz (Coca-Cola, Inka Cola o Sprite).</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="fs-4 fw-bold">S/ 12.50</span>
-                  <div class="btn-group border border-secondary rounded">
-                    <button class="btn btn-dark btn-sm px-3">-</button>
-                    <span class="px-3 py-1">0</span>
-                    <button class="btn btn-dark btn-sm px-3">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-  
-          <div class="col">
-            <div class="card bg-dark text-white border-secondary h-100">
-              <img src="https://images.unsplash.com/photo-1599490659223-e153977591a3?q=80&w=500" class="card-img-top" alt="Hot Dog">
-              <div class="card-body">
-                <h5 class="card-title text-info">Hot Dog Clásico</h5>
-                <p class="card-text small text-muted">Salchicha premium con cremas al gusto.</p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                  <span class="fs-4 fw-bold">S/ 10.00</span>
-                  <div class="btn-group border border-secondary rounded">
-                    <button class="btn btn-dark btn-sm px-3">-</button>
-                    <span class="px-3 py-1">0</span>
-                    <button class="btn btn-dark btn-sm px-3">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+  <!-- ── STEPPER ──────────────────────────────────────────────────────────── -->
+  <div class="progress-wrapper mb-5 mx-auto shadow-sm">
+    <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
+      <div class="progress-line position-absolute" style="z-index: 1;"></div>
+      <div class="progress-step completed position-relative" style="z-index: 2;" title="Asientos">
+        <i class="fa-solid fa-couch"></i>
       </div>
-  
-      <div class="col-lg-4">
-        <div class="sticky-top" style="top: 20px;">
-          <div class="card bg-dark text-white border-info shadow-lg p-4">
-            <h4 class="fw-bold mb-4 border-bottom border-secondary pb-2">RESUMEN</h4>
-            
-            <p class="text-center text-muted my-5">No has seleccionado snacks aún.</p>
-            
-            <div class="border-top border-secondary pt-3 mt-4">
-              <div class="d-flex justify-content-between fs-5 mb-4">
-                <span>Total a pagar:</span>
-                <span class="text-info fw-bold">S/ 0.00</span>
-              </div>
-              
-              <button class="btn btn-primary btn-lg w-100 fw-bold">
-                CONTINUAR <i class="fa-solid fa-arrow-right ms-2"></i>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div class="progress-step completed position-relative" style="z-index: 2;" title="Tickets">
+        <i class="fa-solid fa-ticket"></i>
+      </div>
+      <div class="progress-step active position-relative" style="z-index: 2;" title="Snacks">
+        <i class="fa-solid fa-burger"></i>
+      </div>
+      <div class="progress-step position-relative" style="z-index: 2;" title="Pago">
+        <i class="fa-regular fa-credit-card"></i>
       </div>
     </div>
   </div>
+
+  <h3 class="text-center fw-bold mb-2 text-white" style="letter-spacing: 1px;">CONFITERÍA</h3>
+  <p class="text-center text-secondary mb-5 small">¿Quieres agregar algo para disfrutar la película? (opcional)</p>
+
+  <!-- ── SPINNER ──────────────────────────────────────────────────────────── -->
+  <div *ngIf="cargando" class="text-center py-5">
+    <div class="spinner-border" style="color: #8a2be2;" role="status"></div>
+    <p class="text-secondary mt-3 small">Cargando confitería...</p>
+  </div>
+
+  <!-- ── ERROR (no bloquea) ────────────────────────────────────────────────── -->
+  <div *ngIf="error && !cargando" class="alert alert-warning text-center rounded-3 mb-4">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error }}
+  </div>
+
+  <!-- ── CONTENIDO ────────────────────────────────────────────────────────── -->
+  <div *ngIf="!cargando" class="row g-5">
+
+    <!-- ── PANEL IZQUIERDO: snacks ────────────────────────────────────────── -->
+    <div class="col-lg-8">
+
+      <!-- Tabs de categorías -->
+      <div *ngIf="categorias.length" class="d-flex gap-2 flex-wrap mb-4">
+        <button *ngFor="let cat of categorias"
+                class="btn btn-sm rounded-pill tab-categoria"
+                [class.tab-activo]="categoriaActiva === cat.idSnackCategory"
+                (click)="setCategoriaActiva(cat.idSnackCategory)">
+          {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- Grid de productos -->
+      <div *ngIf="snacksFiltrados.length" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+        <div *ngFor="let snack of snacksFiltrados" class="col">
+          <div class="snack-card h-100 rounded-4 d-flex flex-column overflow-hidden">
+
+            <!-- Imagen -->
+            <div class="snack-img-wrap position-relative">
+              <img *ngIf="snack.imageUrl"
+                   [src]="snack.imageUrl"
+                   [alt]="snack.name"
+                   class="snack-img w-100">
+              <div *ngIf="!snack.imageUrl" class="snack-img-placeholder d-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-popcorn fa-2x text-secondary"></i>
+              </div>
+              <!-- Badge cantidad flotante -->
+              <span *ngIf="snack.cantidad > 0" class="badge-cantidad position-absolute top-0 end-0 m-2">
+                {{ snack.cantidad }}
+              </span>
+            </div>
+
+            <!-- Info -->
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <h6 class="fw-bold text-white mb-1">{{ snack.name }}</h6>
+              <p class="text-secondary small mb-3 flex-grow-1">{{ snack.description }}</p>
+
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <span class="fw-bold text-white fs-6">S/ {{ snack.price | number:'1.2-2' }}</span>
+
+                <!-- Control cantidad -->
+                <div *ngIf="snack.cantidad === 0">
+                  <button class="btn btn-add-snack rounded-pill" (click)="sumar(snack)">
+                    <i class="fa-solid fa-plus me-1"></i> Agregar
+                  </button>
+                </div>
+                <div *ngIf="snack.cantidad > 0" class="qty-ctrl d-flex align-items-center gap-2">
+                  <button class="btn-qty-sm" (click)="restar(snack)">
+                    <i class="fa-solid fa-minus"></i>
+                  </button>
+                  <span class="qty-num">{{ snack.cantidad }}</span>
+                  <button class="btn-qty-sm" (click)="sumar(snack)">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sin productos en esta categoría -->
+      <div *ngIf="!snacksFiltrados.length && !error"
+           class="text-center text-secondary py-5">
+        <i class="fa-solid fa-box-open fa-2x mb-3 d-block"></i>
+        No hay productos disponibles en esta categoría.
+      </div>
+
+    </div>
+
+    <!-- ── PANEL DERECHO: resumen ─────────────────────────────────────────── -->
+    <div class="col-lg-4">
+      <div class="p-4 rounded-4 summary-card shadow sticky-top" style="top: 80px;">
+        <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
+
+        <!-- Película -->
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
+        <div class="d-flex gap-3 mb-4 align-items-center">
+          <img [src]="resumen.pelicula?.poster" alt="Póster" width="55" class="rounded-3 shadow">
+          <div>
+            <p class="mb-1 fw-bold text-white lh-sm">{{ resumen.pelicula?.nombre }}</p>
+            <span class="badge py-1 px-2 pastel-badge">{{ resumen.pelicula?.formato }}</span>
+          </div>
+        </div>
+
+        <hr class="border-secondary mb-3 opacity-50">
+
+        <!-- Asientos y tickets -->
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
+        <p class="text-white small mb-3">{{ resumen.asientos?.join(', ') || 'Ninguno' }}</p>
+
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Entradas</h6>
+        <div class="mb-3">
+          <ng-container *ngFor="let t of resumen.tickets">
+            <div class="d-flex justify-content-between text-light small mb-1">
+              <span>{{ t.categoryName }} × {{ t.cantidad }}</span>
+              <span>S/ {{ t.subtotal | number:'1.2-2' }}</span>
+            </div>
+          </ng-container>
+        </div>
+
+        <hr class="border-secondary mb-3 opacity-50">
+
+        <!-- Snacks seleccionados -->
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Confitería</h6>
+        <div class="mb-3">
+          <ng-container *ngFor="let item of carrito">
+            <div class="d-flex justify-content-between text-light small mb-1">
+              <span>{{ item.name }} × {{ item.cantidad }}</span>
+              <span>S/ {{ (item.price * item.cantidad) | number:'1.2-2' }}</span>
+            </div>
+          </ng-container>
+          <div *ngIf="carrito.length === 0" class="text-secondary small">Sin snacks aún</div>
+        </div>
+
+        <!-- Total -->
+        <div class="bg-dark bg-opacity-50 p-3 rounded-3 mb-4 border border-secondary border-opacity-50">
+          <div class="d-flex justify-content-between mb-1 small">
+            <span class="text-light">Entradas</span>
+            <span class="text-white fw-bold">S/ {{ totalTickets | number:'1.2-2' }}</span>
+          </div>
+          <div *ngIf="totalSnacks > 0" class="d-flex justify-content-between mb-1 small">
+            <span class="text-light">Confitería</span>
+            <span class="text-white fw-bold">S/ {{ totalSnacks | number:'1.2-2' }}</span>
+          </div>
+          <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2">
+            <span class="fw-bold text-white">TOTAL</span>
+            <span class="fw-bold text-warning fs-5">S/ {{ totalGeneral | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Botón continuar -->
+        <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-6"
+                (click)="continuarAlPago()">
+          <ng-container *ngIf="totalItems > 0">
+            CONTINUAR ({{ totalItems }} item{{ totalItems !== 1 ? 's' : '' }})
+          </ng-container>
+          <ng-container *ngIf="totalItems === 0">
+            CONTINUAR AL PAGO
+          </ng-container>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <!-- Saltar snacks -->
+        <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-skip mb-3"
+                (click)="saltarSnacks()">
+          OMITIR CONFITERÍA <i class="fa-solid fa-forward"></i>
+        </button>
+
+        <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel"
+                (click)="regresar()">
+          REGRESAR <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -7,6 +7,7 @@ public class SeatStatusDTO {
     private Integer idSeat;
     private String rowLetter;
     private Integer columnNumber;
-    private String nameSeatType; 
-    private Boolean isOccupied;
+    private String status;        // "ACTIVO", "MANTENIMIENTO", "OCULTO"
+    private String nameSeatType;  // "REGULAR" o "WHEELCHAIR"
+    private Boolean isOccupied;   // true si ya tiene ticket vendido para esta función
 }

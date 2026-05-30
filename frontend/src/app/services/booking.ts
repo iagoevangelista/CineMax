@@ -1,71 +1,139 @@
 import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface TicketEntry {
+  categoryCode: string;
+  categoryName: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface SnackEntry {
+  idSnack: number;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+  subtotal: number;
+  imagen?: string;
+}
+
+export interface BookingResumen {
+  idShowtime: number | null;
+  pelicula: { nombre: string; formato: string; poster: string };
+  cine: string;
+  fechaHora: string;
+  asientos: string[];
+  asientosIds: number[];
+  tickets: TicketEntry[];
+  totalTickets: number;
+  snacks: SnackEntry[];
+  totalSnacks: number;
+  totalPagar: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class BookingService {
-  
-  private reserva = {
-    horarioId: null as number | null,
-    pelicula: { nombre: '', formato: '', imagen: '' }, 
-    cine: '',
-    fechaHora: '',
-    asientos: [] as string[],
-    boletos: { adulto: 0, nino: 0 },
-    snacks: [] as any[],
-    totalPagar: 0
-  };
 
-  private seleccionSnacks: any[] = [];
+  private readonly STORAGE_KEY = 'cinemax_booking';
 
-  constructor() { }
+  private reserva: BookingResumen = this.reservaVacia();
 
-  iniciarReserva(idShowtime: number) {
-    this.reserva = {
-      horarioId: idShowtime,
-      pelicula: { nombre: '', formato: '', imagen: '' },
-      cine: '', 
-      fechaHora: '',
-      asientos: [],
-      boletos: { adulto: 0, nino: 0 },
-      snacks: [],
-      totalPagar: 0
-    };
-    console.log("Nueva reserva iniciada en el Service para el ID:", idShowtime);
+  constructor() {
+    const guardado = sessionStorage.getItem(this.STORAGE_KEY);
+    if (guardado) {
+      try { this.reserva = JSON.parse(guardado); } catch { }
+    }
   }
 
-  // Permite que las pantallas vean qué hay en la reserva
-  obtenerResumen() {
+  iniciarReserva(idShowtime: number): void {
+    this.reserva = { ...this.reservaVacia(), idShowtime };
+    this.persistir();
+  }
+
+  limpiar(): void {
+    this.reserva = this.reservaVacia();
+    sessionStorage.removeItem(this.STORAGE_KEY);
+  }
+
+  obtenerResumen(): BookingResumen {
     return this.reserva;
   }
 
-  // Guarda los datos de la película (puedes llamarlo desde el MovieDetail o desde el Seats)
-  guardarPelicula(movie: any) {
-    this.reserva.pelicula = {
-      nombre: movie.nombre || movie.title || movie.titleMovie, // Adaptado a tu DTO de Java
-      formato: movie.formato || '2D - Doblada',
-      imagen: movie.imagen || movie.poster_path || movie.posterUrl
+  get idShowtime(): number | null {
+    return this.reserva.idShowtime;
+  }
+
+  // ── Paso 1: Asientos ─────────────────────────────────────────────────────
+  guardarAsientos(codigos: string[], ids: number[]): void {
+    this.reserva.asientos    = [...codigos];
+    this.reserva.asientosIds = [...ids];
+    this.persistir();
+  }
+
+  /**
+   * Guarda los asientos y limpia tickets + snacks (porque cambiaron los asientos).
+   * Llamar cuando el usuario confirma selección desde seats.
+   */
+  guardarAsientosYLimpiarSiguientes(codigos: string[], ids: number[]): void {
+    this.reserva.asientos    = [...codigos];
+    this.reserva.asientosIds = [...ids];
+    this.reserva.tickets     = [];
+    this.reserva.totalTickets = 0;
+    this.reserva.snacks      = [];
+    this.reserva.totalSnacks = 0;
+    this.reserva.totalPagar  = 0;
+    this.persistir();
+  }
+
+  // ── Paso 2: Info película ────────────────────────────────────────────────
+  guardarInfoShowtime(data: {
+    nombre: string; formato: string; poster: string;
+    cine: string; fechaHora: string;
+  }): void {
+    this.reserva.pelicula  = { nombre: data.nombre, formato: data.formato, poster: data.poster };
+    this.reserva.cine      = data.cine;
+    this.reserva.fechaHora = data.fechaHora;
+    this.persistir();
+  }
+
+  // ── Paso 3: Tickets ───────────────────────────────────────────────────────
+  guardarTickets(tickets: TicketEntry[]): void {
+    this.reserva.tickets      = tickets.filter(t => t.cantidad > 0);
+    this.reserva.totalTickets = this.reserva.tickets.reduce((s, t) => s + t.subtotal, 0);
+    this.reserva.totalPagar   = this.reserva.totalTickets + this.reserva.totalSnacks;
+    this.persistir();
+  }
+
+  calcularTotalTickets(): number {
+    return this.reserva.tickets.reduce((s, t) => s + t.subtotal, 0);
+  }
+
+  // ── Paso 4: Snacks ────────────────────────────────────────────────────────
+  guardarSnacks(snacks: SnackEntry[]): void {
+    this.reserva.snacks      = snacks;
+    this.reserva.totalSnacks = snacks.reduce((t, s) => t + s.subtotal, 0);
+    this.reserva.totalPagar  = this.calcularTotalTickets() + this.reserva.totalSnacks;
+    this.persistir();
+  }
+
+  calcularTotalSnacks(): number {
+    return this.reserva.snacks.reduce((t, s) => t + s.subtotal, 0);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  private reservaVacia(): BookingResumen {
+    return {
+      idShowtime: null,
+      pelicula: { nombre: '', formato: '', poster: '' },
+      cine: '', fechaHora: '',
+      asientos: [], asientosIds: [],
+      tickets: [], totalTickets: 0,
+      snacks: [], totalSnacks: 0,
+      totalPagar: 0
     };
   }
 
-  // Guarda los asientos que elijas en el Paso 1
-  guardarAsientos(asientosSeleccionados: string[]) {
-    this.reserva.asientos = asientosSeleccionados;
-  }
-
-  // === LÓGICA DE SNACKS ===
-  guardarSnacks(snacks: any[]) {
-    this.reserva.snacks = snacks;
-    this.seleccionSnacks = snacks;
-    localStorage.setItem('snacksSeleccionados', JSON.stringify(snacks));
-  }
-
-  obtenerSnacks() {
-    const snacks = localStorage.getItem('snacksSeleccionados');
-    return snacks ? JSON.parse(snacks) : [];
-  }
-
-  calcularTotalSnacks() {
-    return this.seleccionSnacks.reduce((total, s) => total + (s.precio * s.cantidad), 0);
+  private persistir(): void {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.reserva));
   }
 }

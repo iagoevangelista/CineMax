@@ -1,0 +1,81 @@
+/* ── Stepper ─────────────────────────────────────────────────────────────── */
+.progress-wrapper { background-color: #1e1e24; padding: 15px 30px; border-radius: 40px; width: 70%; }
+.progress-line { height: 2px; background-color: #444; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
+.progress-step {
+  width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background-color: #1a1a1c; border: 2px solid #444; color: #777; font-size: 1.2rem; transition: all 0.3s ease;
+}
+.progress-step.active   { border-color: #8a2be2; color: #8a2be2; box-shadow: 0 0 10px rgba(138,43,226,0.2); }
+.progress-step.completed{ border-color: #00e676; color: #00e676; background-color: rgba(0,230,118,0.1); }
+
+/* ── Tabs de categorías ──────────────────────────────────────────────────── */
+.tab-categoria {
+  background-color: #1e1e24;
+  border: 1px solid #333;
+  color: #999;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.tab-categoria:hover { border-color: #8a2be2; color: #c084fc; }
+.tab-activo { background-color: #8a2be2 !important; border-color: #8a2be2 !important; color: #fff !important; }
+
+/* ── Tarjeta de snack ────────────────────────────────────────────────────── */
+.snack-card {
+  background-color: #161619;
+  border: 1px solid #2a2a2a;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.snack-card:hover { transform: translateY(-3px); border-color: #8a2be2; }
+
+.snack-img-wrap { height: 160px; background-color: #111; overflow: hidden; }
+.snack-img      { height: 160px; object-fit: cover; }
+.snack-img-placeholder { height: 160px; background-color: #111; }
+
+/* Badge flotante de cantidad */
+.badge-cantidad {
+  background-color: #8a2be2;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Botón agregar ───────────────────────────────────────────────────────── */
+.btn-add-snack {
+  background-color: transparent;
+  border: 1px solid #8a2be2;
+  color: #c084fc;
+  font-size: 0.82rem;
+  padding: 4px 12px;
+  transition: 0.2s;
+}
+.btn-add-snack:hover { background-color: #8a2be2; color: #fff; }
+
+/* ── Control +/- ─────────────────────────────────────────────────────────── */
+.qty-ctrl { }
+.btn-qty-sm {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #8a2be2; background-color: transparent;
+  color: #8a2be2; font-size: 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: 0.2s;
+}
+.btn-qty-sm:hover { background-color: #8a2be2; color: #fff; }
+.qty-num { font-size: 1rem; font-weight: bold; color: #fff; min-width: 20px; text-align: center; }
+
+/* ── Resumen lateral ─────────────────────────────────────────────────────── */
+.summary-card  { background-color: #161619; border: 1px solid #2a2a2a; color: #fff; }
+.summary-label { color: #888; font-size: 0.9rem; }
+.pastel-badge  { background-color: #222; color: #ccc; border: 1px solid #444; font-size: 0.8rem; }
+
+/* ── Botones ─────────────────────────────────────────────────────────────── */
+.btn-continue { background-color: #8a2be2; color: #fff !important; border: none; transition: 0.3s; }
+.btn-continue:hover { background-color: #7c26cc; transform: scale(1.02); }
+
+.btn-skip { border: 1px solid #555; color: #aaa; background-color: transparent; transition: 0.3s; font-size: 0.85rem; }
+.btn-skip:hover { background-color: rgba(255,255,255,0.05); color: #fff; border-color: #888; }
+
+.btn-cancel { border: 1px solid #ef5350; color: #ef5350; background-color: transparent; transition: 0.3s; }
+.btn-cancel:hover { background-color: rgba(239,83,80,0.1); color: #ef5350; }

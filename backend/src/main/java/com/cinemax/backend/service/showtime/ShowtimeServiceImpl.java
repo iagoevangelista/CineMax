@@ -70,10 +70,13 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         BigDecimal precioBase = funcion.getBaseTicketPrice();
         List<TicketFareDTO> tarifas = new ArrayList<>();
-        tarifas.add(new TicketFareDTO("Adulto", precioBase));
-        tarifas.add(new TicketFareDTO("Niño", precioBase.subtract(new BigDecimal("11.00"))));
-        tarifas.add(new TicketFareDTO("Adulto Mayor", precioBase.subtract(new BigDecimal("9.00"))));
-        tarifas.add(new TicketFareDTO("Personas Discapacitadas", precioBase.subtract(new BigDecimal("9.00"))));
+
+        // categoryCode se usa en el frontend para lógica y en el ticket guardado
+        tarifas.add(new TicketFareDTO("ADULTO",       "Adulto",                precioBase));
+        tarifas.add(new TicketFareDTO("NINO",         "Niño",                  precioBase.subtract(new BigDecimal("11.00"))));
+        tarifas.add(new TicketFareDTO("ADULTO_MAYOR", "Adulto Mayor",          precioBase.subtract(new BigDecimal("9.00"))));
+        tarifas.add(new TicketFareDTO("DISCAPACITADO","Personas Discapacitadas", precioBase.subtract(new BigDecimal("9.00"))));
+
         return tarifas;
     }
 
@@ -135,7 +138,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La función no existe."));
 
-        // SEGURIDAD: el gerente solo puede editar funciones de SU sede
         if (callerVenueId != null &&
                 !showtime.getRoom().getVenue().getIdVenue().equals(callerVenueId)) {
             throw new RuntimeException("No tienes permiso para editar funciones de otra sede.");
@@ -155,7 +157,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Room room = roomRepository.findById(request.getIdRoom())
                 .orElseThrow(() -> new RuntimeException("La sala seleccionada no existe."));
 
-        // Si cambia de sala, también verificar que sigue siendo de la misma sede
         if (callerVenueId != null && !room.getVenue().getIdVenue().equals(callerVenueId)) {
             throw new RuntimeException("No puedes mover una función a una sala de otra sede.");
         }
@@ -178,7 +179,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setEndTime(endTime);
         showtime.setLanguageFormat(request.getLanguageFormat());
         showtime.setBaseTicketPrice(request.getBaseTicketPrice());
-        // No reseteamos availableSeats si ya hay ventas; solo si cambia la sala
         if (!showtime.getRoom().getIdRoom().equals(room.getIdRoom())) {
             showtime.setAvailableSeats(room.getCapacity());
         }

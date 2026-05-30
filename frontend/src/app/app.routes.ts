@@ -11,6 +11,7 @@ import { Seats } from './pages/checkout/seats/seats';
 import { Tickets } from './pages/checkout/tickets/tickets';
 import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
+import { Payment } from './pages/checkout/payment/payment';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
 import { Sedes } from './pages/sedes/sedes';
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'seats', component: Seats },
       { path: 'tickets', component: Tickets },
       { path: 'snacks', component: Snacks },
+      { path: 'payment', component: Payment },
       { path: 'reset-password', component: ResetPasswordComponent }
       
     ]

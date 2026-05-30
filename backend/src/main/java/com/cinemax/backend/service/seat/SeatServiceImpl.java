@@ -45,16 +45,18 @@ public class SeatServiceImpl implements SeatService {
             dto.setIdSeat(asiento.getIdSeat());
             dto.setRowLetter(asiento.getRowName());
             dto.setColumnNumber(asiento.getColumnNumber());
+            dto.setStatus(asiento.getStatus()); // "ACTIVO", "MANTENIMIENTO", "OCULTO"
 
-            // CORREGIDO: Ahora usa 'asiento' en lugar de 'seat'
             if (asiento.getSeatType() != null) {
                 dto.setNameSeatType(asiento.getSeatType().getNameSeatType());
             }
 
-            if (idsOcupados.contains(asiento.getIdSeat())) {
-                dto.setIsOccupied(true);
+            // Un asiento en MANTENIMIENTO u OCULTO nunca puede estar "ocupado" por venta,
+            // pero se marca isOccupied=true para que el frontend lo trate como no seleccionable
+            if ("MANTENIMIENTO".equals(asiento.getStatus()) || "OCULTO".equals(asiento.getStatus())) {
+                dto.setIsOccupied(false); // OCULTO se omite en el frontend; MANTENIMIENTO se renderiza pero bloqueado
             } else {
-                dto.setIsOccupied(false);
+                dto.setIsOccupied(idsOcupados.contains(asiento.getIdSeat()));
             }
 
             response.add(dto);

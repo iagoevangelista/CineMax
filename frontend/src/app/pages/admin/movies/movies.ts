@@ -37,7 +37,7 @@ export class AdminMovies implements OnInit {
     private movieService: MovieService,
     private genreService: GenreService,
     private classificationService: ClassificationService,
-    private cdr: ChangeDetectorRef // <-- SOLUCIÓN AL RETRASO DE DATOS
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -62,7 +62,7 @@ export class AdminMovies implements OnInit {
       next: (res) => {
         this.movies = res;
         this.cargando = false;
-        this.cdr.detectChanges(); // Forzamos a Angular a mostrar la lista
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error(err);
@@ -119,7 +119,7 @@ export class AdminMovies implements OnInit {
         idGenres: genreIds
       };
       
-      this.cdr.detectChanges(); // <-- ESTO ACTUALIZA EL FORMULARIO SIN TENER QUE HACER CLIC
+      this.cdr.detectChanges(); 
     });
   }
 
@@ -129,7 +129,7 @@ export class AdminMovies implements OnInit {
 
     this.movieService.getMovieById(peli.idMovie).subscribe(detalles => {
       this.peliculaDetalle = detalles;
-      this.cdr.detectChanges(); // <-- ESTO ACTUALIZA EL MODAL DE DETALLES INMEDIATAMENTE
+      this.cdr.detectChanges();
     });
   }
 

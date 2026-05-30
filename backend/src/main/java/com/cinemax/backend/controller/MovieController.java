@@ -42,6 +42,7 @@ public class MovieController {
         return ResponseEntity.ok(response);
     }
 
+    // Administrador
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<?> createMovie(
@@ -77,7 +78,6 @@ public class MovieController {
 
         try {
             String imageUrl = null;
-            // Solo si el administrador seleccionó un archivo nuevo, lo subimos a Cloudinary
             if (file != null && !file.isEmpty()) {
                 imageUrl = cloudinaryService.uploadImage(file);
             }
@@ -86,7 +86,6 @@ public class MovieController {
             objectMapper.registerModule(new JavaTimeModule());
             MovieRequestDTO requestDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
-            // Ejecutamos la actualización pasándole el ID de la URL de Angular
             MovieDetailDTO updatedMovie = movieService.updateMovie(id, requestDTO, imageUrl);
             
             return ResponseEntity.ok(updatedMovie);
@@ -101,20 +100,9 @@ public class MovieController {
     @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
         movieService.deleteMovie(id);
-        // Retornamos un 204 No Content para confirmar que la operación fue exitosa
         return ResponseEntity.noContent().build();
     }
     
 
-    @PostMapping(value = "/test-json", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ROLE_GERENTE_DE_OPERACIONES')")
-    public ResponseEntity<?> testJson(@RequestBody MovieRequestDTO dto) {
-        return ResponseEntity.ok("JSON recibido correctamente");
-    }
-
-    @GetMapping("/test-acceso")
-    public ResponseEntity<String> testAcceso() {
-        return ResponseEntity.ok("ACCESO CONCEDIDO");
-    }
 
 }

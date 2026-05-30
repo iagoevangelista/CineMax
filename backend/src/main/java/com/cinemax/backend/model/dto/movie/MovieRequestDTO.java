@@ -31,8 +31,8 @@ public class MovieRequestDTO {
     private Boolean premiereWeek;
     
     @NotNull(message = "Debe seleccionar una clasificación")
-    private Integer idClassification; // Angular nos enviará el ID (ej: 1)
+    private Integer idClassification;
 
     @NotNull(message = "Debe seleccionar al menos un género")
-    private List<Integer> idGenres;   // Angular nos enviará un arreglo de IDs (ej: [2, 4, 5])
+    private List<Integer> idGenres;
 }
