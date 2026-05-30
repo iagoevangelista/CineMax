@@ -90,7 +90,8 @@
           </div>
           <div class="col-md-3">
             <label class="form-label fw-bold">Precio (S/.)</label>
-            <input type="number" class="form-control bg-dark text-white border-secondary" [(ngModel)]="currentSnack.price">
+         <input type="number" class="form-control bg-dark text-white border-secondary" 
+       [(ngModel)]="currentSnack.price" min="0.01" step="0.01">
           </div>
           <div class="col-md-3">
             <label class="form-label fw-bold">Stock Inicial</label>
