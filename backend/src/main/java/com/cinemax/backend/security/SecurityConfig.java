@@ -35,17 +35,13 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
 
-                .authorizeHttpRequests(auth -> auth
-                        // 1. Permitir peticiones preflight de Angular (CORS) - ¡ESTO FALTABA!
+                .authorizeHttpRequests(auth -> auth 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 2. Rutas públicas: Todo lo que empiece con /api/v1/auth/ está permitido
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // Rutas públicas: Películas (cartelera pública)
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
                         .requestMatchers("/api/v1/rooms/**").authenticated()
-
 
                         .requestMatchers("/api/v1/showtimes/**").permitAll() 
                         .requestMatchers("/api/v1/seats/**").permitAll()
@@ -60,14 +56,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
                         .requestMatchers("/api/v1/auth/reset-password").permitAll()
-                        // 3. Rutas públicas: Swagger y documentación
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/movies", "/api/v1/movies/**").hasAnyAuthority("ROLE_GERENTE_DE_OPERACIONES", "ROLE_GERENTE_GENERAL")
 
-                        // 4. Cualquier otra ruta requiere estar autenticado
                         .anyRequest().authenticated()
                         
                 )

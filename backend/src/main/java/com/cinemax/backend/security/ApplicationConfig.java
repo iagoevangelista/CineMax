@@ -29,12 +29,8 @@ public class ApplicationConfig {
     // 2. EL PROVEEDOR DE AUTENTICACIÓN
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // Ahora pasamos el userDetailsService() directamente dentro de los paréntesis
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
-
-        // Solo configuramos el encriptador porque el buscador de usuarios ya se pasó arriba
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 

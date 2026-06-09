@@ -47,6 +47,7 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayout,
     children: [
+      // Dashboard: Acceso para todos los roles administrativos
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
       
       // Sedes: Solo Admin y Gerente General
@@ -64,6 +65,7 @@ export const routes: Routes = [
 
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
       
+      // Redirección por defecto dentro de /admin
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 
     ]

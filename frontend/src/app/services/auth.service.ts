@@ -14,7 +14,6 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
-        // Guardamos el token que nos devuelve AuthResponseDTO
         if (response.token) {
           localStorage.setItem('cinemax_token', response.token);
         }
@@ -40,7 +39,6 @@ export class AuthService {
       const decoded: any = jwtDecode(token);
       let role = decoded.role || 'USUARIO';
       
-      // Limpiamos el prefijo 'ROLE_' si es que viene del backend
       if (role.startsWith('ROLE_')) {
         role = role.replace('ROLE_', '');
       }
@@ -52,20 +50,16 @@ export class AuthService {
 register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data).pipe(
       tap((response: any) => {
-        // Atrapamos el token que el backend ya nos envía al registrar
         if (response.token) {
           localStorage.setItem('cinemax_token', response.token);
         }
       })
     );
   }
-// Solicitar el correo de recuperación
   forgotPassword(email: string) {
-    // Ajusta la URL base si es diferente en tu entorno
     return this.http.post('http://localhost:8080/api/v1/auth/forgot-password', { email });
   }
 
-  // Enviar la nueva contraseña con el token
   resetPassword(token: string, newPassword: string) {
     return this.http.post('http://localhost:8080/api/v1/auth/reset-password', { token, newPassword });
   }
