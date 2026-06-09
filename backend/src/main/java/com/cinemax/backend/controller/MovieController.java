@@ -66,18 +66,18 @@ public class MovieController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    //@PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES', 'ROLE_GERENTE_OPERACIONES')")
     public ResponseEntity<MovieDetailDTO> updateMovie(
             @PathVariable Integer id,
             @RequestPart("movie") String movieJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
-        try {
+        try {   
             var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-    System.out.println("--- DEBUG SEGURIDAD ---");
-    for (var authority : auth.getAuthorities()) {
-        System.out.println("Rol detectado: [" + authority.getAuthority() + "]");
-    }
+            System.out.println("--- DEBUG SEGURIDAD ---");
+            for (var authority : auth.getAuthorities()) {
+                System.out.println("Rol detectado: [" + authority.getAuthority() + "]");
+            }
             String imageUrl = null;
             // Solo si el administrador seleccionó un archivo nuevo, lo subimos a Cloudinary
             if (file != null && !file.isEmpty()) {

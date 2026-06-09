@@ -29,8 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-    private final EmailService emailService; // <-- Movido aquí arriba de forma limpia
-    private final DocumentTypeRepository documentTypeRepository; // NUEVO: Inyectamos el repo
+    private final EmailService emailService; 
+    private final DocumentTypeRepository documentTypeRepository; 
 
     @Override
     public AuthResponseDTO login(AuthRequestDTO request) {
@@ -51,21 +51,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
-
-        // --- 1. VALIDAR UNICIDAD DEL CORREO ---
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("El correo electrónico ya se encuentra registrado.");
         }
 
-        // 2. Buscamos el rol en la BD
         var role = roleRepository.findById(4)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
 
-        // 3. Buscamos el tipo de documento REAL en la base de datos
         DocumentType docType = documentTypeRepository.findById(request.getIdDocumentType())
                 .orElseThrow(() -> new RuntimeException("Tipo de documento no válido."));
 
-        // 4. Creamos el usuario
         UserAccount user = new UserAccount();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -76,10 +71,8 @@ public class AuthServiceImpl implements AuthService {
         user.setDocumentNumber(request.getDocumentNumber());
         user.setDocumentType(docType);
 
-        // 5. Guardamos
         userRepository.save(user);
 
-        // --- 6. ENVÍO DE CORREO DE BIENVENIDA ASÍNCRONO ---
         java.util.concurrent.CompletableFuture.runAsync(() -> {
             try {
                 emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
@@ -88,9 +81,7 @@ public class AuthServiceImpl implements AuthService {
             }
         });
 
-        // 7. Generamos Token
         String jwtToken = jwtService.generateToken(user);
-
         return AuthResponseDTO.builder().token(jwtToken).build();
     }
 
@@ -100,7 +91,6 @@ public class AuthServiceImpl implements AuthService {
 
         if (userOptional.isEmpty()) {
             System.out.println("Intento de recuperación para correo inexistente: " + email);
-            // Responde a Angular en 0.1 segundos
             return; 
         }
 
@@ -111,7 +101,6 @@ public class AuthServiceImpl implements AuthService {
         user.setTokenExpiryDate(java.time.LocalDateTime.now().plusMinutes(1));
         userRepository.save(user);
 
-        // LA MAGIA ASÍNCRONA: Mandamos el correo en un proceso en segundo plano (background thread)
         java.util.concurrent.CompletableFuture.runAsync(() -> {
             try {
                 emailService.sendPasswordResetEmail(user.getEmail(), token);
@@ -120,24 +109,19 @@ public class AuthServiceImpl implements AuthService {
             }
         });
         
-        // El hilo principal no espera a Google. Responde a Angular inmediatamente en 0.1 segundos.
     }
 
     @Override
     public void resetPassword(String token, String newPassword) {
-        // Buscamos al usuario por el token secreto
         UserAccount user = userRepository.findByResetToken(token)
                 .orElseThrow(() -> new RuntimeException("Token inválido o no existe."));
 
-        // Verificamos si ya pasaron los 15 minutos
         if (user.getTokenExpiryDate().isBefore(java.time.LocalDateTime.now())) {
             throw new RuntimeException("El enlace de recuperación ha expirado. Por favor solicita uno nuevo.");
         }
 
-        // Encriptamos la nueva contraseña (corregido a setPasswordHash)
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         
-        // Limpiamos el token para que no se pueda reciclar
         user.setResetToken(null);
         user.setTokenExpiryDate(null);
         userRepository.save(user);

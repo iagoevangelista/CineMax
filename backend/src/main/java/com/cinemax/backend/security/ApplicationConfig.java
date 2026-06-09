@@ -19,7 +19,7 @@ public class ApplicationConfig {
 
     private final UserAccountRepository repository;
 
-    // 1. EL BUSCADOR DE USUARIOS (Este es el método que te faltaba o no detectaba)
+    // 1. EL SERVICIO DE DETALLES DE USUARIO
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
@@ -29,12 +29,8 @@ public class ApplicationConfig {
     // 2. EL PROVEEDOR DE AUTENTICACIÓN
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        // Ahora pasamos el userDetailsService() directamente dentro de los paréntesis
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService());
-
-        // Solo configuramos el encriptador porque el buscador de usuarios ya se pasó arriba
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 

@@ -45,6 +45,7 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayout,
     children: [
+      // Dashboard: Acceso para todos los roles administrativos
       { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
       
       // Sedes: Solo Admin y Gerente General
@@ -56,8 +57,16 @@ export const routes: Routes = [
       // Movies: G. de Operaciones
       { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
+      // Showtimes: G. de Operaciones
+      { path: 'funciones', component: AdminShowtimes, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
+
+      // Confiteria: Solo Admin y G. de Marketing
+      { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['ADMIN', 'GERENTE_DE_MARKETING'] } },
+
+      // Usuarios: Solo Admin
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
       
+      // Redirección por defecto dentro de /admin
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 
     ]
