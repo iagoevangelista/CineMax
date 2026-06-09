@@ -33,8 +33,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomResponseDTO> getRoomsByVenue(Integer idVenue) {
-        // En el futuro puedes agregar un método en el repositorio findByVenue_IdVenue
-        // Por ahora filtramos aquí por simplicidad
+
         return roomRepository.findAll().stream()
                 .filter(room -> room.getVenue().getIdVenue().equals(idVenue))
                 .map(this::mapToDTO)
@@ -58,7 +57,7 @@ public class RoomServiceImpl implements RoomService {
         return mapToDTO(updatedRoom);
     }
 
-    // Metodo auxiliar para no repetir código de mapeo
+    // Metodo auxiliar
     private RoomResponseDTO mapToDTO(Room room) {
         RoomResponseDTO dto = new RoomResponseDTO();
         dto.setIdRoom(room.getIdRoom());
@@ -74,12 +73,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponseDTO createRoom(RoomRequestDTO request) {
 
-        // 1. VALIDACIÓN (HU-16): Nombre único en la sede
+        // VALIDACIÓN: Nombre único en la sede
         if (roomRepository.existsByNameRoomAndVenue_IdVenue(request.getNameRoom(), request.getIdVenue())) {
             throw new RuntimeException("Ya existe una sala con el nombre '" + request.getNameRoom() + "' en este cine.");
         }
 
-        // 2. VALIDACIÓN (HU-17): Filas x Columnas no debe superar la Capacidad Total
+        // Filas x Columnas no debe superar la Capacidad Total
         int totalAsientosMatriz = request.getNumRows() * request.getSeatsPerRow();
         if (totalAsientosMatriz > request.getCapacity()) {
             throw new RuntimeException("La distribución (" + totalAsientosMatriz + " butacas) supera la capacidad total permitida (" + request.getCapacity() + ").");
@@ -88,7 +87,7 @@ public class RoomServiceImpl implements RoomService {
         Venue venue = venueRepository.findById(request.getIdVenue())
                 .orElseThrow(() -> new RuntimeException("La sede seleccionada no existe"));
 
-        // 3. Guardamos la Sala
+        // Guardamos la Sala
         Room room = Room.builder()
                 .nameRoom(request.getNameRoom())
                 .capacity(request.getCapacity())
@@ -102,7 +101,7 @@ public class RoomServiceImpl implements RoomService {
         SeatType tipoRegular = new SeatType();
         tipoRegular.setIdSeatType(1);
 
-        // 4. MAGIA (HU-18): Generación Automática del Tablero de Asientos
+        // Generación Automática del Tablero de Asientos
         List<Seat> seatsToSave = new java.util.ArrayList<>();
 
         for (int r = 0; r < request.getNumRows(); r++) {
@@ -114,8 +113,8 @@ public class RoomServiceImpl implements RoomService {
                         .room(savedRoom)
                         .rowName(rowLetter)
                         .columnNumber(c)
-                        .status("ACTIVO")      // Estado Físico: Todos nacen sanos
-                        .seatType(tipoRegular)   // Tipo: Butaca normal
+                        .status("ACTIVO")
+                        .seatType(tipoRegular)
                         .build();
                 seatsToSave.add(seat);
             }

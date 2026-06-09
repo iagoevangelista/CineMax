@@ -19,14 +19,14 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    // Obtener todas las salas (Lo usará el Admin general)
+    // Obtener todas las salas
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<RoomResponseDTO>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
-    // Obtener salas de un cine en específico (Súper útil para cuando hagamos las Funciones)
+    // Obtener salas de un cine en específico
     @GetMapping("/venue/{idVenue}")
     @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
     public ResponseEntity<List<RoomResponseDTO>> getRoomsByVenue(@PathVariable Integer idVenue) {
