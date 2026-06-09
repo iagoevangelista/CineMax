@@ -1,140 +1,215 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { BookingService } from '../../../services/booking'; // Ajusta la ruta
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { BookingService } from '../../../services/booking';
 import { AuthService } from '../../../services/auth.service';
 import { ShowtimeService } from '../../../services/showtime.service';
 import { SeatService } from '../../../services/seat.service';
 
+declare const bootstrap: any;
+
+interface SeatCell {
+  idSeat: number;
+  codigo: string;
+  fila: string;
+  columna: number;
+  estado: 'disponible' | 'ocupado' | 'mantenimiento' | 'seleccionado' | 'wheelchair';
+  esOculto: boolean;
+}
+
 @Component({
   selector: 'app-seats',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './seats.html',
   styleUrl: './seats.css'
 })
 export class Seats implements OnInit {
-  // === VARIABLES DE ASIENTOS ===
-  filas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-  columnas = [1, 2, 3, 4, 5, 6, 7, 8];
-  
-  asientosOcupados: string[] = []; 
-  asientosDiscapacitados: string[] = []; 
-  asientosSeleccionados: string[] = [];
-  resumenActual: any = {
-    pelicula: { nombre: '', poster: '', formato: '' },
-    cine: '',
-    fechaHora: '',
-    asientos: []
-  };
+
+  idShowtime: number | null = null;
+  resumen: any = null;
+
+  filas: string[] = [];
+  columnas: number[] = [];
+  matrizAsientos: Map<string, SeatCell> = new Map();
+
+  seleccionados: SeatCell[] = [];
+  readonly MAX_ASIENTOS = 10;
+
+  cargando = true;
+  error = '';
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private bookingService: BookingService,
     private authService: AuthService,
     private seatService: SeatService,
     private showtimeService: ShowtimeService,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    const ID_PRUEBA = 9; 
-    const estadoPrevio = this.bookingService.obtenerResumen();
-    
-    this.resumenActual = this.bookingService.obtenerResumen();
-  
-    if (!estadoPrevio || !estadoPrevio.horarioId || estadoPrevio.horarioId !== ID_PRUEBA) {
-      // Si no había reserva o era de otra película, creamos una nueva "en blanco"
-      console.log("Iniciando nueva reserva desde cero...");
-      this.bookingService.iniciarReserva(ID_PRUEBA);
-      this.resumenActual = this.bookingService.obtenerResumen();
+  ngOnInit(): void {
+    const paramId = this.route.snapshot.queryParamMap.get('idShowtime');
+    if (paramId) {
+      this.idShowtime = +paramId;
+      this.bookingService.iniciarReserva(this.idShowtime);
+    } else if (this.bookingService.idShowtime) {
+      this.idShowtime = this.bookingService.idShowtime;
     } else {
-      // ¡MAGIA! Si ya había una reserva (el usuario retrocedió), la recuperamos
-      console.log("Recuperando reserva existente...");
-      this.resumenActual = estadoPrevio; // Mantenemos la referencia
-      // Restauramos los asientos verdes en el mapa
-      this.asientosSeleccionados = [...this.resumenActual.asientos]; 
+      this.error = 'No se especificó una función. Vuelve a la cartelera.';
+      this.cargando = false;
+      return;
     }
 
-    // 1. CARGA DE PELÍCULA
-    this.showtimeService.getShowtimeSummary(ID_PRUEBA).subscribe({
+    this.resumen = this.bookingService.obtenerResumen();
+    this.cargarDatos();
+  }
+
+  cargarDatos(): void {
+    this.cargando = true;
+
+    this.showtimeService.getShowtimeSummary(this.idShowtime!).subscribe({
       next: (data) => {
-        this.resumenActual.pelicula = { 
-          nombre: data.titleMovie,   // 👈 Lo que viene de Java lo guardamos como 'nombre'
-          poster: data.posterUrl,    // 👈 Lo guardamos como 'poster'
-          formato: data.languageFormat 
-        };
-        this.resumenActual.cine = data.nameVenue;
-        this.resumenActual.fechaHora = `${data.showDate} - ${data.startTime}`;
-        
-        console.log("✅ Objeto listo para el HTML:", this.resumenActual.pelicula);
-        this.cdr.detectChanges(); 
-      },
-      error: (err) => console.error("❌ Error en Showtime:", err)
-    });
-  
-    // 2. CARGA DE ASIENTOS
-    this.seatService.getSeatsStatusByShowtime(ID_PRUEBA).subscribe({
-      next: (asientos) => {
-        console.log("🔍 Datos de Asientos:", asientos);
-        this.asientosOcupados = [];
-        this.asientosDiscapacitados = []; // Reiniciamos por si acaso
-  
-        asientos.forEach(a => {
-          const codigo = `${a.rowLetter}${a.columnNumber}`;
-          
-          if (a.isOccupied === true) { 
-            this.asientosOcupados.push(codigo);
-          }
-          
-          // Si tu DTO trae el tipo, lo marcamos aquí
-          if (a.nameSeatType === 'Discapacitado') {
-            this.asientosDiscapacitados.push(codigo);
-          }
+        const fechaHora = `${data.showDate} ${data.startTime}`;
+        this.bookingService.guardarInfoShowtime({
+          nombre: data.titleMovie,
+          formato: data.languageFormat,
+          poster: data.posterUrl,
+          cine: data.nameVenue,
+          fechaHora
         });
+        this.resumen = this.bookingService.obtenerResumen();
+        this.cdr.detectChanges();
+      },
+      error: () => this.error = 'No se pudo cargar la información de la función.'
+    });
+
+    this.seatService.getSeatsStatusByShowtime(this.idShowtime!).subscribe({
+      next: (asientos) => {
+        this.construirMatriz(asientos);
+
+        // ── RESTAURAR asientos previos si el usuario regresó de tickets ──
+        const resumen = this.bookingService.obtenerResumen();
+        if (resumen.asientosIds?.length) {
+          resumen.asientosIds.forEach((id: number) => {
+            this.matrizAsientos.forEach(cell => {
+              if (cell.idSeat === id && !cell.esOculto &&
+                  cell.estado !== 'ocupado' && cell.estado !== 'mantenimiento') {
+                if (!this.seleccionados.some(s => s.idSeat === id)) {
+                  this.seleccionados.push(cell);
+                }
+              }
+            });
+          });
+        }
+
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar los asientos.';
+        this.cargando = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  // === LÓGICA DE ASIENTOS ===
-  seleccionarAsiento(asientoId: string) {
-    if (this.asientosOcupados.includes(asientoId)) return; 
+  construirMatriz(asientos: any[]): void {
+    this.matrizAsientos.clear();
 
-    const index = this.asientosSeleccionados.indexOf(asientoId);
-    if (index > -1) {
-      this.asientosSeleccionados.splice(index, 1);
+    const filasSet = new Set<string>();
+    const colsSet  = new Set<number>();
+
+    asientos.forEach(a => {
+      filasSet.add(a.rowLetter);
+      colsSet.add(a.columnNumber);
+    });
+
+    this.filas    = Array.from(filasSet).sort();
+    this.columnas = Array.from(colsSet).sort((a, b) => a - b);
+
+    asientos.forEach(a => {
+      const codigo = `${a.rowLetter}${a.columnNumber}`;
+      let estado: SeatCell['estado'] = 'disponible';
+
+      if (a.status === 'MANTENIMIENTO') {
+        estado = 'mantenimiento';
+      } else if (a.isOccupied) {
+        estado = 'ocupado';
+      } else if (a.nameSeatType === 'WHEELCHAIR') {
+        estado = 'wheelchair';
+      }
+
+      this.matrizAsientos.set(codigo, {
+        idSeat: a.idSeat,
+        codigo,
+        fila: a.rowLetter,
+        columna: a.columnNumber,
+        estado,
+        esOculto: a.status === 'OCULTO'
+      });
+    });
+  }
+
+  getAsiento(fila: string, col: number): SeatCell | undefined {
+    return this.matrizAsientos.get(`${fila}${col}`);
+  }
+
+  getEstadoVisible(cell: SeatCell): string {
+    if (this.seleccionados.some(s => s.idSeat === cell.idSeat)) return 'seleccionado';
+    return cell.estado;
+  }
+
+  toggleAsiento(cell: SeatCell): void {
+    if (cell.esOculto) return;
+    if (cell.estado === 'ocupado' || cell.estado === 'mantenimiento') return;
+
+    const idx = this.seleccionados.findIndex(s => s.idSeat === cell.idSeat);
+    if (idx > -1) {
+      this.seleccionados.splice(idx, 1);
     } else {
-      if (this.asientosSeleccionados.length >= 10) {
-        alert('Solo puedes seleccionar un máximo de 10 asientos por compra.');
+      if (this.seleccionados.length >= this.MAX_ASIENTOS) {
+        alert(`Solo puedes seleccionar un máximo de ${this.MAX_ASIENTOS} asientos por compra.`);
         return;
       }
-      this.asientosSeleccionados.push(asientoId);
+      this.seleccionados.push(cell);
     }
-    this.resumenActual.asientos = [...this.asientosSeleccionados];
   }
 
-  estadoAsiento(asientoId: string): string {
-    if (this.asientosOcupados.includes(asientoId)) return 'ocupado';
-    if (this.asientosSeleccionados.includes(asientoId)) return 'seleccionado';
-    if (this.asientosDiscapacitados.includes(asientoId)) return 'discapacitado';
-    return 'disponible';
+  estaSeleccionado(cell: SeatCell): boolean {
+    return this.seleccionados.some(s => s.idSeat === cell.idSeat);
   }
 
-  irSiguientePaso() {
-    if (this.asientosSeleccionados.length === 0) {
+  get codigosSeleccionados(): string {
+    if (!this.seleccionados.length) return 'Ninguno';
+    return this.seleccionados.map(s => s.codigo).join(', ');
+  }
+
+  irSiguientePaso(): void {
+    if (!this.seleccionados.length) {
       alert('Por favor selecciona al menos un asiento.');
       return;
     }
 
-    this.bookingService.guardarAsientos(this.asientosSeleccionados);
-    
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/tickets']);
-    } else {
-      const loginTrigger = document.querySelector('.user-icon') as HTMLElement;
-      loginTrigger?.click(); 
+    if (!this.authService.isLoggedIn()) {
+      const offcanvasEl = document.getElementById('authOffcanvas');
+      if (offcanvasEl) {
+        const offcanvas = new bootstrap.Offcanvas(offcanvasEl);
+        offcanvas.show();
+      }
+      return;
     }
+
+    const codigos = this.seleccionados.map(s => s.codigo);
+    const ids     = this.seleccionados.map(s => s.idSeat);
+
+    this.bookingService.guardarAsientosYLimpiarSiguientes(codigos, ids);
+    this.router.navigate(['/tickets']);
+  }
+
+  cancelar(): void {
+    this.bookingService.limpiar();
+    this.router.navigate(['/movies']);
   }
 }

@@ -1,9 +1,238 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { BookingService } from '../../../services/booking';
+import { AuthService } from '../../../services/auth.service';
+import { SaleTransactionService, SaleTransactionRequestDTO, SaleTransactionResponseDTO } from '../../../services/sale-transaction.service';
+
+type MetodoPago = 'tarjeta' | 'yape';
+
+interface CardForm {
+  titular: string;
+  numero: string;
+  vencimiento: string;
+  cvv: string;
+}
 
 @Component({
   selector: 'app-payment',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './payment.html',
-  styleUrl: './payment.css',
+  styleUrl: './payment.css'
 })
-export class Payment {}
+export class Payment implements OnInit {
+
+  resumen: any;
+  metodoPago: MetodoPago = 'tarjeta';
+
+  card: CardForm = { titular: '', numero: '', vencimiento: '', cvv: '' };
+  yapenumero = '';
+
+  // Código promocional
+  codigoPromo    = '';
+  promoAplicada: any = null;
+  promoError     = '';
+  cargandoPromo  = false;
+
+  // Estado del pago
+  procesando   = false;
+  errorPago    = '';
+
+  // Resultado exitoso — guardamos la respuesta del backend
+  pagoExitoso       = false;
+  transaccionRespuesta: SaleTransactionResponseDTO | null = null;
+  resumenSnapshot: any = null; // copia del resumen ANTES de limpiar
+
+  // Número de tarjeta formateado para la vista previa
+  numeroMostrado = '';
+
+  private readonly apiUrl = 'http://localhost:8080/api/v1';
+
+  constructor(
+    public router: Router,
+    private bookingService: BookingService,
+    private authService: AuthService,
+    private saleTransactionService: SaleTransactionService,
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.resumen = this.bookingService.obtenerResumen();
+    if (!this.resumen.tickets?.length) {
+      this.router.navigate(['/seats']);
+    }
+  }
+
+  // ── Método de pago ────────────────────────────────────────────────────────
+  seleccionarMetodo(m: MetodoPago): void {
+    this.metodoPago = m;
+    this.errorPago  = '';
+  }
+
+  // ── Formateo de tarjeta ───────────────────────────────────────────────────
+  onNumeroInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 16);
+    this.card.numero    = digits;
+    this.numeroMostrado = digits.replace(/(.{4})/g, '$1 ').trim();
+    input.value         = this.numeroMostrado;
+  }
+
+  onVencimientoInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/\D/g, '').slice(0, 4);
+    if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
+    this.card.vencimiento = val;
+    input.value           = val;
+  }
+
+  get tipoTarjeta(): string {
+    const n = this.card.numero;
+    if (n.startsWith('4'))                         return 'visa';
+    if (n.startsWith('5') || n.startsWith('2'))    return 'mastercard';
+    if (n.startsWith('34') || n.startsWith('37'))  return 'amex';
+    return '';
+  }
+
+  // ── Código promo ──────────────────────────────────────────────────────────
+  aplicarPromo(): void {
+    if (!this.codigoPromo.trim()) return;
+    this.promoError   = '';
+    this.cargandoPromo = true;
+
+    this.http.post<any>(`${this.apiUrl}/promotions/calculate`, {
+      idShowtime:    this.resumen.idShowtime,
+      subtotal:      this.totalSinDescuento,
+      promotionCode: this.codigoPromo.trim().toUpperCase()
+    }).subscribe({
+      next: (res) => {
+        this.promoAplicada = res;
+        this.cargandoPromo = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.promoError    = typeof err.error === 'string' ? err.error : (err.error?.message ?? 'Código inválido.');
+        this.promoAplicada = null;
+        this.cargandoPromo = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  quitarPromo(): void {
+    this.promoAplicada = null;
+    this.codigoPromo   = '';
+    this.promoError    = '';
+  }
+
+  // ── Totales ───────────────────────────────────────────────────────────────
+  get totalSinDescuento(): number {
+    return this.bookingService.calcularTotalTickets() + this.bookingService.calcularTotalSnacks();
+  }
+
+  get descuento(): number {
+    return this.promoAplicada ? Number(this.promoAplicada.discountAmount) : 0;
+  }
+
+  get totalFinal(): number {
+    return this.promoAplicada ? Number(this.promoAplicada.finalAmount) : this.totalSinDescuento;
+  }
+
+  // ── Validación ────────────────────────────────────────────────────────────
+  get formularioValido(): boolean {
+    if (this.metodoPago === 'tarjeta') {
+      return (
+        this.card.titular.trim().length >= 3 &&
+        this.card.numero.length === 16 &&
+        /^\d{2}\/\d{2}$/.test(this.card.vencimiento) &&
+        this.card.cvv.length >= 3
+      );
+    }
+    if (this.metodoPago === 'yape') {
+      return /^\d{9}$/.test(this.yapenumero);
+    }
+    return false;
+  }
+
+  // ── Confirmar pago ────────────────────────────────────────────────────────
+  confirmarPago(): void {
+    if (!this.formularioValido || this.procesando) return;
+
+    this.procesando = true;
+    this.errorPago  = '';
+    this.cdr.detectChanges();
+
+    // Guardamos snapshot ANTES de limpiar el booking
+    this.resumenSnapshot = JSON.parse(JSON.stringify(this.resumen));
+
+    const request: SaleTransactionRequestDTO = {
+      idShowtime:     this.resumen.idShowtime,
+      asientosIds:    this.resumen.asientosIds,
+
+      tickets: this.resumen.tickets.map((t: any) => ({
+        categoryCode:   t.categoryCode,
+        cantidad:       t.cantidad,
+        precioUnitario: t.precioUnitario
+      })),
+
+      // FIX: garantizar array vacío si no hay snacks (nunca null)
+      snacks: (this.resumen.snacks ?? []).map((s: any) => ({
+        idSnack:   s.idSnack,
+        cantidad:  s.cantidad,
+        unitPrice: s.precio
+      })),
+
+      subtotal:       this.totalSinDescuento,
+      discountAmount: this.descuento,
+      totalAmount:    this.totalFinal,
+      paymentMethod:  this.metodoPago.toUpperCase() as 'TARJETA' | 'YAPE',
+      idPromotion:    this.promoAplicada?.idPromotion ?? null
+    };
+
+    this.saleTransactionService.createSaleTransaction(request).subscribe({
+      next: (res: SaleTransactionResponseDTO) => {
+        this.transaccionRespuesta = res;
+        this.procesando           = false;
+        this.pagoExitoso          = true;
+        this.bookingService.limpiar();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.procesando = false;
+        const msg = typeof err.error === 'string'
+          ? err.error
+          : (err.error?.message ?? 'Ocurrió un error al procesar el pago. Intenta de nuevo.');
+        this.errorPago = msg;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ── Helpers de la pantalla de éxito ──────────────────────────────────────
+
+  /** URL del QR generado a partir del qrCodeData que devuelve el backend */
+  get qrImageUrl(): string {
+    const data = this.transaccionRespuesta?.qrCodeData ?? '';
+    // Usamos la API gratuita de QR Server para generar el QR en el cliente
+    return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data)}`;
+  }
+
+  descargarTicket(): void {
+    // Abre el QR en una pestaña nueva para que el usuario lo guarde
+    window.open(this.qrImageUrl + '&format=png', '_blank');
+  }
+
+  qrFallback(event: Event): void {
+    // Si falla la carga del QR externo, mostrar el código en texto
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
+  volverAlInicio(): void {
+    this.router.navigate(['/movies']);
+  }
+}

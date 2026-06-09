@@ -1,69 +1,314 @@
-<div class="container mt-4 text-white">
+<div class="container mt-5 text-white">
+
+  <!-- ── CABECERA ──────────────────────────────────────────────────────── -->
   <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
     <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Funciones</h2>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalShowtime" (click)="abrirModalNuevo()">Nueva Función</button>
+    <button class="btn btn-success fw-bold"
+            [disabled]="!idVenueEfectivo"
+            data-bs-toggle="modal" data-bs-target="#modalShowtime"
+            (click)="abrirModalNuevo()">
+      <i class="fa-solid fa-plus me-2"></i>Nueva Función
+    </button>
   </div>
 
-  <div class="row mb-4 bg-dark p-3 rounded border border-secondary">
-    <div class="col-md-6">
-      <label class="fw-bold mb-1">Película</label>
-      <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroPeliculaId" (change)="buscarFunciones()">
-        <option *ngFor="let p of movies" [value]="p.idMovie">{{ p.titleMovie }}</option>
-      </select>
-    </div>
-    <div class="col-md-6">
-      <label class="fw-bold mb-1">Fecha</label>
-      <input type="date" class="form-control bg-dark text-white border-secondary" [(ngModel)]="filtroFecha" (change)="buscarFunciones()">
-    </div>
+  <!-- ── ALERTAS ───────────────────────────────────────────────────────── -->
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible d-flex align-items-center mb-3">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+    <span>{{ mensajeError }}</span>
+    <button type="button" class="btn-close btn-close-white" (click)="mensajeError=''"></button>
+  </div>
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible d-flex align-items-center mb-3">
+    <i class="fa-solid fa-circle-check me-2"></i>
+    <span>{{ mensajeExito }}</span>
+    <button type="button" class="btn-close btn-close-white" (click)="mensajeExito=''"></button>
   </div>
 
-  <table class="table table-dark table-hover align-middle">
-    <thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Formato</th><th class="text-center">Acciones</th></tr></thead>
-    <tbody>
-      <tr *ngFor="let f of showtimes">
-        <td>{{ f.idShowtime }}</td><td>{{ f.showDate }}</td><td>{{ f.startTime }}</td><td>{{ f.languageFormat }}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#modalShowtime" (click)="abrirModalEditar(f)">Editar</button>
-          <button class="btn btn-sm btn-outline-danger" (click)="cancelarFuncion(f.idShowtime)">Cancelar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- ── SELECTOR DE SEDE (solo Gerente General) ───────────────────────── -->
+  <div *ngIf="esGerGeneral" class="card bg-dark border-secondary mb-4 p-3 shadow-sm">
+    <label class="form-label fw-bold mb-2">
+      <i class="fa-solid fa-building me-2 text-info"></i>Selecciona el cine a administrar:
+    </label>
+    <select class="form-select bg-dark text-white border-secondary w-50"
+            [(ngModel)]="sedeSeleccionadaId" (change)="onSedeChange()">
+      <option [ngValue]="null">— Elige una sede —</option>
+      <option *ngFor="let s of sedes" [ngValue]="s.idVenue">{{ s.nameVenue }}</option>
+    </select>
+  </div>
+
+  <!-- ── MENSAJE: Gerente General sin sede elegida ─────────────────────── -->
+  <div *ngIf="esGerGeneral && !sedeSeleccionadaId" class="text-center py-5 text-white">
+    <i class="fa-solid fa-arrow-pointer fs-1 mb-3 opacity-50"></i>
+    <h5>Selecciona una sede en el menú superior para ver sus funciones.</h5>
+  </div>
+
+  <!-- ── FILTROS (solo si hay sede activa) ─────────────────────────────── -->
+  <ng-container *ngIf="idVenueEfectivo">
+
+    <div class="row mb-4 bg-dark p-3 rounded border border-secondary shadow-sm mx-0 g-3">
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold text-white mb-1">
+          <i class="fa-solid fa-calendar me-2"></i>Fecha
+        </label>
+        <input type="date" class="form-control bg-dark text-white border-secondary"
+               [(ngModel)]="filtroFecha" (change)="cargarFunciones()">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold text-white mb-1">
+          <i class="fa-solid fa-door-open me-2"></i>Sala
+        </label>
+        <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroSala">
+          <option [ngValue]="null">Todas las salas</option>
+          <option *ngFor="let r of rooms" [ngValue]="r.idRoom">{{ r.nameRoom }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label fw-bold text-white mb-1">
+          <i class="fa-solid fa-film me-2"></i>Formato
+        </label>
+        <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroFormato">
+          <option value="">Todos los formatos</option>
+          <option *ngFor="let fmt of formatos" [value]="fmt">{{ fmt }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-outline-secondary w-100" (click)="filtroSala=null; filtroFormato=''">
+          <i class="fa-solid fa-xmark me-1"></i>Limpiar filtros
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── CARGANDO ─────────────────────────────────────────────────────── -->
+    <div *ngIf="cargando" class="text-center my-5">
+      <div class="spinner-border text-warning" role="status"></div>
+      <p class="text-secondary mt-2">Cargando funciones...</p>
+    </div>
+
+    <!-- ── SIN RESULTADOS ──────────────────────────────────────────────── -->
+    <div *ngIf="!cargando && funcionesFiltradas.length === 0" class="text-center py-5 text-white">
+      <i class="fa-solid fa-clapperboard fs-1 mb-3 opacity-50"></i>
+      <h5>No hay funciones programadas para esta fecha.</h5>
+      <button class="btn btn-success fw-bold mt-2"
+              data-bs-toggle="modal" data-bs-target="#modalShowtime"
+              (click)="abrirModalNuevo()">
+        <i class="fa-solid fa-plus me-2"></i>Programar primera función
+      </button>
+    </div>
+
+    <!-- ── TABLA ───────────────────────────────────────────────────────── -->
+    <div *ngIf="!cargando && funcionesFiltradas.length > 0"
+         class="shadow-lg rounded overflow-hidden border border-secondary">
+      <table class="table table-dark table-hover align-middle mb-0">
+        <thead>
+          <tr class="border-secondary">
+            <th class="ps-3">Película</th>
+            <th>Sala</th>
+            <th class="text-center">Inicio</th>
+            <th class="text-center">Fin</th>
+            <th class="text-center">Formato</th>
+            <th class="text-center">Precio</th>
+            <th class="text-center">Asientos</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of funcionesFiltradas" class="border-secondary">
+            <td class="ps-3">
+              <span class="fw-semibold">{{ f.titleMovie }}</span>
+              <small class="d-block text-secondary">{{ f.durationMinutes }} min</small>
+            </td>
+            <td>{{ f.nameRoom }}</td>
+            <td class="text-center fw-bold">{{ f.startTime }}</td>
+            <td class="text-center text-secondary">{{ f.endTime }}</td>
+            <td class="text-center">
+              <span class="badge" style="background:rgba(229,9,20,0.15);color:#ff6b6b;border:1px solid rgba(229,9,20,0.3);">
+                {{ f.languageFormat }}
+              </span>
+            </td>
+            <td class="text-center">S/ {{ f.baseTicketPrice | number:'1.2-2' }}</td>
+            <td class="text-center">
+              <span [class.text-danger]="f.availableSeats === 0">
+                {{ f.availableSeats }} / {{ f.roomCapacity }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span [ngClass]="getBadgeClase(f.status)">{{ f.status }}</span>
+            </td>
+            <td class="text-center">
+              <ng-container *ngIf="f.status === 'Programada'">
+                <button class="btn btn-sm btn-outline-warning me-1"
+                        data-bs-toggle="modal" data-bs-target="#modalShowtime"
+                        (click)="abrirModalEditar(f)" title="Editar">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        (click)="cancelarFuncion(f)" title="Cancelar">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </ng-container>
+              <span *ngIf="f.status !== 'Programada'" class="text-secondary small">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </ng-container>
 </div>
 
-<div class="modal fade" id="modalShowtime" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content bg-dark text-white border-secondary">
-      <div class="modal-header" style="background-color: var(--primary-color);"><h5 class="modal-title">Programar</h5></div>
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!--  MODAL: CREAR / EDITAR FUNCIÓN                                          -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalShowtime" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-white"
+         style="background-color: #161619; border: 1px solid #333; border-radius: 12px;">
+
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title fw-bold text-uppercase" style="color: var(--primary-color);">
+          <i class="fa-solid fa-clapperboard me-2"></i>
+          {{ isEditMode ? 'Editar Función' : 'Nueva Función' }}
+        </h5>
+        <button id="btnCerrarModal" type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
+      </div>
+
       <div class="modal-body p-4">
+
+        <div *ngIf="mensajeError" class="alert alert-danger d-flex align-items-center mb-3 py-2">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i><small>{{ mensajeError }}</small>
+        </div>
+        <div *ngIf="mensajeExito" class="alert alert-success d-flex align-items-center mb-3 py-2">
+          <i class="fa-solid fa-circle-check me-2"></i><small>{{ mensajeExito }}</small>
+        </div>
+
         <div class="row g-3">
-          <div class="col-md-6"><label>Película</label>
-            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.idMovie">
-              <option *ngFor="let p of movies" [value]="p.idMovie">{{ p.titleMovie }}</option>
+
+          <div class="col-12">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-film me-1 text-danger"></i>Película <span class="text-danger">*</span>
+            </label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    [(ngModel)]="currentShowtime.idMovie" (change)="calcularHoraFin()">
+              <option [ngValue]="null" disabled>— Selecciona una película —</option>
+              <option *ngFor="let p of movies" [ngValue]="p.idMovie">
+                {{ p.titleMovie }} ({{ p.durationMinutes }} min)
+              </option>
             </select>
           </div>
-          <div class="col-md-6"><label>Sala</label>
-            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.idRoom">
-              <option *ngFor="let r of rooms" [value]="r.idRoom">{{ r.nameRoom }}</option>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-door-open me-1 text-danger"></i>Sala <span class="text-danger">*</span>
+            </label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    [(ngModel)]="currentShowtime.idRoom">
+              <option [ngValue]="null" disabled>— Selecciona una sala —</option>
+              <option *ngFor="let r of rooms" [ngValue]="r.idRoom">
+                {{ r.nameRoom }} ({{ r.capacity }} asientos)
+              </option>
+            </select>
+            <small class="text-secondary">Solo se muestran las salas activas.</small>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-glasses me-1 text-danger"></i>Formato <span class="text-danger">*</span>
+            </label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    [(ngModel)]="currentShowtime.languageFormat">
+              <option>Doblada 2D</option>
+              <option>Subtitulada 2D</option>
+              <option>Doblada 3D</option>
+              <option>Subtitulada 3D</option>
+              <option>IMAX</option>
+              <option>4DX</option>
             </select>
           </div>
-          <div class="col-md-6"><label>Formato</label>
-            <select class="form-select bg-dark text-white" [(ngModel)]="currentShowtime.languageFormat">
-              <option>Doblada 2D</option><option>Subtitulada 2D</option><option>Doblada 3D</option>
-            </select>
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-calendar me-1 text-danger"></i>Fecha <span class="text-danger">*</span>
+            </label>
+            <input type="date" class="form-control bg-dark text-white border-secondary"
+                   [(ngModel)]="currentShowtime.showDate">
           </div>
-          <div class="col-md-6"><label>Precio</label>
-            <input type="number" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.baseTicketPrice">
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-clock me-1 text-danger"></i>Hora de inicio <span class="text-danger">*</span>
+            </label>
+            <input type="time" class="form-control bg-dark text-white border-secondary"
+                   [(ngModel)]="currentShowtime.startTime" (change)="calcularHoraFin()">
           </div>
-          <div class="col-md-6"><label>Fecha</label>
-            <input type="date" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.showDate">
+
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-secondary">
+              <i class="fa-solid fa-hourglass-end me-1"></i>Hora fin estimada
+            </label>
+            <div class="form-control bg-dark border-secondary text-secondary d-flex align-items-center">
+              <i class="fa-solid fa-clock me-2" style="color:var(--primary-color);"></i>
+              {{ horaFinEstimada || '—' }}
+            </div>
+            <small class="text-secondary">Duración + 30 min limpieza</small>
           </div>
-          <div class="col-md-6"><label>Hora</label>
-            <input type="time" class="form-control bg-dark text-white" [(ngModel)]="currentShowtime.startTime">
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              <i class="fa-solid fa-tag me-1 text-danger"></i>Precio base (S/) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary text-secondary">S/</span>
+              <input type="number" class="form-control bg-dark text-white border-secondary"
+                     [(ngModel)]="currentShowtime.baseTicketPrice" min="1" step="0.50" placeholder="15.00">
+            </div>
+            <small class="text-secondary">Los descuentos se calculan automáticamente.</small>
           </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-secondary">
+              <i class="fa-solid fa-receipt me-1"></i>Tarifas estimadas
+            </label>
+            <div class="p-2 rounded border border-secondary bg-dark"
+                 *ngIf="currentShowtime.baseTicketPrice > 0; else sinTarifas">
+              <div class="d-flex justify-content-between small py-1 border-bottom border-secondary">
+                <span>Adulto</span>
+                <span class="fw-bold">S/ {{ currentShowtime.baseTicketPrice | number:'1.2-2' }}</span>
+              </div>
+              <div class="d-flex justify-content-between small py-1 border-bottom border-secondary text-secondary">
+                <span>Niño</span>
+                <span>S/ {{ (currentShowtime.baseTicketPrice - 11) | number:'1.2-2' }}</span>
+              </div>
+              <div class="d-flex justify-content-between small py-1 text-secondary">
+                <span>Adulto mayor / Discapacidad</span>
+                <span>S/ {{ (currentShowtime.baseTicketPrice - 9) | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            <ng-template #sinTarifas>
+              <div class="p-2 rounded border border-secondary bg-dark text-secondary small">
+                Ingresa un precio para ver las tarifas.
+              </div>
+            </ng-template>
+          </div>
+
         </div>
       </div>
-      <div class="modal-footer"><button class="btn btn-success" (click)="guardarFuncion()" data-bs-dismiss="modal">Guardar</button></div>
+
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success fw-bold"
+                [disabled]="guardando" (click)="guardarFuncion()">
+          <span *ngIf="guardando" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!guardando" class="fa-solid fa-floppy-disk me-2"></i>
+          {{ guardando ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Programar función') }}
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

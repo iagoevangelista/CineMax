@@ -29,8 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-    private final EmailService emailService; 
-    private final DocumentTypeRepository documentTypeRepository; 
+    private final EmailService emailService;
+    private final DocumentTypeRepository documentTypeRepository;
 
     @Override
     public AuthResponseDTO login(AuthRequestDTO request) {
@@ -42,7 +42,9 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow();
 
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", user.getRole().getRoleName()); 
+        extraClaims.put("role", user.getRole().getRoleName());
+        extraClaims.put("idVenue", user.getVenue() != null ? user.getVenue().getIdVenue() : null);
+        extraClaims.put("firstName", user.getFirstName());
 
         String jwtToken = jwtService.generateToken(extraClaims, user);
 
@@ -51,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO register(RegisterRequestDTO request) {
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("El correo electrónico ya se encuentra registrado.");
         }

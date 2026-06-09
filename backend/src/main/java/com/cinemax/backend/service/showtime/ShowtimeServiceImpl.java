@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,19 +31,21 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     @Override
     public List<ShowtimeDTO> getShowtimesByMovie(Integer idMovie) {
         List<Showtime> funciones = showtimeRepository.findByMovie_IdMovieAndStatus(idMovie, "Programada");
-
-        List<ShowtimeDTO> listaLigeras = new ArrayList<>();
+        List<ShowtimeDTO> result = new ArrayList<>();
         for (Showtime f : funciones) {
-            ShowtimeDTO dto = new ShowtimeDTO();
-            dto.setIdShowtime(f.getIdShowtime());
-            dto.setShowDate(f.getShowDate());
-            dto.setStartTime(f.getStartTime());
-            dto.setLanguageFormat(f.getLanguageFormat());
-
-            listaLigeras.add(dto);
+            result.add(mapToDTO(f));
         }
-        
-        return listaLigeras;
+        return result;
+    }
+
+    @Override
+    public List<ShowtimeDTO> getShowtimesByVenueAndDate(Integer idVenue, LocalDate date) {
+        List<Showtime> funciones = showtimeRepository.findByVenueAndDate(idVenue, date);
+        List<ShowtimeDTO> result = new ArrayList<>();
+        for (Showtime f : funciones) {
+            result.add(mapToDTO(f));
+        }
+        return result;
     }
 
     @Override
@@ -57,7 +60,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         dto.setShowDate(funcion.getShowDate());
         dto.setStartTime(funcion.getStartTime());
         dto.setLanguageFormat(funcion.getLanguageFormat());
-
         return dto;
     }
 
@@ -66,45 +68,53 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime funcion = showtimeRepository.findById(idShowtime)
                 .orElseThrow(() -> new RuntimeException("Función no encontrada"));
 
-        BigDecimal precioBase = funcion.getBaseTicketPrice(); 
-
+        BigDecimal precioBase = funcion.getBaseTicketPrice();
         List<TicketFareDTO> tarifas = new ArrayList<>();
-        
-        tarifas.add(new TicketFareDTO("Adulto", precioBase));
-        
-        tarifas.add(new TicketFareDTO("Niño", precioBase.subtract(new BigDecimal("11.00"))));
-        
-        tarifas.add(new TicketFareDTO("Adulto Mayor", precioBase.subtract(new BigDecimal("9.00"))));
-        tarifas.add(new TicketFareDTO("Personas Discapacitadas", precioBase.subtract(new BigDecimal("9.00"))));
+
+        // categoryCode se usa en el frontend para lógica y en el ticket guardado
+        tarifas.add(new TicketFareDTO("ADULTO",       "Adulto",                precioBase));
+        tarifas.add(new TicketFareDTO("NINO",         "Niño",                  precioBase.subtract(new BigDecimal("11.00"))));
+        tarifas.add(new TicketFareDTO("ADULTO_MAYOR", "Adulto Mayor",          precioBase.subtract(new BigDecimal("9.00"))));
+        tarifas.add(new TicketFareDTO("DISCAPACITADO","Personas Discapacitadas", precioBase.subtract(new BigDecimal("9.00"))));
 
         return tarifas;
     }
 
-
     @Override
     @Transactional
-    public ShowtimeDTO createShowtime(ShowtimeRequestDTO request) {
-        
+    public ShowtimeDTO createShowtime(ShowtimeRequestDTO request, Integer callerVenueId) {
+
         Movie movie = movieRepository.findById(request.getIdMovie())
                 .orElseThrow(() -> new RuntimeException("La película seleccionada no existe."));
-                
+
+        if (!movie.getIsActive()) {
+            throw new RuntimeException("No se puede programar una película inactiva.");
+        }
+
         Room room = roomRepository.findById(request.getIdRoom())
                 .orElseThrow(() -> new RuntimeException("La sala seleccionada no existe."));
 
-        int totalMinutos = movie.getDurationMinutes() + 30;
-        LocalTime endTime = request.getStartTime().plusMinutes(totalMinutos);
+        if (callerVenueId != null && !room.getVenue().getIdVenue().equals(callerVenueId)) {
+            throw new RuntimeException("No tienes permiso para programar funciones en otra sede.");
+        }
 
-        boolean hasConflict = showtimeRepository.existsConflictingShowtime(
-                room.getIdRoom(), 
-                request.getShowDate(), 
-                request.getStartTime(), 
-                endTime
-        );
+        if (!"Activo".equals(room.getStatus())) {
+            throw new RuntimeException("La sala \"" + room.getNameRoom() + "\" está inactiva y no puede recibir funciones.");
+        }
+
+        if (request.getShowDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("No se puede programar una función en una fecha pasada.");
+        }
+
+        LocalTime endTime = request.getStartTime().plusMinutes(movie.getDurationMinutes() + 30);
+
+        boolean hasConflict = showtimeRepository.countConflictingShowtime(
+                room.getIdRoom(), request.getShowDate(), request.getStartTime(), endTime) > 0;
 
         if (hasConflict) {
-            throw new RuntimeException("ERROR: La Sala " + room.getNameRoom() + 
-                    " ya tiene una función programada que cruza con este horario (" + 
-                    request.getStartTime() + " - " + endTime + ").");
+            throw new RuntimeException("La sala \"" + room.getNameRoom() +
+                    "\" ya tiene una función que cruza con el horario " +
+                    request.getStartTime() + " – " + endTime + ".");
         }
 
         Showtime newShowtime = Showtime.builder()
@@ -119,53 +129,47 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 .room(room)
                 .build();
 
-        Showtime savedShowtime = showtimeRepository.save(newShowtime);
-
-        ShowtimeDTO response = new ShowtimeDTO();
-        response.setIdShowtime(savedShowtime.getIdShowtime());
-        response.setShowDate(savedShowtime.getShowDate());
-        response.setStartTime(savedShowtime.getStartTime());
-        response.setLanguageFormat(savedShowtime.getLanguageFormat());
-        
-        return response;
+        return mapToDTO(showtimeRepository.save(newShowtime));
     }
 
     @Override
     @Transactional
-    public ShowtimeDTO updateShowtime(Integer id, ShowtimeRequestDTO request) {
+    public ShowtimeDTO updateShowtime(Integer id, ShowtimeRequestDTO request, Integer callerVenueId) {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La función no existe."));
 
-        if (!showtime.getStatus().equals("Programada")) {
-                throw new RuntimeException("Solo se pueden editar funciones en estado 'Programada'.");
+        if (callerVenueId != null &&
+                !showtime.getRoom().getVenue().getIdVenue().equals(callerVenueId)) {
+            throw new RuntimeException("No tienes permiso para editar funciones de otra sede.");
+        }
+
+        if (!"Programada".equals(showtime.getStatus())) {
+            throw new RuntimeException("Solo se pueden editar funciones en estado 'Programada'.");
+        }
+
+        if (showtime.getShowDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("No se puede modificar una función de una fecha pasada.");
         }
 
         Movie movie = movieRepository.findById(request.getIdMovie())
                 .orElseThrow(() -> new RuntimeException("La película seleccionada no existe."));
-                
+
         Room room = roomRepository.findById(request.getIdRoom())
                 .orElseThrow(() -> new RuntimeException("La sala seleccionada no existe."));
 
-        int totalMinutos = movie.getDurationMinutes() + 30;
-        LocalTime endTime = request.getStartTime().plusMinutes(totalMinutos);
+        if (callerVenueId != null && !room.getVenue().getIdVenue().equals(callerVenueId)) {
+            throw new RuntimeException("No puedes mover una función a una sala de otra sede.");
+        }
 
-        boolean hasConflict = showtimeRepository.existsConflictingShowtime(
-                room.getIdRoom(), request.getShowDate(), request.getStartTime(), endTime
-        );
-        
+        LocalTime endTime = request.getStartTime().plusMinutes(movie.getDurationMinutes() + 30);
+
+        boolean hasConflict = showtimeRepository.countConflictingShowtimeExcluding(
+                room.getIdRoom(), request.getShowDate(), request.getStartTime(), endTime, id) > 0;
+
         if (hasConflict) {
-            List<Showtime> functionsInRoom = showtimeRepository.findAll().stream()
-                .filter(s -> s.getRoom().getIdRoom().equals(room.getIdRoom()) && 
-                                s.getShowDate().equals(request.getShowDate()) &&
-                                !s.getIdShowtime().equals(id) && 
-                                !s.getStatus().equals("Cancelada"))
-                .toList();
-            
-            for(Showtime s : functionsInRoom) {
-                if(request.getStartTime().isBefore(s.getEndTime()) && endTime.isAfter(s.getStartTime())) {
-                    throw new RuntimeException("Conflicto de Horarios al actualizar: La sala ya está ocupada.");
-                }
-            }
+            throw new RuntimeException("La sala \"" + room.getNameRoom() +
+                    "\" ya tiene una función que cruza con el horario " +
+                    request.getStartTime() + " – " + endTime + ".");
         }
 
         showtime.setMovie(movie);
@@ -175,18 +179,31 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setEndTime(endTime);
         showtime.setLanguageFormat(request.getLanguageFormat());
         showtime.setBaseTicketPrice(request.getBaseTicketPrice());
-
-        showtime.setAvailableSeats(room.getCapacity()); 
+        if (!showtime.getRoom().getIdRoom().equals(room.getIdRoom())) {
+            showtime.setAvailableSeats(room.getCapacity());
+        }
 
         return mapToDTO(showtimeRepository.save(showtime));
     }
 
     @Override
     @Transactional
-    public void cancelShowtime(Integer id) {
+    public void cancelShowtime(Integer id, Integer callerVenueId) {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La función no existe."));
-        
+
+        if (callerVenueId != null &&
+                !showtime.getRoom().getVenue().getIdVenue().equals(callerVenueId)) {
+            throw new RuntimeException("No tienes permiso para cancelar funciones de otra sede.");
+        }
+
+        if ("Cancelada".equals(showtime.getStatus())) {
+            throw new RuntimeException("Esta función ya está cancelada.");
+        }
+        if ("Finalizada".equals(showtime.getStatus())) {
+            throw new RuntimeException("No se puede cancelar una función ya finalizada.");
+        }
+
         showtime.setStatus("Cancelada");
         showtimeRepository.save(showtime);
     }
@@ -196,9 +213,23 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         dto.setIdShowtime(f.getIdShowtime());
         dto.setShowDate(f.getShowDate());
         dto.setStartTime(f.getStartTime());
+        dto.setEndTime(f.getEndTime());
         dto.setLanguageFormat(f.getLanguageFormat());
+        dto.setStatus(f.getStatus());
+        dto.setBaseTicketPrice(f.getBaseTicketPrice());
+        dto.setAvailableSeats(f.getAvailableSeats());
+
+        dto.setIdMovie(f.getMovie().getIdMovie());
+        dto.setTitleMovie(f.getMovie().getTitleMovie());
+        dto.setDurationMinutes(f.getMovie().getDurationMinutes());
+
+        dto.setIdRoom(f.getRoom().getIdRoom());
+        dto.setNameRoom(f.getRoom().getNameRoom());
+        dto.setRoomCapacity(f.getRoom().getCapacity());
+
+        dto.setIdVenue(f.getRoom().getVenue().getIdVenue());
+        dto.setNameVenue(f.getRoom().getVenue().getNameVenue());
+
         return dto;
     }
-
-
 }

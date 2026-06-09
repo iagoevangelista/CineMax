@@ -1,1 +1,337 @@
-<p>payment works!</p>
+<div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+  <!-- ── STEPPER ──────────────────────────────────────────────────────────── -->
+  <div class="progress-wrapper mb-5 mx-auto shadow-sm">
+    <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
+      <div class="progress-line position-absolute" style="z-index:1;"></div>
+      <div class="progress-step completed position-relative" style="z-index:2;" title="Asientos"><i class="fa-solid fa-couch"></i></div>
+      <div class="progress-step completed position-relative" style="z-index:2;" title="Tickets"><i class="fa-solid fa-ticket"></i></div>
+      <div class="progress-step completed position-relative" style="z-index:2;" title="Snacks"><i class="fa-solid fa-burger"></i></div>
+      <div class="progress-step active position-relative"   style="z-index:2;" title="Pago"><i class="fa-regular fa-credit-card"></i></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ PANTALLA DE ÉXITO / TICKET ════════════════════ -->
+  <div *ngIf="pagoExitoso" class="ticket-screen mx-auto">
+
+    <!-- Encabezado -->
+    <div class="text-center mb-5">
+      <div class="success-icon mb-3"><i class="fa-solid fa-circle-check"></i></div>
+      <h2 class="fw-bold text-white mb-1">RESERVA EXITOSA</h2>
+      <p class="text-secondary">Tu pago de <strong class="text-white">S/ {{ resumenSnapshot?.totalPagar | number:'1.2-2' }}</strong> ha sido procesado.</p>
+    </div>
+
+    <!-- ── TARJETA DE TICKET ──────────────────────────────────────────────── -->
+    <div class="ticket-card mx-auto">
+
+      <!-- Cabecera morada -->
+      <div class="ticket-header">
+        <p class="ticket-movie">{{ resumenSnapshot?.pelicula?.nombre }}</p>
+        <p class="ticket-meta">{{ resumenSnapshot?.pelicula?.formato }}</p>
+        <p class="ticket-venue">{{ resumenSnapshot?.cine }}</p>
+      </div>
+
+      <!-- Cuerpo blanco -->
+      <div class="ticket-body">
+
+        <!-- QR -->
+        <div class="text-center mb-4">
+          <img [src]="qrImageUrl"
+               alt="Código QR"
+               class="ticket-qr"
+               (error)="qrFallback($event)">
+          <p class="ticket-qr-hint mt-2">Muestre este QR al ingresar</p>
+        </div>
+
+        <!-- Perforación -->
+        <div class="ticket-perforation">
+          <div class="perf-circle perf-left"></div>
+          <div class="perf-dashes"></div>
+          <div class="perf-circle perf-right"></div>
+        </div>
+
+        <!-- Info de la función -->
+        <div class="ticket-info-grid mt-3">
+          <div class="ticket-info-item">
+            <span class="ticket-info-label">FECHA</span>
+            <span class="ticket-info-val">{{ resumenSnapshot?.fechaHora | slice:0:8 }}</span>
+          </div>
+          <div class="ticket-info-item text-end">
+            <span class="ticket-info-label">HORA</span>
+            <span class="ticket-info-val">{{ resumenSnapshot?.fechaHora | slice:9 }}</span>
+          </div>
+          <div class="ticket-info-item">
+            <span class="ticket-info-label">SALA</span>
+            <span class="ticket-info-val" style="color:#8a2be2;">{{ transaccionRespuesta?.qrCodeData | slice:4:6 }}</span>
+          </div>
+          <div class="ticket-info-item text-end">
+            <span class="ticket-info-label">ASIENTOS</span>
+            <span class="ticket-info-val" style="color:#8a2be2;">{{ resumenSnapshot?.asientos?.join(', ') }}</span>
+          </div>
+        </div>
+
+        <!-- Snacks si los hay -->
+        <ng-container *ngIf="resumenSnapshot?.snacks?.length">
+          <div class="ticket-perforation mt-3">
+            <div class="perf-circle perf-left"></div>
+            <div class="perf-dashes"></div>
+            <div class="perf-circle perf-right"></div>
+          </div>
+          <div class="ticket-snacks mt-3">
+            <p class="ticket-snacks-title">INCLUYE EN DULCERÍA</p>
+            <div *ngFor="let s of resumenSnapshot.snacks" class="d-flex justify-content-between">
+              <span class="ticket-snack-name">x{{ s.cantidad }} {{ s.nombre | uppercase }}</span>
+              <span class="ticket-snack-status">Pagado</span>
+            </div>
+          </div>
+        </ng-container>
+
+      </div><!-- /ticket-body -->
+    </div><!-- /ticket-card -->
+
+    <!-- Acciones -->
+    <div class="d-flex gap-3 justify-content-center mt-5 flex-wrap">
+      <button class="btn btn-action-secondary rounded-pill px-4 py-2 fw-bold"
+              (click)="volverAlInicio()">
+        Volver al Cartelera <i class="fa-solid fa-arrow-right ms-1"></i>
+      </button>
+      <button class="btn btn-action-primary rounded-pill px-4 py-2 fw-bold"
+              (click)="descargarTicket()">
+        Descargar Ticket <i class="fa-solid fa-arrow-up-from-bracket ms-1"></i>
+      </button>
+    </div>
+
+    <!-- Historial de pagos — pendiente de implementar -->
+    <!-- <button class="btn btn-action-ghost w-100 rounded-pill py-2 mt-3" (click)="router.navigate(['/mis-compras'])">
+      Ver en Historial de Pagos
+    </button> -->
+
+  </div>
+
+  <!-- ══════════════════════ FORMULARIO DE PAGO ═════════════════════════════ -->
+  <div *ngIf="!pagoExitoso">
+    <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">MÉTODO DE PAGO</h3>
+
+    <div class="row g-5">
+
+      <!-- ── COLUMNA IZQUIERDA ───────────────────────────────────────────── -->
+      <div class="col-lg-7">
+
+        <!-- Selector de método -->
+        <div class="metodo-tabs mb-4">
+          <button class="metodo-tab" [class.metodo-tab--active]="metodoPago==='tarjeta'" (click)="seleccionarMetodo('tarjeta')">
+            <i class="fa-regular fa-credit-card me-2"></i> Tarjeta
+          </button>
+          <button class="metodo-tab" [class.metodo-tab--active]="metodoPago==='yape'" (click)="seleccionarMetodo('yape')">
+            <img src="assets/yape-logo.png" alt="Yape" class="yape-logo me-2"
+                 onerror="this.style.display='none'">
+            Yape
+          </button>
+        </div>
+
+        <!-- ─── TARJETA ─── -->
+        <div *ngIf="metodoPago==='tarjeta'" class="payment-panel p-4 rounded-4">
+
+          <!-- Vista previa -->
+          <div class="card-preview mb-4"
+               [class.card-preview--visa]="tipoTarjeta==='visa'"
+               [class.card-preview--mastercard]="tipoTarjeta==='mastercard'">
+            <div class="card-preview-top d-flex justify-content-between align-items-start">
+              <div class="chip"></div>
+              <span class="card-brand text-uppercase fw-bold" *ngIf="tipoTarjeta">{{ tipoTarjeta }}</span>
+            </div>
+            <div class="card-preview-num">
+              {{ card.numero ? (card.numero|slice:0:4)+' '+(card.numero|slice:4:8)+' '+(card.numero|slice:8:12)+' '+(card.numero|slice:12:16) : '•••• •••• •••• ••••' }}
+            </div>
+            <div class="card-preview-bottom d-flex justify-content-between align-items-end">
+              <div>
+                <div class="card-preview-lbl">Titular</div>
+                <div class="card-preview-val">{{ card.titular || 'NOMBRE APELLIDO' }}</div>
+              </div>
+              <div class="text-end">
+                <div class="card-preview-lbl">Vence</div>
+                <div class="card-preview-val">{{ card.vencimiento || 'MM/AA' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="field-label">Nombre del titular</label>
+            <input type="text" class="field-input" placeholder="Como aparece en la tarjeta"
+                   [(ngModel)]="card.titular" maxlength="40" autocomplete="cc-name">
+          </div>
+          <div class="mb-3">
+            <label class="field-label d-flex justify-content-between">
+              Número de tarjeta
+              <span class="card-type-badge" *ngIf="tipoTarjeta"><i class="fa-brands fa-cc-{{ tipoTarjeta }}"></i></span>
+            </label>
+            <input type="text" class="field-input" placeholder="0000 0000 0000 0000"
+                   [value]="numeroMostrado" (input)="onNumeroInput($event)"
+                   inputmode="numeric" autocomplete="cc-number" maxlength="19">
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="field-label">Vencimiento</label>
+              <input type="text" class="field-input" placeholder="MM/AA"
+                     [value]="card.vencimiento" (input)="onVencimientoInput($event)"
+                     inputmode="numeric" autocomplete="cc-exp" maxlength="5">
+            </div>
+            <div class="col-6">
+              <label class="field-label d-flex justify-content-between align-items-center">
+                CVV
+                <span class="cvv-hint"><i class="fa-solid fa-circle-question"></i> 3–4 dígitos al dorso</span>
+              </label>
+              <input type="password" class="field-input" placeholder="•••"
+                     [(ngModel)]="card.cvv" inputmode="numeric" maxlength="4" autocomplete="cc-csc">
+            </div>
+          </div>
+          <div class="security-note mt-4 d-flex align-items-center gap-2">
+            <i class="fa-solid fa-lock"></i>
+            Tus datos están cifrados con SSL. No almacenamos información de tarjetas.
+          </div>
+        </div>
+
+        <!-- ─── YAPE ─── -->
+        <div *ngIf="metodoPago==='yape'" class="payment-panel p-4 rounded-4 text-center">
+          <div class="yape-icon-wrap mx-auto mb-3">
+            <i class="fa-solid fa-mobile-screen fa-2x" style="color:#7c3aed;"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-1">Paga con Yape</h5>
+          <p class="text-secondary small mb-4">Ingresa tu número Yape o escanea el QR</p>
+
+          <div class="yape-qr mx-auto mb-4">
+            <div class="qr-inner">
+              <i class="fa-solid fa-qrcode fa-3x" style="color:#7c3aed;opacity:0.5;"></i>
+              <p class="text-secondary small mt-2 mb-0">QR disponible al confirmar</p>
+            </div>
+          </div>
+
+          <div class="divider-text mb-4"><span>o ingresa tu número</span></div>
+
+          <div class="text-start">
+            <label class="field-label">Número de celular Yape</label>
+            <div class="input-group-phone">
+              <span class="phone-prefix">+51</span>
+              <input type="text" class="field-input field-input--phone" placeholder="9XX XXX XXX"
+                     [(ngModel)]="yapenumero" inputmode="numeric" maxlength="9">
+            </div>
+          </div>
+          <div class="yape-tip mt-4 text-start">
+            <i class="fa-solid fa-circle-info me-2" style="color:#7c3aed;"></i>
+            <span class="text-secondary small">
+              Recibirás una notificación en tu app Yape para confirmar el pago de
+              <strong class="text-white">S/ {{ totalFinal | number:'1.2-2' }}</strong>.
+            </span>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="errorPago" class="alert alert-danger mt-3 rounded-3 small">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ errorPago }}
+        </div>
+
+      </div>
+
+      <!-- ── COLUMNA DERECHA: RESUMEN ────────────────────────────────────── -->
+      <div class="col-lg-5">
+        <div class="p-4 rounded-4 summary-card shadow sticky-top" style="top:80px;">
+          <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
+
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
+          <div class="d-flex gap-3 mb-4 align-items-center">
+            <img [src]="resumen?.pelicula?.poster" alt="Póster" width="65" class="rounded-3 shadow">
+            <div>
+              <p class="mb-1 fw-bold text-white lh-sm fs-5">{{ resumen?.pelicula?.nombre }}</p>
+              <span class="badge py-1 px-2 pastel-badge">{{ resumen?.pelicula?.formato }}</span>
+            </div>
+          </div>
+          <hr class="border-secondary mb-4 opacity-50">
+
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Cine, Día y Función</h6>
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="icon-box"><i class="fa-regular fa-calendar text-white fs-5"></i></div>
+            <div>
+              <p class="mb-1 fw-bold text-white fs-6">{{ resumen?.cine }}</p>
+              <p class="mb-0 text-light small">{{ resumen?.fechaHora }}</p>
+            </div>
+          </div>
+          <hr class="border-secondary mb-4 opacity-50">
+
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="icon-box"><i class="fa-solid fa-couch text-white fs-5"></i></div>
+            <p class="mb-0 fw-bold text-white">{{ resumen?.asientos?.join(', ') || 'Ninguno' }}</p>
+          </div>
+          <hr class="border-secondary mb-4 opacity-50">
+
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Entradas</h6>
+          <div class="mb-3">
+            <div *ngFor="let t of resumen?.tickets" class="d-flex justify-content-between text-light small mb-1">
+              <span>{{ t.categoryName }} × {{ t.cantidad }}</span>
+              <span>S/ {{ t.subtotal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <ng-container *ngIf="resumen?.snacks?.length">
+            <hr class="border-secondary mb-4 opacity-50">
+            <h6 class="text-uppercase fw-bold summary-label mb-2">Confitería</h6>
+            <div class="mb-3">
+              <div *ngFor="let s of resumen.snacks" class="d-flex justify-content-between text-light small mb-1">
+                <span>{{ s.nombre }} × {{ s.cantidad }}</span>
+                <span>S/ {{ s.subtotal | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </ng-container>
+          <hr class="border-secondary mb-4 opacity-50">
+
+          <h6 class="text-uppercase fw-bold summary-label mb-2">Código de descuento</h6>
+          <div *ngIf="!promoAplicada" class="d-flex gap-2 mb-3">
+            <input type="text" class="field-input flex-grow-1" placeholder="CÓDIGO PROMO"
+                   [(ngModel)]="codigoPromo" style="text-transform:uppercase;font-size:0.85rem;"
+                   (keyup.enter)="aplicarPromo()">
+            <button class="btn-promo" (click)="aplicarPromo()" [disabled]="cargandoPromo">
+              <span *ngIf="!cargandoPromo">Aplicar</span>
+              <span *ngIf="cargandoPromo"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            </button>
+          </div>
+          <div *ngIf="promoError" class="text-danger small mb-2">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ promoError }}
+          </div>
+          <div *ngIf="promoAplicada" class="promo-badge mb-3 d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fa-solid fa-tag me-2" style="color:#00e676;"></i>
+              <span class="text-white fw-bold small">{{ promoAplicada.namePromotion }}</span>
+            </div>
+            <button class="btn-remove-promo" (click)="quitarPromo()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+
+          <div class="total-box p-3 rounded-3">
+            <div class="d-flex justify-content-between mb-2 text-light small">
+              <span>Subtotal</span><span>S/ {{ totalSinDescuento | number:'1.2-2' }}</span>
+            </div>
+            <div *ngIf="descuento>0" class="d-flex justify-content-between mb-2 small">
+              <span style="color:#00e676;">Descuento</span>
+              <span style="color:#00e676;">− S/ {{ descuento | number:'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2">
+              <span class="fw-bold text-white">TOTAL A PAGAR</span>
+              <span class="fw-bold text-warning fs-5">S/ {{ totalFinal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <button class="btn w-100 py-3 mt-4 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
+                  (click)="confirmarPago()" [disabled]="!formularioValido || procesando">
+            <span *ngIf="!procesando"><i class="fa-solid fa-lock me-2"></i>PAGAR S/ {{ totalFinal | number:'1.2-2' }}</span>
+            <span *ngIf="procesando"><i class="fa-solid fa-spinner fa-spin me-2"></i>Procesando...</span>
+          </button>
+
+          <button class="btn w-100 py-2 mt-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel"
+                  [disabled]="procesando" (click)="router.navigate(['/snacks'])">
+            REGRESAR <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

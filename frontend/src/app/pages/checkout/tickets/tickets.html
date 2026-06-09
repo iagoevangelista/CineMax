@@ -1,114 +1,172 @@
 <div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  
+
+  <!-- ── STEPPER ──────────────────────────────────────────────────────────── -->
   <div class="progress-wrapper mb-5 mx-auto shadow-sm">
     <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
       <div class="progress-line position-absolute" style="z-index: 1;"></div>
-      <div class="progress-step completed position-relative" style="z-index: 2;"><i class="fa-solid fa-couch"></i></div>
-      <div class="progress-step active position-relative" style="z-index: 2;"><i class="fa-solid fa-ticket"></i></div>
-      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-burger"></i></div>
-      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-regular fa-credit-card"></i></div>
+      <div class="progress-step completed position-relative" style="z-index: 2;" title="Asientos">
+        <i class="fa-solid fa-couch"></i>
+      </div>
+      <div class="progress-step active position-relative" style="z-index: 2;" title="Tickets">
+        <i class="fa-solid fa-ticket"></i>
+      </div>
+      <div class="progress-step position-relative" style="z-index: 2;" title="Snacks">
+        <i class="fa-solid fa-burger"></i>
+      </div>
+      <div class="progress-step position-relative" style="z-index: 2;" title="Pago">
+        <i class="fa-regular fa-credit-card"></i>
+      </div>
     </div>
   </div>
 
   <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">SELECCIONA TUS ENTRADAS</h3>
 
-  <div class="row g-5">
-    <div class="col-lg-8">
-      
-      <div class="tickets-container p-4 rounded-4 mb-4">
-        
-        <div class="d-flex justify-content-between align-items-center ticket-row pb-4 mb-4 border-bottom border-secondary">
-          <div>
-            <h5 class="fw-bold text-white mb-1">GENERAL (ADULTO)</h5>
-            <p class="text-light mb-0 small">Válido para mayores de 12 años</p>
-          </div>
-          <div class="d-flex align-items-center gap-4">
-            <span class="fs-5 fw-bold text-light">S/ 25.00</span>
-            <div class="qty-control d-flex align-items-center gap-3">
-              <button class="btn btn-outline-light rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 35px; height: 35px;" (click)="cambiarCantidad('adulto', -1)"><i class="fa-solid fa-minus"></i></button>
-              <span class="fs-5 fw-bold text-white text-center" style="width: 20px;">{{ entradas.adulto }}</span>
-              <button class="btn btn-outline-light rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 35px; height: 35px;" (click)="cambiarCantidad('adulto', 1)"><i class="fa-solid fa-plus"></i></button>
-            </div>
-          </div>
-        </div>
+  <!-- ── ERROR ────────────────────────────────────────────────────────────── -->
+  <div *ngIf="error" class="alert alert-danger text-center rounded-3">{{ error }}</div>
 
-        <div class="d-flex justify-content-between align-items-center ticket-row">
+  <!-- ── SPINNER ──────────────────────────────────────────────────────────── -->
+  <div *ngIf="cargando && !error" class="text-center py-5">
+    <div class="spinner-border" style="color: #8a2be2;" role="status"></div>
+    <p class="text-secondary mt-3 small">Cargando tarifas...</p>
+  </div>
+
+  <!-- ── CONTENIDO ────────────────────────────────────────────────────────── -->
+  <div *ngIf="!cargando && !error" class="row g-5">
+
+    <!-- ── LISTA DE TARIFAS ──────────────────────────────────────────────── -->
+    <div class="col-lg-8">
+
+      <div class="tickets-container p-4 rounded-4 mb-4">
+
+        <div *ngFor="let fila of filas; let last = last"
+             class="ticket-row d-flex justify-content-between align-items-center py-4"
+             [class.border-bottom]="!last"
+             [class.border-secondary]="!last">
+
+          <!-- Info categoría -->
           <div>
-            <h5 class="fw-bold text-white mb-1">NIÑO</h5>
-            <p class="text-light mb-0 small">De 2 a 11 años (Requiere DNI)</p>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <h5 class="fw-bold text-white mb-0">{{ fila.categoryName | uppercase }}</h5>
+              <!-- Badge especial para asientos WHEELCHAIR -->
+              <span *ngIf="fila.categoryCode === 'DISCAPACITADO'"
+                    class="badge-wheelchair d-flex align-items-center gap-1">
+                <i class="fa-solid fa-wheelchair" style="font-size: 0.75rem;"></i>
+                Incluye asientos PMR
+              </span>
+              <span *ngIf="fila.categoryCode === 'ADULTO_MAYOR'"
+                    class="badge-senior">
+                <i class="fa-solid fa-person-cane" style="font-size: 0.75rem;"></i>
+              </span>
+            </div>
+            <p class="text-secondary mb-0 small">{{ fila.descripcion }}</p>
           </div>
+
+          <!-- Precio + control +/- -->
           <div class="d-flex align-items-center gap-4">
-            <span class="fs-5 fw-bold text-light">S/ 18.00</span>
+            <div class="text-end">
+              <span class="fs-5 fw-bold text-light">S/ {{ fila.precioUnitario | number:'1.2-2' }}</span>
+              <p *ngIf="fila.cantidad > 0" class="mb-0 small subtotal-text">
+                = S/ {{ (fila.cantidad * fila.precioUnitario) | number:'1.2-2' }}
+              </p>
+            </div>
+
             <div class="qty-control d-flex align-items-center gap-3">
-              <button class="btn btn-outline-light rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 35px; height: 35px;" (click)="cambiarCantidad('nino', -1)"><i class="fa-solid fa-minus"></i></button>
-              <span class="fs-5 fw-bold text-white text-center" style="width: 20px;">{{ entradas.nino }}</span>
-              <button class="btn btn-outline-light rounded-circle d-flex justify-content-center align-items-center p-0" style="width: 35px; height: 35px;" (click)="cambiarCantidad('nino', 1)"><i class="fa-solid fa-plus"></i></button>
+              <button class="btn-qty"
+                      (click)="cambiarCantidad(fila, -1)"
+                      [disabled]="fila.cantidad === 0">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <span class="fs-5 fw-bold text-white text-center qty-display">{{ fila.cantidad }}</span>
+              <button class="btn-qty"
+                      (click)="cambiarCantidad(fila, 1)"
+                      [disabled]="totalElegidos >= cantidadAsientos">
+                <i class="fa-solid fa-plus"></i>
+              </button>
             </div>
           </div>
         </div>
 
       </div>
 
-      <div class="alert alert-dark custom-alert d-flex align-items-center gap-3 border border-secondary border-opacity-25">
-        <i class="fa-solid fa-circle-info fs-4 text-info"></i>
+      <!-- Aviso de progreso -->
+      <div class="alert-info-bar d-flex align-items-center gap-3 rounded-3 p-3"
+           [class.alert-warn]="faltanEntradas > 0 && totalElegidos > 0"
+           [class.alert-ok]="faltanEntradas === 0">
+        <i class="fa-solid fs-5"
+           [class.fa-circle-info]="faltanEntradas > 0"
+           [class.fa-circle-check]="faltanEntradas === 0"
+           style="min-width: 20px;"></i>
         <div class="text-light">
-          Tienes <strong>{{ cantidadAsientos }} asientos</strong> seleccionados. 
-          Has elegido <strong>{{ totalEntradasElegidas }}</strong> entradas.
+          <ng-container *ngIf="faltanEntradas > 0">
+            Tienes <strong>{{ cantidadAsientos }} asiento{{ cantidadAsientos !== 1 ? 's' : '' }}</strong> seleccionado{{ cantidadAsientos !== 1 ? 's' : '' }}.
+            Aún te {{ faltanEntradas === 1 ? 'falta' : 'faltan' }}
+            <strong>{{ faltanEntradas }} entrada{{ faltanEntradas !== 1 ? 's' : '' }}</strong> por asignar.
+          </ng-container>
+          <ng-container *ngIf="faltanEntradas === 0">
+            ¡Listo! Has asignado los <strong>{{ cantidadAsientos }}</strong> ticket{{ cantidadAsientos !== 1 ? 's' : '' }} correctamente.
+          </ng-container>
         </div>
       </div>
 
     </div>
 
+    <!-- ── RESUMEN LATERAL ───────────────────────────────────────────────── -->
     <div class="col-lg-4">
       <div class="p-4 rounded-4 summary-card shadow">
         <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
-        
+
+        <!-- Película -->
         <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
         <div class="d-flex gap-3 mb-4 align-items-center">
-          <img [src]="resumenActual.pelicula?.poster" 
-               alt="Pelicula" width="65" class="rounded-3 shadow">
-          
+          <img [src]="resumen.pelicula?.poster" alt="Póster" width="65" class="rounded-3 shadow">
           <div>
-            <p class="mb-1 fw-bold text-white lh-sm fs-5">
-              {{ resumenActual.pelicula?.nombre }}
-            </p>
-            
-            <span class="badge py-1 px-2 pastel-badge">
-              {{ resumenActual.pelicula?.formato }}
-            </span>
+            <p class="mb-1 fw-bold text-white lh-sm fs-5">{{ resumen.pelicula?.nombre }}</p>
+            <span class="badge py-1 px-2 pastel-badge">{{ resumen.pelicula?.formato }}</span>
           </div>
         </div>
-    
+
         <hr class="border-secondary mb-4 opacity-50">
-    
+
+        <!-- Cine / Fecha -->
         <h6 class="text-uppercase fw-bold summary-label mb-2">Cine, Día y Función</h6>
         <div class="d-flex align-items-center gap-3 mb-4">
-          <div class="icon-box">
-            <i class="fa-regular fa-calendar text-white fs-5"></i>
-          </div>
+          <div class="icon-box"><i class="fa-regular fa-calendar text-white fs-5"></i></div>
           <div>
-            <p class="mb-1 fw-bold text-white fs-6">{{ resumenActual.cine }}</p>
-            <p class="mb-0 text-light small">{{ resumenActual.fechaHora }}</p>
+            <p class="mb-1 fw-bold text-white fs-6">{{ resumen.cine }}</p>
+            <p class="mb-0 text-light small">{{ resumen.fechaHora }}</p>
           </div>
         </div>
-    
+
         <hr class="border-secondary mb-4 opacity-50">
-    
+
+        <!-- Asientos -->
         <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
         <div class="d-flex align-items-center gap-3 mb-4">
-          <div class="icon-box">
-            <i class="fa-solid fa-couch text-white fs-5"></i>
-          </div>
-          <div>
-            <p class="mb-0 fw-bold selection-text text-white">
-              {{ resumenActual.asientos && resumenActual.asientos.length > 0 ? resumenActual.asientos.join(', ') : 'Ninguno' }}
-            </p>
-          </div>
+          <div class="icon-box"><i class="fa-solid fa-couch text-white fs-5"></i></div>
+          <p class="mb-0 fw-bold text-white">
+            {{ resumen.asientos?.length ? resumen.asientos.join(', ') : 'Ninguno' }}
+          </p>
         </div>
-    
+
+        <hr class="border-secondary mb-4 opacity-50">
+
+        <!-- Entradas elegidas (dinámico) -->
+        <h6 class="text-uppercase fw-bold summary-label mb-2">Entradas</h6>
+        <div class="mb-3">
+          <ng-container *ngFor="let fila of filas">
+            <div *ngIf="fila.cantidad > 0"
+                 class="d-flex justify-content-between text-light small mb-1">
+              <span>{{ fila.categoryName }} × {{ fila.cantidad }}</span>
+              <span>S/ {{ (fila.cantidad * fila.precioUnitario) | number:'1.2-2' }}</span>
+            </div>
+          </ng-container>
+          <div *ngIf="totalElegidos === 0" class="text-secondary small">Ninguna elegida aún</div>
+        </div>
+
+        <!-- Total -->
         <div class="bg-dark bg-opacity-50 p-3 rounded-3 mb-4 border border-secondary border-opacity-50">
           <div class="d-flex justify-content-between mb-2">
-            <span class="text-light">Entradas</span>
+            <span class="text-light">Entradas ({{ totalElegidos }})</span>
             <span class="fw-bold text-white">S/ {{ totalPagar | number:'1.2-2' }}</span>
           </div>
           <div class="d-flex justify-content-between border-top border-secondary pt-2 mt-2">
@@ -116,17 +174,27 @@
             <span class="fw-bold text-warning fs-5">S/ {{ totalPagar | number:'1.2-2' }}</span>
           </div>
         </div>
-    
+
+        <!-- Botón continuar -->
         <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
-                (click)="irSiguientePaso()">
+                (click)="irSiguientePaso()"
+                [disabled]="faltanEntradas > 0">
           CONTINUAR A DULCERÍA <i class="fa-solid fa-arrow-right"></i>
         </button>
-        
+
+        <!-- Aviso inline si faltan entradas -->
+        <div *ngIf="faltanEntradas > 0 && totalElegidos > 0"
+             class="text-center text-warning small mb-2">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i>
+          Asigna {{ faltanEntradas }} entrada{{ faltanEntradas !== 1 ? 's' : '' }} más para continuar
+        </div>
+
         <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel"
                 (click)="regresar()">
           REGRESAR <i class="fa-solid fa-arrow-left"></i>
         </button>
       </div>
     </div>
+
   </div>
 </div>

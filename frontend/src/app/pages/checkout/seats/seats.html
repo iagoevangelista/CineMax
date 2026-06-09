@@ -1,119 +1,167 @@
-<div class="container mt-4 mb-5" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  
+<div class="container mt-4 mb-5 text-white">
+
+  <!-- ── STEPPER ──────────────────────────────────────────────────────────── -->
   <div class="progress-wrapper mb-5 mx-auto shadow-sm">
     <div class="d-flex justify-content-between align-items-center position-relative w-100 px-4">
-      <div class="progress-line position-absolute" style="z-index: 1;"></div>
-      <div class="progress-step active position-relative" style="z-index: 2;"><i class="fa-solid fa-couch"></i></div>
-      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-ticket"></i></div>
-      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-solid fa-burger"></i></div>
-      <div class="progress-step position-relative" style="z-index: 2;"><i class="fa-regular fa-credit-card"></i></div>
+      <div class="progress-line position-absolute"></div>
+      <div class="progress-step active" title="Asientos"><i class="fa-solid fa-couch"></i></div>
+      <div class="progress-step"         title="Tickets"> <i class="fa-solid fa-ticket"></i></div>
+      <div class="progress-step"         title="Snacks">  <i class="fa-solid fa-burger"></i></div>
+      <div class="progress-step"         title="Pago">    <i class="fa-regular fa-credit-card"></i></div>
     </div>
   </div>
 
-  <h3 class="text-center fw-bold mb-5 text-white" style="letter-spacing: 1px;">SELECCIONA TU ASIENTO</h3>
+  <h3 class="text-center fw-bold mb-5" style="letter-spacing: 1px;">SELECCIONA TU ASIENTO</h3>
 
-  <div class="row g-5">
+  <!-- ── ERROR ────────────────────────────────────────────────────────────── -->
+  <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
+
+  <!-- ── SPINNER ──────────────────────────────────────────────────────────── -->
+  <div *ngIf="cargando && !error" class="text-center py-5">
+    <div class="spinner-border" style="color: #8a2be2;" role="status"></div>
+    <p class="text-secondary mt-3 small">Cargando disponibilidad...</p>
+  </div>
+
+  <!-- ── CONTENIDO PRINCIPAL ───────────────────────────────────────────────── -->
+  <div *ngIf="!cargando && !error" class="row g-5">
+
+    <!-- ── MAPA DE ASIENTOS ─────────────────────────────────────────────────── -->
     <div class="col-lg-8">
-      <div class="screen-curve mx-auto mb-5 text-center">
+
+      <!-- Pantalla -->
+      <div class="screen-bar mx-auto mb-5 text-center fw-bold" style="letter-spacing: 4px;">
         PANTALLA
       </div>
 
-      <div class="d-flex flex-column align-items-center mb-5">
-        <div class="d-flex align-items-center mb-2" *ngFor="let fila of filas">
-          <span class="me-3 fw-bold text-indicator">{{ fila }}</span>
-          
-          <div class="d-flex gap-2">
-            <div *ngFor="let col of columnas" class="d-flex align-items-center">
-              <div *ngIf="col === 3 || col === 7" class="ms-4"></div>
+      <!-- Matriz dinámica -->
+      <div class="d-flex flex-column align-items-center mb-5 seat-grid">
+        <div class="d-flex align-items-center mb-2 seat-row"
+             *ngFor="let fila of filas">
 
-              <button 
-                class="seat-box"
-                [ngClass]="estadoAsiento(fila + col)"
-                (click)="seleccionarAsiento(fila + col)"
-                [disabled]="estadoAsiento(fila + col) === 'ocupado'">
-                
-                <span *ngIf="estadoAsiento(fila + col) !== 'discapacitado'">{{ fila }}{{ col }}</span>
-                <i *ngIf="estadoAsiento(fila + col) === 'discapacitado'" class="fa-solid fa-wheelchair"></i>
-              </button>
-            </div>
+          <!-- Etiqueta izquierda -->
+          <span class="row-label me-3">{{ fila }}</span>
+
+          <!-- Asientos de la fila -->
+          <div class="d-flex gap-2">
+            <ng-container *ngFor="let col of columnas">
+
+              <!-- Asiento oculto = pasillo (espacio vacío) -->
+              <div *ngIf="getAsiento(fila, col)?.esOculto"
+                   class="seat-gap"></div>
+
+              <!-- Asiento normal -->
+              <ng-container *ngIf="!getAsiento(fila, col)?.esOculto">
+                <button
+                  class="seat-box"
+                  [ngClass]="{
+                    'disponible':   getEstadoVisible(getAsiento(fila, col)!) === 'disponible',
+                    'ocupado':      getEstadoVisible(getAsiento(fila, col)!) === 'ocupado',
+                    'mantenimiento':getEstadoVisible(getAsiento(fila, col)!) === 'mantenimiento',
+                    'seleccionado': getEstadoVisible(getAsiento(fila, col)!) === 'seleccionado',
+                    'wheelchair':   getEstadoVisible(getAsiento(fila, col)!) === 'wheelchair'
+                  }"
+                  [disabled]="getAsiento(fila, col)!.estado === 'ocupado' ||
+                               getAsiento(fila, col)!.estado === 'mantenimiento'"
+                  (click)="toggleAsiento(getAsiento(fila, col)!)"
+                  [title]="fila + col">
+
+                  <!-- Wheelchair muestra ícono, el resto muestra el código -->
+                  <ng-container *ngIf="getAsiento(fila, col)!.estado !== 'wheelchair'">
+                    {{ fila }}{{ col }}
+                  </ng-container>
+                  <i *ngIf="getAsiento(fila, col)!.estado === 'wheelchair'"
+                     class="fa-solid fa-wheelchair"></i>
+                </button>
+              </ng-container>
+
+            </ng-container>
           </div>
-          
-          <span class="ms-3 fw-bold text-indicator">{{ fila }}</span>
+
+          <!-- Etiqueta derecha -->
+          <span class="row-label ms-3">{{ fila }}</span>
         </div>
       </div>
 
-      <div class="d-flex justify-content-center gap-4 flex-wrap fw-bold mt-4 text-light" style="font-size: 0.9rem;">
+      <!-- Leyenda -->
+      <div class="d-flex justify-content-center gap-4 flex-wrap fw-bold mt-4 legend">
         <div class="d-flex align-items-center gap-2">
-          <div class="seat-box mini disponible"></div> DISPONIBLE
+          <div class="seat-box mini disponible"></div><span>DISPONIBLE</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <div class="seat-box mini ocupado"></div> NO DISPONIBLE
+          <div class="seat-box mini ocupado"></div><span>NO DISPONIBLE</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <div class="seat-box mini seleccionado"></div> MI SELECCIÓN
+          <div class="seat-box mini seleccionado"></div><span>MI SELECCIÓN</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <div class="seat-box mini discapacitado text-center"><i class="fa-solid fa-wheelchair"></i></div> DISCAPACITADO
+          <div class="seat-box mini wheelchair text-center">
+            <i class="fa-solid fa-wheelchair"></i>
+          </div><span>DISCAPACITADO</span>
         </div>
       </div>
     </div>
 
+    <!-- ── RESUMEN ────────────────────────────────────────────────────────── -->
     <div class="col-lg-4">
-      <div class="p-4 rounded-4 summary-card shadow">
-        <h4 class="fw-bold mb-4 text-white">RESUMEN</h4>
-        
-        <h6 class="text-uppercase fw-bold summary-label mb-2">Película</h6>
+      <div class="summary-card p-4 rounded-4 shadow">
+
+        <h4 class="fw-bold mb-4">RESUMEN</h4>
+
+        <!-- Película -->
+        <p class="summary-label text-uppercase fw-bold mb-2">Película</p>
         <div class="d-flex gap-3 mb-4 align-items-center">
-          <img [src]="resumenActual.pelicula?.poster" 
-               alt="Pelicula" width="65" class="rounded-3 shadow">
-          
+          <img [src]="resumen?.pelicula?.poster || 'assets/placeholder.png'"
+               alt="Póster" width="65" class="rounded-3 shadow poster-img">
           <div>
-            <p class="mb-1 fw-bold text-white lh-sm fs-5">
-              {{ resumenActual.pelicula?.nombre }}
-            </p>
-            
-            <span class="badge py-1 px-2 pastel-badge">
-              {{ resumenActual.pelicula?.formato }}
-            </span>
+            <p class="mb-1 fw-bold lh-sm fs-5">{{ resumen?.pelicula?.nombre || '—' }}</p>
+            <span class="badge-formato">{{ resumen?.pelicula?.formato || '' }}</span>
           </div>
         </div>
 
-        <hr class="border-secondary mb-4 opacity-50">
+        <hr class="divider">
 
-        <h6 class="text-uppercase fw-bold summary-label mb-2">Cine, Día y Función</h6>
+        <!-- Cine / Fecha -->
+        <p class="summary-label text-uppercase fw-bold mb-2">Cine, Día y Función</p>
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="icon-box">
-            <i class="fa-regular fa-calendar text-white fs-5"></i>
+            <i class="fa-regular fa-calendar fs-5"></i>
           </div>
           <div>
-            <p class="mb-1 fw-bold text-white fs-6">{{ resumenActual.cine }}</p>
-            <p class="mb-0 text-light small">{{ resumenActual.fechaHora }}</p>
+            <p class="mb-1 fw-bold">{{ resumen?.cine || '—' }}</p>
+            <p class="mb-0 text-secondary small">{{ resumen?.fechaHora || '' }}</p>
           </div>
         </div>
 
-        <hr class="border-secondary mb-4 opacity-50">
+        <hr class="divider">
 
-        <h6 class="text-uppercase fw-bold summary-label mb-2">Asientos</h6>
-        <div class="d-flex align-items-center gap-3 mb-5">
+        <!-- Asientos seleccionados -->
+        <p class="summary-label text-uppercase fw-bold mb-2">Asientos</p>
+        <div class="d-flex align-items-center gap-3 mb-2">
           <div class="icon-box">
-            <i class="fa-solid fa-couch text-white fs-5"></i>
+            <i class="fa-solid fa-couch fs-5"></i>
           </div>
-          <div>
-            <p class="mb-0 fw-bold selection-text text-white">
-              {{ asientosSeleccionados.length > 0 ? asientosSeleccionados.join(', ') : 'Ninguno' }}
-            </p>
-          </div>
+          <p class="mb-0 fw-bold fs-5 selection-text">{{ codigosSeleccionados }}</p>
         </div>
 
-        <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center align-items-center gap-2 btn-continue fs-5"
+        <!-- Contador -->
+        <p class="text-secondary small mb-5">
+          {{ seleccionados.length }} / {{ MAX_ASIENTOS }} asientos seleccionados
+        </p>
+
+        <!-- Botones -->
+        <button class="btn w-100 py-3 rounded-pill fw-bold mb-3 d-flex justify-content-center
+                        align-items-center gap-2 btn-continue fs-5"
                 (click)="irSiguientePaso()">
           CONTINUAR <i class="fa-solid fa-arrow-right"></i>
         </button>
-        
-        <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 btn-cancel">
+        <button class="btn w-100 py-2 rounded-pill fw-bold d-flex justify-content-center
+                        align-items-center gap-2 btn-cancel"
+                (click)="cancelar()">
           CANCELAR <i class="fa-regular fa-circle-xmark"></i>
         </button>
+
       </div>
     </div>
+
   </div>
 </div>

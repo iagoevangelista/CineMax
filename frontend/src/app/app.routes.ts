@@ -11,6 +11,7 @@ import { Seats } from './pages/checkout/seats/seats';
 import { Tickets } from './pages/checkout/tickets/tickets';
 import { ClientLayout } from './layouts/client-layout/client-layout';
 import { Snacks } from './pages/checkout/snacks/snacks';
+import { Payment } from './pages/checkout/payment/payment';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password';
 import { Profile } from './pages/profile/profile';
 import { Sedes } from './pages/sedes/sedes';
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'seats', component: Seats },
       { path: 'tickets', component: Tickets },
       { path: 'snacks', component: Snacks },
+      { path: 'payment', component: Payment },
       { path: 'reset-password', component: ResetPasswordComponent }
       
     ]
@@ -57,13 +59,10 @@ export const routes: Routes = [
       // Movies: G. de Operaciones
       { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
       
-      // Showtimes: G. de Operaciones
       { path: 'funciones', component: AdminShowtimes, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
 
-      // Confiteria: Solo Admin y G. de Marketing
-      { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['ADMIN', 'GERENTE_DE_MARKETING'] } },
+      { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING'] } },
 
-      // Usuarios: Solo Admin
       { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
       
       // Redirección por defecto dentro de /admin
