@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- IMPORTANTE: Añadir para el buscador (ngModel)
+import { FormsModule } from '@angular/forms'; 
 import { RouterModule, Router } from '@angular/router';
 import { VenueService } from '../../services/venue.service';
 import * as L from 'leaflet';
@@ -8,7 +8,7 @@ import * as L from 'leaflet';
 @Component({
   selector: 'app-sedes',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule], // <-- NO OLVIDES AÑADIR FormsModule AQUÍ
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './sedes.html',
   styleUrl: './sedes.css'
 })
@@ -17,8 +17,8 @@ export class Sedes implements OnInit {
   departamentos: string[] = [];
   departamentoSeleccionado: string = '';
   
-  textoBusqueda: string = ''; // Nueva variable para el buscador
-  sedesMostradas: any[] = []; // El arreglo final que se pinta en el HTML
+  textoBusqueda: string = '';
+  sedesMostradas: any[] = []; 
   
   // Variables para el Modal del Mapa
   sedeDetalle: any = null;
@@ -42,7 +42,6 @@ export class Sedes implements OnInit {
         this.aplicarFiltros(); 
       }
       
-      // ¡ESTO ARREGLA EL ERROR DE QUE NO SALGA A LA PRIMERA!
       this.cdr.detectChanges(); 
     });
   }
@@ -53,7 +52,7 @@ export class Sedes implements OnInit {
     this.aplicarFiltros();
   }
 
-  // Nueva función inteligente que filtra por ciudad y por el texto del buscador
+  // Filtra por ciudad y por el texto del buscador
   aplicarFiltros() {
     this.sedesMostradas = this.sedes.filter(s => {
       const coincideDep = s.departmentName === this.departamentoSeleccionado;
