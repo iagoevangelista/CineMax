@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../enviroments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ShowtimeService {
-  private apiUrl = 'http://localhost:8080/api/v1/showtimes';
+  private apiUrl = `${environment.apiUrl}/showtimes`;
 
   constructor(private http: HttpClient) {}
 
-  // Para la cartelera pública
   getShowtimesByMovie(idMovie: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}?idMovie=${idMovie}`);
   }
 
-  // Para el panel de gestión — funciones de UNA sede en una fecha
   getShowtimesByVenue(idVenue: number, date: string): Observable<any[]> {
     const params = new HttpParams().set('idVenue', idVenue).set('date', date);
     return this.http.get<any[]>(`${this.apiUrl}/by-venue`, { params });

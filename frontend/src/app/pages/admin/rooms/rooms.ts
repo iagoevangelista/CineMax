@@ -47,7 +47,7 @@ export class Rooms implements OnInit {
     this.rolUsuario = this.authService.getRole();
     
     // Si es Admin o Gerente General (Tienen control global)
-    if (this.rolUsuario === 'ROLE_ADMIN' || this.rolUsuario === 'ROLE_GERENTE_GENERAL' || this.rolUsuario === 'ADMIN' || this.rolUsuario === 'GERENTE_GENERAL') {
+    if (this.rolUsuario === 'ROLE_GERENTE_GENERAL' || this.rolUsuario === 'GERENTE_GENERAL') {
       this.esAdminGlobal = true;
       this.cargarSedes();
     } 
@@ -171,16 +171,15 @@ export class Rooms implements OnInit {
   }
 
   aplicarPincel(asiento: any) {
-    // 1. Manejamos la lógica de cambio de estado y tipo de asiento
     switch (this.pincelSeleccionado) {
       case 'ACTIVO':
         asiento.status = 'ACTIVO';
-        asiento.idSeatType = 1; // 1 = Estándar (Reseteamos de 2 a 1)
+        asiento.idSeatType = 1; 
         break;
 
       case 'MANTENIMIENTO':
         asiento.status = 'MANTENIMIENTO';
-        asiento.idSeatType = 1; // Normalmente en mantenimiento no debería ser VIP/Wheelchair
+        asiento.idSeatType = 1;
         break;
 
       case 'OCULTO':
@@ -190,18 +189,15 @@ export class Rooms implements OnInit {
 
       case 'WHEELCHAIR':
         asiento.status = 'ACTIVO';
-        asiento.idSeatType = 2; // 2 = Discapacitados
+        asiento.idSeatType = 2;
         break;
         
       default:
         return;
     }
 
-    // 2. Guardamos los cambios
     this.seatService.updateSeat(asiento.idSeat, asiento).subscribe({
       next: () => {
-        // Opcional: refrescar localmente si es necesario, 
-        // aunque el objeto ya está actualizado por referencia.
         this.cdr.detectChanges();
       },
       error: () => { 
@@ -213,7 +209,7 @@ export class Rooms implements OnInit {
   obtenerClaseAsiento(asiento: any): string {
     if (asiento.status === 'OCULTO') return 'seat-oculto';
     if (asiento.status === 'MANTENIMIENTO') return 'seat-mantenimiento';
-    if (asiento.idSeatType === 2) return 'seat-wheelchair'; // Cambiado a idSeatType
+    if (asiento.idSeatType === 2) return 'seat-wheelchair'; 
     return 'seat-activo'; 
   }
   

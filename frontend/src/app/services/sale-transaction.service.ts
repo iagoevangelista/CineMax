@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-// ── DTOs que reflejan exactamente el backend ──────────────────────────────────
+import { environment } from '../enviroments/environment';
 
 export interface TicketLineDTO {
-  /** "ADULTO" | "NINO" | "ADULTO_MAYOR" | "DISCAPACITADO" */
   categoryCode: string;
   cantidad: number;
   precioUnitario: number;
@@ -25,9 +23,7 @@ export interface SaleTransactionRequestDTO {
   subtotal: number;
   discountAmount: number;
   totalAmount: number;
-  /** "TARJETA" | "YAPE" */
   paymentMethod: 'TARJETA' | 'YAPE';
-  /** null si no se aplicó promo */
   idPromotion: number | null;
 }
 
@@ -37,24 +33,12 @@ export interface SaleTransactionResponseDTO {
   message: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class SaleTransactionService {
-
-  private readonly apiUrl = 'http://localhost:8080/api/v1/sale-transactions';
+  private readonly apiUrl = `${environment.apiUrl}/sale-transactions`;
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * POST /api/v1/sale-transactions
-   *
-   * El interceptor (auth.interceptor.ts) adjunta automáticamente el JWT,
-   * así el backend puede extraer el email del usuario desde Authentication.
-   *
-   * Devuelve { idTransaction, qrCodeData, message } si todo sale bien,
-   * o lanza un error HTTP con el mensaje en err.error (string plano del backend).
-   */
   createSaleTransaction(request: SaleTransactionRequestDTO): Observable<SaleTransactionResponseDTO> {
     return this.http.post<SaleTransactionResponseDTO>(this.apiUrl, request);
   }

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    // Fíjate cómo inyectamos la INTERFAZ, no la clase de implementación
     private final AuthService authService;
 
     @PostMapping("/register")
@@ -36,8 +35,7 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         
-        // Llamamos al método de tu AuthService (asegúrate de que se llame así, 
-        // o cámbialo por el nombre exacto que le pusiste en tu AuthService.java)
+        // Llamamos al método de tu AuthService
         authService.requestPasswordReset(email); 
         
         return ResponseEntity.ok(Map.of("message", "Si el correo existe, se ha enviado un enlace de recuperación."));
@@ -47,8 +45,7 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String token = request.get("token");
         String newPassword = request.get("newPassword");
-        
-        // Llamamos al método de tu AuthService para cambiar la clave
+
         authService.resetPassword(token, newPassword);
         
         return ResponseEntity.ok(Map.of("message", "Contraseña restablecida con éxito."));

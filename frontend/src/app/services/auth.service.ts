@@ -2,12 +2,13 @@ import { jwtDecode } from 'jwt-decode';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../enviroments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/v1/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {}
 
@@ -38,7 +39,7 @@ export class AuthService {
     if (token) {
       const decoded: any = jwtDecode(token);
       let role = decoded.role || 'USUARIO';
-      
+
       if (role.startsWith('ROLE_')) {
         role = role.replace('ROLE_', '');
       }
@@ -47,7 +48,7 @@ export class AuthService {
     return 'INVITADO';
   }
 
-register(data: any): Observable<any> {
+  register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data).pipe(
       tap((response: any) => {
         if (response.token) {
@@ -56,12 +57,13 @@ register(data: any): Observable<any> {
       })
     );
   }
+
   forgotPassword(email: string) {
-    return this.http.post('http://localhost:8080/api/v1/auth/forgot-password', { email });
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
   }
 
   resetPassword(token: string, newPassword: string) {
-    return this.http.post('http://localhost:8080/api/v1/auth/reset-password', { token, newPassword });
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword });
   }
 
   getEmail(): string | null {
@@ -96,5 +98,4 @@ register(data: any): Observable<any> {
     }
     return null;
   }
-
 }
