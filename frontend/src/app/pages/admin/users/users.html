@@ -25,7 +25,7 @@
       <label class="form-label fw-bold text-white mb-1"><i class="fa-solid fa-briefcase me-2"></i>Filtrar por Rol</label>
       <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroRol">
         <option value="TODOS">Todos los Roles</option>
-        <option *ngFor="let rol of rolesDisponibles" [value]="rol">{{ ROLE_LABELS[rol.replace('ROLE_', '')] || rol }}</option>
+        <option *ngFor="let rol of rolesDisponibles" [value]="rol">{{ formatearRol(rol) }}</option>
       </select>
     </div>
 
@@ -60,13 +60,14 @@
           </td>
           <td class="p-3">{{ user.email }}</td>
           <td class="p-3">
-            <span class="badge bg-primary">{{ ROLE_LABELS[user.roleName.replace('ROLE_', '')] || user.roleName }}</span>
+            <span class="badge bg-primary">{{ formatearRol(user.roleName) }}</span>
           </td>
           <td class="p-3 text-white">{{ user.venueName || 'Acceso Total' }}</td>
           <td class="p-3">
             <span class="badge" [ngClass]="user.status === 'Activo' ? 'bg-success' : 'bg-danger'">
               {{ user.status }}
             </span>
+          </td>
           <td class="p-3 text-center">
             <button class="btn btn-sm btn-outline-warning me-2" title="Cambiar Rol"
                 data-bs-toggle="modal" data-bs-target="#modalCambiarRol" (click)="abrirModalRol(user)">
@@ -87,6 +88,7 @@
   </div>
 </div>
 
+<!-- Modal Cambiar Rol -->
 <div class="modal fade" id="modalCambiarRol" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content bg-dark text-white border-secondary">
@@ -103,12 +105,12 @@
         
         <div class="mt-4">
           <label class="form-label fw-bold">Selecciona el nuevo Rol:</label>
+          <!-- Roles cargados dinámicamente desde la BD -->
           <select class="form-select bg-dark text-white shadow-sm border-secondary" 
                   [(ngModel)]="nuevoIdRole" name="rolUpdate" (ngModelChange)="onRoleChangeUpdate()">
-            <option [ngValue]="1">Administrador</option>
-            <option [ngValue]="2">Gerente General</option> 
-            <option [ngValue]="3">Gerente de Marketing</option> 
-            <option [ngValue]="5">Gerente de Operaciones</option>
+            <option *ngFor="let rol of listaRoles" [ngValue]="rol.idRole">
+              {{ formatearRol(rol.roleName) }}
+            </option>
           </select>
         </div>
 
@@ -135,6 +137,7 @@
   </div>
 </div>
 
+<!-- Modal Nuevo Colaborador -->
 <div class="modal fade text-dark" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg"> 
     <div class="modal-content bg-dark text-white border-secondary">
@@ -176,14 +179,15 @@
           
           <div class="mb-3">
             <label class="form-label">Rol del Colaborador</label>
+            <!-- Roles cargados dinámicamente desde la BD -->
             <select class="form-select bg-dark text-white border-secondary" 
                     [(ngModel)]="nuevoUsuario.idRole" 
                     name="idRole" 
                     (ngModelChange)="onRoleChangeCreate()">
-              <option [ngValue]="1">Administrador</option>
-              <option [ngValue]="2">Gerente General</option>
-              <option [ngValue]="3">Gerente de Marketing</option>
-              <option [ngValue]="5">Gerente de Operaciones</option>
+              <option [ngValue]="0" disabled>Seleccione un rol...</option>
+              <option *ngFor="let rol of listaRoles" [ngValue]="rol.idRole">
+                {{ formatearRol(rol.roleName) }}
+              </option>
             </select>
           </div>
           

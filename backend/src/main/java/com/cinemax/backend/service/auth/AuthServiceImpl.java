@@ -3,15 +3,14 @@ package com.cinemax.backend.service.auth;
 import com.cinemax.backend.model.dto.auth.AuthRequestDTO;
 import com.cinemax.backend.model.dto.auth.AuthResponseDTO;
 import com.cinemax.backend.model.dto.auth.RegisterRequestDTO;
-import java.util.HashMap;
-import java.util.Map;
 import com.cinemax.backend.model.entity.DocumentType;
 import com.cinemax.backend.model.entity.UserAccount;
+import com.cinemax.backend.repository.DocumentTypeRepository;
 import com.cinemax.backend.repository.RoleRepository;
 import com.cinemax.backend.repository.UserAccountRepository;
 import com.cinemax.backend.security.JwtService;
-import com.cinemax.backend.repository.DocumentTypeRepository;
 import com.cinemax.backend.service.email.EmailService;
+import com.cinemax.backend.util.RoleConstants;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -58,8 +60,9 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("El correo electrónico ya se encuentra registrado.");
         }
 
-        var role = roleRepository.findById(4)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado."));
+        // Busca el rol CLIENTE por nombre, no por ID numérico
+        var role = roleRepository.findByRoleName(RoleConstants.CLIENTE)
+                .orElseThrow(() -> new RuntimeException("Rol CLIENTE no encontrado en la base de datos."));
 
         DocumentType docType = documentTypeRepository.findById(request.getIdDocumentType())
                 .orElseThrow(() -> new RuntimeException("Tipo de documento no válido."));
@@ -94,12 +97,12 @@ public class AuthServiceImpl implements AuthService {
 
         if (userOptional.isEmpty()) {
             System.out.println("Intento de recuperación para correo inexistente: " + email);
-            return; 
+            return;
         }
 
         UserAccount user = userOptional.get();
         String token = java.util.UUID.randomUUID().toString();
-        
+
         user.setResetToken(token);
         user.setTokenExpiryDate(java.time.LocalDateTime.now().plusMinutes(1));
         userRepository.save(user);
@@ -111,7 +114,6 @@ public class AuthServiceImpl implements AuthService {
                 System.err.println("Error al enviar el correo en segundo plano: " + e.getMessage());
             }
         });
-        
     }
 
     @Override
@@ -124,7 +126,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
-        
         user.setResetToken(null);
         user.setTokenExpiryDate(null);
         userRepository.save(user);
@@ -133,8 +134,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean validateResetToken(String token) {
         return userRepository.findByResetToken(token)
-                .map(user -> user.getTokenExpiryDate() != null && user.getTokenExpiryDate().isAfter(java.time.LocalDateTime.now()))
+                .map(user -> user.getTokenExpiryDate() != null
+                        && user.getTokenExpiryDate().isAfter(java.time.LocalDateTime.now()))
                 .orElse(false);
     }
-
 }
