@@ -12,13 +12,16 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     // Inyectamos el correo desde el application.properties para no tenerlo "quemado" en el código
     @Value("${spring.mail.username}")
     private String fromEmail;
 
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
         // Por ahora apuntamos al localhost de Angular, luego en producción esto cambia a tu dominio real
-        String resetLink = "http://localhost:4200/reset-password?token=" + resetToken;
+        String resetLink = frontendUrl + "/reset-password?token=" + resetToken;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
