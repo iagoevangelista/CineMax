@@ -1,7 +1,14 @@
 package com.cinemax.backend.controller;
 
-import com.cinemax.backend.model.entity.*;
-import com.cinemax.backend.repository.*;
+import com.cinemax.backend.model.entity.Department;
+import com.cinemax.backend.model.entity.District;
+import com.cinemax.backend.model.entity.Province;
+import com.cinemax.backend.model.entity.Role;
+import com.cinemax.backend.repository.DepartmentRepository;
+import com.cinemax.backend.repository.DistrictRepository;
+import com.cinemax.backend.repository.ProvinceRepository;
+import com.cinemax.backend.repository.RoleRepository;
+import com.cinemax.backend.util.RoleConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +27,9 @@ public class LookupController {
 
     @GetMapping("/roles")
     public List<Role> getRoles() {
-        return roleRepository.findAll();
+        return roleRepository.findAll().stream()
+                .filter(r -> !RoleConstants.CLIENTE.equals(r.getRoleName()))
+                .toList();
     }
 
     @GetMapping("/departments")
