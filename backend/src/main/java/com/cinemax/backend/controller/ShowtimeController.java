@@ -26,25 +26,27 @@ public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
 
+    // Público: el cliente lo necesita para ver funciones de una película
     @GetMapping
     public ResponseEntity<List<ShowtimeDTO>> getShowtimesByMovie(@RequestParam Integer idMovie) {
         return ResponseEntity.ok(showtimeService.getShowtimesByMovie(idMovie));
     }
 
     @GetMapping("/by-venue")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_SHOWTIMES')")
     public ResponseEntity<?> getShowtimesByVenue(
             @RequestParam Integer idVenue,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Authentication auth) {
         try {
             Integer callerVenueId = extractVenueId(auth);
-            boolean isGerGeneral = auth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .anyMatch(r -> r.equals("ROLE_GERENTE_GENERAL"));
 
-            if (!isGerGeneral && callerVenueId != null && !callerVenueId.equals(idVenue)) {
-                return ResponseEntity.status(403).body("No tienes permiso para ver funciones de otra sede.");
+            // Si no tiene MANAGE_VENUES solo puede ver funciones de su propia sede
+            if (!tienePermiso(auth, "MANAGE_VENUES")
+                    && callerVenueId != null
+                    && !callerVenueId.equals(idVenue)) {
+                return ResponseEntity.status(403)
+                        .body("No tienes permiso para ver funciones de otra sede.");
             }
 
             return ResponseEntity.ok(showtimeService.getShowtimesByVenueAndDate(idVenue, date));
@@ -53,6 +55,7 @@ public class ShowtimeController {
         }
     }
 
+    // Públicos: necesarios para el flujo de compra del cliente
     @GetMapping("/{id}/summary")
     public ResponseEntity<ShowtimeSummaryDTO> getSummary(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(showtimeService.getShowtimeSummary(id));
@@ -64,14 +67,16 @@ public class ShowtimeController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_SHOWTIMES')")
     public ResponseEntity<?> createShowtime(
             @Valid @RequestBody ShowtimeRequestDTO request,
             Authentication auth) {
         try {
             Integer callerVenueId = extractVenueId(auth);
-            boolean isGerGeneral = isGerGeneral(auth);
-            ShowtimeDTO created = showtimeService.createShowtime(request, isGerGeneral ? null : callerVenueId);
+            // Gerente General tiene MANAGE_VENUES, puede crear en cualquier sede
+            boolean esGerGeneral = tienePermiso(auth, "MANAGE_VENUES");
+            ShowtimeDTO created = showtimeService.createShowtime(
+                    request, esGerGeneral ? null : callerVenueId);
             return ResponseEntity.ok(created);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -79,15 +84,16 @@ public class ShowtimeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_SHOWTIMES')")
     public ResponseEntity<?> updateShowtime(
             @PathVariable Integer id,
             @Valid @RequestBody ShowtimeRequestDTO request,
             Authentication auth) {
         try {
             Integer callerVenueId = extractVenueId(auth);
-            boolean isGerGeneral = isGerGeneral(auth);
-            ShowtimeDTO updated = showtimeService.updateShowtime(id, request, isGerGeneral ? null : callerVenueId);
+            boolean esGerGeneral = tienePermiso(auth, "MANAGE_VENUES");
+            ShowtimeDTO updated = showtimeService.updateShowtime(
+                    id, request, esGerGeneral ? null : callerVenueId);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -95,12 +101,12 @@ public class ShowtimeController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_SHOWTIMES')")
     public ResponseEntity<?> cancelShowtime(@PathVariable Integer id, Authentication auth) {
         try {
             Integer callerVenueId = extractVenueId(auth);
-            boolean isGerGeneral = isGerGeneral(auth);
-            showtimeService.cancelShowtime(id, isGerGeneral ? null : callerVenueId);
+            boolean esGerGeneral = tienePermiso(auth, "MANAGE_VENUES");
+            showtimeService.cancelShowtime(id, esGerGeneral ? null : callerVenueId);
             return ResponseEntity.ok("Función cancelada exitosamente.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -116,9 +122,10 @@ public class ShowtimeController {
         return null;
     }
 
-    private boolean isGerGeneral(Authentication auth) {
+    // Verifica si el usuario autenticado tiene un permiso específico.
+    private boolean tienePermiso(Authentication auth, String permiso) {
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(r -> r.equals("ROLE_GERENTE_GENERAL"));
+                .anyMatch(a -> a.equals(permiso));
     }
 }

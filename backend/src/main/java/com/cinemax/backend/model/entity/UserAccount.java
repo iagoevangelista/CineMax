@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,10 +24,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class UserAccount implements UserDetails {
 
-@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
     private Integer idUser;
@@ -40,7 +40,7 @@ public class UserAccount implements UserDetails {
     private DocumentType documentType;
 
     @ManyToOne
-    @JoinColumn(name = "id_venue") // Es NULL para clientes o admin general
+    @JoinColumn(name = "id_venue")
     private Venue venue;
 
     @Column(name = "first_name", nullable = false, length = 100)
@@ -83,13 +83,23 @@ public class UserAccount implements UserDetails {
     @Column(name = "image_url")
     private String imageUrl;
 
-    // ====================================================================
     // MÉTODOS OBLIGATORIOS DE SPRING SECURITY (Interfaz UserDetails)
-    // ====================================================================
-
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        // Agregar el rol con el prefijo ROLE_ que exige Spring Security
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+
+        // Agregar cada permiso del rol como una authority independiente
+        if (role.getPermissions() != null) {
+            role.getPermissions().forEach(permission ->
+                authorities.add(new SimpleGrantedAuthority(permission.getPermissionName()))
+            );
+        }
+
+        return authorities;
     }
 
     @Override
@@ -99,7 +109,6 @@ public class UserAccount implements UserDetails {
 
     @Override
     public String getUsername() {
-        // MUY IMPORTANTE: En tu sistema, el login se hace con el correo, no con un "username"
         return this.email;
     }
 
@@ -110,7 +119,6 @@ public class UserAccount implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        // Validamos que la cuenta no esté bloqueada verificando el status de tu tabla
         return "Activo".equalsIgnoreCase(this.status);
     }
 
@@ -123,6 +131,4 @@ public class UserAccount implements UserDetails {
     public boolean isEnabled() {
         return "Activo".equalsIgnoreCase(this.status);
     }
-
-
 }

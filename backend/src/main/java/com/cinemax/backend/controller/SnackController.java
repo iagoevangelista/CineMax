@@ -24,6 +24,7 @@ public class SnackController {
     private final SnackService snackService;
     private final CloudinaryService cloudinaryService;
 
+    // Públicos: el cliente los necesita para ver la confitería en su flujo de compra
     @GetMapping
     public ResponseEntity<List<SnackResponseDTO>> getAllSnacks() {
         return ResponseEntity.ok(snackService.getAllSnacks());
@@ -39,8 +40,9 @@ public class SnackController {
         return ResponseEntity.ok(snackService.getSnacksByCategory(idCategory));
     }
 
+    // Solo quien tenga MANAGE_CONFITERIA puede modificar productos
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
     public ResponseEntity<SnackResponseDTO> createSnack(
             @RequestPart("snack") String snackJson,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
@@ -55,7 +57,7 @@ public class SnackController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
     public ResponseEntity<SnackResponseDTO> updateSnack(
             @PathVariable Integer id,
             @RequestPart("snack") String snackJson,
@@ -71,7 +73,7 @@ public class SnackController {
     }
 
     @DeleteMapping("/{id}")
-    
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
     public ResponseEntity<Void> deleteSnack(@PathVariable Integer id) {
         snackService.deleteSnack(id);
         return ResponseEntity.noContent().build();

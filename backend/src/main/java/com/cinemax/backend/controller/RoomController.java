@@ -19,28 +19,26 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    // Obtener todas las salas
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_ROOMS')")
     public ResponseEntity<List<RoomResponseDTO>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
-    // Obtener salas de un cine en específico
     @GetMapping("/venue/{idVenue}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_ROOMS')")
     public ResponseEntity<List<RoomResponseDTO>> getRoomsByVenue(@PathVariable Integer idVenue) {
         return ResponseEntity.ok(roomService.getRoomsByVenue(idVenue));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_ROOMS')")
     public ResponseEntity<RoomResponseDTO> createRoom(@Valid @RequestBody RoomRequestDTO request) {
         return ResponseEntity.ok(roomService.createRoom(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_ROOMS')")
     public ResponseEntity<RoomResponseDTO> updateRoom(
             @PathVariable Integer id,
             @Valid @RequestBody RoomRequestDTO request) {

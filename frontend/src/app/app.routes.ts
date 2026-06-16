@@ -20,7 +20,9 @@ import { AdminMovies } from './pages/admin/movies/movies';
 import { AdminShowtimes } from './pages/admin/showtimes/showtimes';
 import { Confiteria } from './pages/admin/confiteria/confiteria';
 import { Confiteria as ConfiteriaPublica } from './pages/confiteria/confiteria';
+
 export const routes: Routes = [
+  // ── Rutas públicas (cliente y no autenticado)
   {
     path: '',
     component: ClientLayout,
@@ -30,48 +32,79 @@ export const routes: Routes = [
       { path: 'movies', component: Movies },
       { path: 'sedes', component: Sedes },
       { path: 'confiteria', component: ConfiteriaPublica },
-      { 
-        path: 'movie/:id', 
-        component: MovieDetail,
-        runGuardsAndResolvers: 'always'
-      },
+      { path: 'movie/:id', component: MovieDetail, runGuardsAndResolvers: 'always' },
       { path: 'seats', component: Seats },
       { path: 'tickets', component: Tickets },
       { path: 'snacks', component: Snacks },
       { path: 'payment', component: Payment },
       { path: 'reset-password', component: ResetPasswordComponent }
-      
     ]
   },
-    {
+
+  // Rutas administrativas
+  {
     path: 'admin',
     component: AdminLayout,
     children: [
-      // Dashboard: Acceso para todos los roles administrativos
-      { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
-      
-      // Sedes: Solo Admin y Gerente General
-      { path: 'sedes', component: Venues, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL'] } },
-      
-      // Salas: Admin, G. General y G. de Operaciones
-      { path: 'salas', component: Rooms, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
+      {
+        path: 'dashboard',
+        component: Dashboard,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['VIEW_DASHBOARD'] }
+      },
 
-      // Movies: G. de Operaciones
-      { path: 'peliculas', component: AdminMovies, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
-      
-      { path: 'funciones', component: AdminShowtimes, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_OPERACIONES'] } },
+      // Sedes: ADMIN (VIEW_VENUES) y GERENTE_GENERAL (VIEW_VENUES + MANAGE_VENUES)
+      {
+        path: 'sedes',
+        component: Venues,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['VIEW_VENUES'] }
+      },
 
-      { path: 'confiteria', component: Confiteria, canActivate: [authGuard], data: { expectedRoles: ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING'] } },
+      // Salas: GERENTE_GENERAL y GERENTE_DE_OPERACIONES
+      {
+        path: 'salas',
+        component: Rooms,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['MANAGE_ROOMS'] }
+      },
 
-      { path: 'usuarios', component: Users, canActivate: [authGuard], data: { expectedRoles: ['ADMIN'] } },
-      
-      // Redirección por defecto dentro de /admin
+      // Películas: GERENTE_GENERAL y GERENTE_DE_OPERACIONES
+      {
+        path: 'peliculas',
+        component: AdminMovies,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['MANAGE_MOVIES'] }
+      },
+
+      // Funciones: GERENTE_GENERAL y GERENTE_DE_OPERACIONES
+      {
+        path: 'funciones',
+        component: AdminShowtimes,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['MANAGE_SHOWTIMES'] }
+      },
+
+      // Confitería: GERENTE_GENERAL y GERENTE_DE_MARKETING
+      {
+        path: 'confiteria',
+        component: Confiteria,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['MANAGE_CONFITERIA'] }
+      },
+
+      // Usuarios: solo ADMIN
+      {
+        path: 'usuarios',
+        component: Users,
+        canActivate: [authGuard],
+        data: { expectedPermissions: ['MANAGE_USERS'] }
+      },
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-
     ]
   },
 
-  { path: '', component: Home },
   { path: 'perfil', component: Profile },
   { path: '**', redirectTo: '' }
 ];

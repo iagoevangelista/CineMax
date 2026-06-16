@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/movies")
 @RequiredArgsConstructor
@@ -28,54 +28,44 @@ public class MovieController {
     private final MovieService movieService;
     private final CloudinaryService cloudinaryService;
 
-
     @GetMapping
     public ResponseEntity<List<MovieListDTO>> getMoviesByStatus(
             @RequestParam(name = "status") String status) {
-        List<MovieListDTO> response = movieService.getMoviesByStatus(status);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(movieService.getMoviesByStatus(status));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailDTO> getMovieById(@PathVariable Integer id) {
-        MovieDetailDTO response = movieService.getMovieById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(movieService.getMovieById(id));
     }
 
-    // Administrador
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')")
     public ResponseEntity<?> createMovie(
-
             @RequestPart("movie") String movieJson,
             @RequestPart("file") MultipartFile file) {
-
         try {
             String imageUrl = cloudinaryService.uploadImage(file);
 
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-
             MovieRequestDTO movieDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
             MovieDetailDTO savedMovie = movieService.createMovie(movieDTO, imageUrl);
-
             return ResponseEntity.status(HttpStatus.CREATED).body(savedMovie);
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al procesar los datos o subir el póster: " + e.getMessage());
-        } 
+        }
     }
 
-
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')")
     public ResponseEntity<MovieDetailDTO> updateMovie(
             @PathVariable Integer id,
             @RequestPart("movie") String movieJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-
         try {
             String imageUrl = null;
             if (file != null && !file.isEmpty()) {
@@ -86,23 +76,17 @@ public class MovieController {
             objectMapper.registerModule(new JavaTimeModule());
             MovieRequestDTO requestDTO = objectMapper.readValue(movieJson, MovieRequestDTO.class);
 
-            MovieDetailDTO updatedMovie = movieService.updateMovie(id, requestDTO, imageUrl);
-            
-            return ResponseEntity.ok(updatedMovie);
+            return ResponseEntity.ok(movieService.updateMovie(id, requestDTO, imageUrl));
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            
         }
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_GERENTE_GENERAL', 'ROLE_GERENTE_DE_OPERACIONES')")
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
         movieService.deleteMovie(id);
         return ResponseEntity.noContent().build();
     }
-    
-
-
 }

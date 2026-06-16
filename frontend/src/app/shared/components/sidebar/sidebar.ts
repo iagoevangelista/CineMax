@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core'; // 1. Agregamos OnInit aquí
-import { RouterModule, Router } from '@angular/router'; 
-import { AuthService } from '../../../services/auth.service'; 
+import { Component, OnInit } from '@angular/core';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
-
-// 1. Agregamos esta declaración para que Angular pueda usar las funciones nativas de Bootstrap
 
 @Component({
   selector: 'app-sidebar',
@@ -12,25 +10,22 @@ import { CommonModule } from '@angular/common';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class Sidebar implements OnInit { // 2. Agregamos "implements OnInit"
+export class Sidebar implements OnInit {
 
-  // 3. Creamos la variable para el rol
-  rolUsuario: string = '';
+  permisos: string[] = [];
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  // 4. Implementamos el método ngOnInit para leer el rol apenas cargue el sidebar
   ngOnInit(): void {
-    this.rolUsuario = this.authService.getRole();
-    console.log("Rol detectado en Sidebar:", this.rolUsuario);
+    this.permisos = this.authService.getPermissions();
+  }
+
+  tiene(permiso: string): boolean {
+    return this.permisos.includes(permiso);
   }
 
   cerrarSesion() {
     this.authService.logout();
     this.router.navigate(['/']);
-    console.log("Sesión cerrada. El usuario ahora es un externo.");
   }
-
-  
-
 }

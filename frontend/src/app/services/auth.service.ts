@@ -39,13 +39,30 @@ export class AuthService {
     if (token) {
       const decoded: any = jwtDecode(token);
       let role = decoded.role || 'USUARIO';
-
       if (role.startsWith('ROLE_')) {
         role = role.replace('ROLE_', '');
       }
       return role;
     }
     return 'INVITADO';
+  }
+
+  // Devuelve la lista de permisos del usuario logueado, leídos directamente del claim "permissions" del JWT.
+  getPermissions(): string[] {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        return decoded.permissions || [];
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.getPermissions().includes(permission);
   }
 
   register(data: any): Observable<any> {

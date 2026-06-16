@@ -6,21 +6,24 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  // Verificar que el usuario esté logueado
   if (!authService.isLoggedIn()) {
     router.navigate(['/']);
     return false;
   }
 
-  const rolesPermitidos = route.data['expectedRoles'] as Array<string>; 
-  const rolUsuario = authService.getRole();
+  // Verificar permisos requeridos por la ruta
+  const permisosRequeridos = route.data['expectedPermissions'] as string[] | undefined;
 
-  if (rolesPermitidos && rolesPermitidos.length > 0) {
-    if (!rolesPermitidos.includes(rolUsuario)) {
+  if (permisosRequeridos && permisosRequeridos.length > 0) {
+    const tienePermiso = permisosRequeridos.some(p => authService.hasPermission(p));
+
+    if (!tienePermiso) {
       alert('Acceso Denegado: No tienes permisos para ver esta pantalla.');
-      router.navigate(['/admin/dashboard']); 
+      router.navigate(['/admin/dashboard']);
       return false;
     }
   }
 
-  return true; 
+  return true;
 };
