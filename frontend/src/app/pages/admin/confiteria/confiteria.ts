@@ -1,8 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../../services/auth.service';
+import { ConfiteriaService } from '../../../services/confiteria.service';
 
 @Component({
   selector: 'app-confiteria',
@@ -25,11 +24,8 @@ export class Confiteria implements OnInit {
     stock: null, status: 'Activo', idSnackCategory: null
   };
 
-  private apiUrl = 'http://localhost:8080/api/v1';
-
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
+    private confiteriaService: ConfiteriaService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -38,22 +34,18 @@ export class Confiteria implements OnInit {
     this.cargarSnacks();
   }
 
-  getHeaders() {
-    return new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
-  }
-
   cargarSnacks() {
     this.cargando = true;
-    this.http.get<any[]>(`${this.apiUrl}/snacks`, { headers: this.getHeaders() }).subscribe({
-      next: (res) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
+    this.confiteriaService.cargarSnacks().subscribe({
+      next: (res: any) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
       error: () => { this.cargando = false; }
     });
   }
 
   cargarCategorias() {
-    this.http.get<any[]>(`${this.apiUrl}/snack-categories`, { headers: this.getHeaders() }).subscribe({
-      next: (res) => { this.categories = res; this.cdr.detectChanges(); },
-      error: (err) => console.error('Error categorías:', err)
+    this.confiteriaService.cargarCategorias().subscribe({
+      next: (res: any) => { this.categories = res; this.cdr.detectChanges(); },
+      error: (err: any) => console.error('Error categorías:', err)
     });
   }
 
@@ -80,7 +72,6 @@ export class Confiteria implements OnInit {
   }
 
   guardarSnack() {
-   
     if (!this.currentSnack.nameSnack || this.currentSnack.nameSnack.trim() === '') {
       alert('El nombre del producto es obligatorio');
       return;
@@ -101,25 +92,25 @@ export class Confiteria implements OnInit {
     });
     formData.append('snack', snackData);
     if (this.selectedFile) formData.append('file', this.selectedFile);
-    const headers = this.getHeaders();
+
     if (this.isEditMode && this.currentSnackId) {
-      this.http.put(`${this.apiUrl}/snacks/${this.currentSnackId}`, formData, { headers }).subscribe({
+      this.confiteriaService.actualizarSnack(this.currentSnackId, formData).subscribe({
         next: () => { this.cargarSnacks(); alert('Snack actualizado'); },
-        error: (err) => alert('Error: ' + err.message)
+        error: (err: any) => alert('Error: ' + err.message)
       });
     } else {
-      this.http.post(`${this.apiUrl}/snacks`, formData, { headers }).subscribe({
+      this.confiteriaService.crearSnack(formData).subscribe({
         next: () => { this.cargarSnacks(); alert('Snack creado'); },
-        error: (err) => alert('Error: ' + err.message)
+        error: (err: any) => alert('Error: ' + err.message)
       });
     }
   }
 
   inhabilitarSnack(id: number) {
     if (confirm('¿Inhabilitar este producto?')) {
-      this.http.delete(`${this.apiUrl}/snacks/${id}`, { headers: this.getHeaders() }).subscribe({
+      this.confiteriaService.inhabilitarSnack(id).subscribe({
         next: () => { this.cargarSnacks(); alert('Producto inhabilitado'); },
-        error: (err) => alert('Error: ' + err.message)
+        error: (err: any) => alert('Error: ' + err.message)
       });
     }
   }
@@ -137,10 +128,10 @@ export class Confiteria implements OnInit {
       idSnackCategory: Number(snack.idSnackCategory)
     });
     formData.append('snack', snackData);
-    const headers = this.getHeaders();
-    this.http.put(`${this.apiUrl}/snacks/${id}`, formData, { headers }).subscribe({
+
+    this.confiteriaService.actualizarSnack(id, formData).subscribe({
       next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
-      error: (err) => alert('Error: ' + err.message)
+      error: (err: any) => alert('Error: ' + err.message)
     });
   }
 }
