@@ -23,9 +23,7 @@ export class Confiteria implements OnInit {
   constructor(private http: HttpClient, private ngZone: NgZone) {}
 
   ngOnInit() {
-    setTimeout(() => {
-      this.cargarDatos();
-    }, 100);
+    this.cargarDatos();
   }
 
   cargarDatos() {
@@ -34,12 +32,13 @@ export class Confiteria implements OnInit {
         next: (cats) => {
           this.categories = cats;
           if (cats.length) this.categoriaActiva = cats[0];
-        }
+        },
+        error: () => { this.cargando = false; }
       });
 
       this.http.get<any[]>(`${this.apiUrl}/snacks`).subscribe({
         next: (res) => {
-          this.snacks = res.filter(s => s.status === 'Activo');
+          this.snacks = res.filter((s: any) => s.status === 'Activo');
           this.cargando = false;
         },
         error: () => { this.cargando = false; }
