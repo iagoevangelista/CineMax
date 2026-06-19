@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { ConfiteriaService } from '../../services/confiteria.service';
 
 @Component({
   selector: 'app-confiteria',
@@ -19,9 +19,7 @@ export class Confiteria implements OnInit {
   categoriaActiva: any = null;
   carrito: { snack: any; cantidad: number }[] = [];
 
-  private apiUrl = 'http://localhost:8080/api/v1';
-
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private snackService: ConfiteriaService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.cargarDatos();
@@ -36,8 +34,8 @@ export class Confiteria implements OnInit {
   }
 
   cargarDatos() {
-    this.http.get<any[]>(`${this.apiUrl}/snack-categories`).subscribe({
-      next: (cats) => {
+    this.snackService.cargarCategorias().subscribe({
+      next: (cats: any[]) => {
         this.categories = cats;
         if (cats.length) this.categoriaActiva = cats[0];
         this.cdr.detectChanges();
@@ -49,8 +47,8 @@ export class Confiteria implements OnInit {
       }
     });
 
-    this.http.get<any[]>(`${this.apiUrl}/snacks`).subscribe({
-      next: (res) => {
+    this.snackService.cargarSnacks().subscribe({
+      next: (res: any[]) => {
         this.snacks = res.filter((s: any) => s.status === 'Activo');
         this.cargando = false;
         this.cdr.detectChanges();
