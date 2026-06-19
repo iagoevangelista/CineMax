@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -15,34 +15,51 @@ export class Confiteria implements OnInit {
   snacks: any[] = [];
   categories: any[] = [];
   cargando = true;
+  error = false;
   categoriaActiva: any = null;
   carrito: { snack: any; cantidad: number }[] = [];
 
   private apiUrl = 'http://localhost:8080/api/v1';
 
-  constructor(private http: HttpClient, private ngZone: NgZone) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.cargarDatos();
+
+    setTimeout(() => {
+      if (this.cargando) {
+        this.cargando = false;
+        this.error = true;
+        this.cdr.detectChanges();
+      }
+    }, 5000);
   }
 
   cargarDatos() {
-    this.ngZone.run(() => {
-      this.http.get<any[]>(`${this.apiUrl}/snack-categories`).subscribe({
-        next: (cats) => {
-          this.categories = cats;
-          if (cats.length) this.categoriaActiva = cats[0];
-        },
-        error: () => { this.cargando = false; }
-      });
+    this.http.get<any[]>(`${this.apiUrl}/snack-categories`).subscribe({
+      next: (cats) => {
+        this.categories = cats;
+        if (cats.length) this.categoriaActiva = cats[0];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargando = false;
+        this.error = true;
+        this.cdr.detectChanges();
+      }
+    });
 
-      this.http.get<any[]>(`${this.apiUrl}/snacks`).subscribe({
-        next: (res) => {
-          this.snacks = res.filter((s: any) => s.status === 'Activo');
-          this.cargando = false;
-        },
-        error: () => { this.cargando = false; }
-      });
+    this.http.get<any[]>(`${this.apiUrl}/snacks`).subscribe({
+      next: (res) => {
+        this.snacks = res.filter((s: any) => s.status === 'Activo');
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargando = false;
+        this.error = true;
+        this.cdr.detectChanges();
+      }
     });
   }
 
