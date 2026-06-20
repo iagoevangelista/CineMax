@@ -32,10 +32,6 @@ public class Snack {
     @JoinColumn(name = "id_snack_category", nullable = false)
     private SnackCategory snackCategory;
 
-    @ManyToOne
-    @JoinColumn(name = "id_venue", nullable = true)
-    private Venue venue;
-
     @Column(name = "name_snack", nullable = false, length = 100)
     private String nameSnack;
 

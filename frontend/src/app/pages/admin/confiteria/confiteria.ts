@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../../services/confiteria.service';
 import { AuthService } from '../../../services/auth.service';
 import { environment } from '../../../enviroments/environment';
@@ -36,10 +37,17 @@ export class Confiteria implements OnInit {
     private confiteriaService: ConfiteriaService,
     private cdr: ChangeDetectorRef,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    // ✅ Verificación de login
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/']);
+      return;
+    }
+
     const rol = this.authService.getRole();
     this.esGerenteGeneral = rol === 'GERENTE_GENERAL';
 
@@ -76,7 +84,7 @@ export class Confiteria implements OnInit {
     this.sedeSeleccionada = sede;
     this.cargando = true;
     this.cargarCategorias();
-    this.cargarSnacks();
+    this.cargarSnacksPorSede(sede.idVenue); // ✅ fix bug
   }
 
   cargarSnacks() {
@@ -162,6 +170,8 @@ export class Confiteria implements OnInit {
   recargarSnacks() {
     if (this.idVenueAsignada) {
       this.cargarSnacksPorSede(this.idVenueAsignada);
+    } else if (this.sedeSeleccionada) {
+      this.cargarSnacksPorSede(this.sedeSeleccionada.idVenue); // ✅ también para gerente general
     } else {
       this.cargarSnacks();
     }

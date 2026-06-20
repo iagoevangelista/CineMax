@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../enviroments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfiteriaService {
-  private apiUrl = 'http://localhost:8080/api/v1';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -36,5 +37,33 @@ export class ConfiteriaService {
 
   inhabilitarSnack(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/snacks/${id}`, { headers: this.getHeaders() });
+  }
+
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/snack-categories`);
+  }
+
+  getAllSnacks(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/snacks`);
+  }
+
+  getSnackById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/snacks/${id}`);
+  }
+
+  getSnacksByCategory(idCategory: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/snacks/category/${idCategory}`);
+  }
+
+  createSnack(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/snacks`, formData);
+  }
+
+  updateSnack(id: number, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/snacks/${id}`, formData);
+  }
+
+  deleteSnack(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/snacks/${id}`);
   }
 }
