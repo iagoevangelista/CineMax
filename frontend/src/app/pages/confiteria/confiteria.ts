@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ConfiteriaService } from '../../services/confiteria.service';
 
 @Component({
@@ -14,14 +15,53 @@ export class Confiteria implements OnInit {
 
   snacks: any[] = [];
   categories: any[] = [];
+  sedes: any[] = [];
+  sedeSeleccionada: any = null;
   cargando = true;
+  cargandoSedes = true;
   error = false;
   categoriaActiva: any = null;
   carrito: { snack: any; cantidad: number }[] = [];
 
-  constructor(private snackService: ConfiteriaService, private cdr: ChangeDetectorRef) {}
+  private apiUrl = 'http://localhost:8080/api/v1';
+
+  constructor(
+    private snackService: ConfiteriaService,
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
+    this.cargarSedes();
+
+    setTimeout(() => {
+      if (this.cargandoSedes) {
+        this.cargandoSedes = false;
+        this.error = true;
+        this.cdr.detectChanges();
+      }
+    }, 5000);
+  }
+
+  cargarSedes() {
+    this.http.get<any[]>(`${this.apiUrl}/venues/public`).subscribe({
+      next: (res) => {
+        this.sedes = res;
+        this.cargandoSedes = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargandoSedes = false;
+        this.error = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  seleccionarSede(sede: any) {
+    this.sedeSeleccionada = sede;
+    this.cargando = true;
+    this.error = false;
     this.cargarDatos();
 
     setTimeout(() => {
