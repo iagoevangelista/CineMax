@@ -42,7 +42,6 @@ export class Confiteria implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ✅ Verificación de login
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
       return;
@@ -52,22 +51,21 @@ export class Confiteria implements OnInit {
     this.esGerenteGeneral = rol === 'GERENTE_GENERAL';
 
     if (this.esGerenteGeneral) {
+      // Gerente General ve todos los snacks directo, sin selector de sedes
+      this.cargarCategorias();
+      this.cargarSnacks();
+    } else {
+      // Gerente de Marketing / Operaciones → selector de sedes
+      this.idVenueAsignada = this.authService.getIdVenue();
       this.cargando = false;
       this.cargandoSedes = true;
       this.cargarSedes();
-    } else {
-      this.idVenueAsignada = this.authService.getIdVenue();
       this.cargarCategorias();
-      if (this.idVenueAsignada) {
-        this.cargarSnacksPorSede(this.idVenueAsignada);
-      } else {
-        this.cargarSnacks();
-      }
     }
   }
 
   cargarSedes() {
-    this.http.get<any[]>(`${environment.apiUrl}/venues`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
       next: (res) => {
         this.sedes = res;
         this.cargandoSedes = false;
@@ -79,12 +77,11 @@ export class Confiteria implements OnInit {
       }
     });
   }
-
+  
   seleccionarSede(sede: any) {
     this.sedeSeleccionada = sede;
     this.cargando = true;
-    this.cargarCategorias();
-    this.cargarSnacksPorSede(sede.idVenue); // ✅ fix bug
+    this.cargarSnacksPorSede(sede.idVenue);
   }
 
   cargarSnacks() {
@@ -168,10 +165,10 @@ export class Confiteria implements OnInit {
   }
 
   recargarSnacks() {
-    if (this.idVenueAsignada) {
-      this.cargarSnacksPorSede(this.idVenueAsignada);
+    if (this.esGerenteGeneral) {
+      this.cargarSnacks();
     } else if (this.sedeSeleccionada) {
-      this.cargarSnacksPorSede(this.sedeSeleccionada.idVenue); // ✅ también para gerente general
+      this.cargarSnacksPorSede(this.sedeSeleccionada.idVenue);
     } else {
       this.cargarSnacks();
     }

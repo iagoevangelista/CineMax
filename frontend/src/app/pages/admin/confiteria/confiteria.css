@@ -1,0 +1,85 @@
+.sede-selector-wrapper {
+  padding: 3rem 1rem;
+}
+
+.sede-card {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sede-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 24px rgba(138, 43, 226, 0.4);
+}
+
+.sede-card-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sede-card-body {
+  position: relative;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  z-index: 1;
+}
+
+.badge-sede {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.sede-card:hover .badge-sede {
+  background: var(--primary-color);
+  color: white;
+}
+.sede-card {
+  height: 100%;
+}
+
+.sede-card-body {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.sede-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), #AFA9EC);
+}
+.sede-card {
+  height: 100%;
+  min-height: 220px;
+}
+
+.sede-card-body {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
