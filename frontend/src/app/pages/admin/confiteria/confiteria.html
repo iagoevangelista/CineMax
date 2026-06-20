@@ -1,64 +1,96 @@
 <div class="container mt-5 text-white">
 
-  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
-    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Inventario Confitería</h2>
-    <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalNuevo()">
-      <i class="fa-solid fa-plus me-2"></i>Agregar Producto
-    </button>
+  <!-- Selector de sede para gerente general -->
+  <div *ngIf="esGerenteGeneral && !sedeSeleccionada">
+    <h2 class="fw-bold text-uppercase mb-4" style="color: var(--primary-color);">Selecciona una Sede</h2>
+
+    <div *ngIf="cargandoSedes" class="text-center my-5">
+      <div class="spinner-border text-info" role="status"></div>
+      <p class="text-info mt-2">Cargando sedes...</p>
+    </div>
+
+    <div *ngIf="!cargandoSedes" class="row g-3">
+      <div *ngFor="let sede of sedes" class="col-md-4">
+        <div class="card bg-dark text-white border-secondary"
+             style="cursor:pointer;" (click)="seleccionarSede(sede)">
+          <div class="card-body text-center p-4">
+            <h5 class="fw-bold" style="color: var(--primary-color);">{{ sede.nameVenue }}</h5>
+            <p class="text-secondary mb-0">{{ sede.address }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="cargando" class="text-center my-5">
-    <div class="spinner-border text-info" role="status"></div>
-    <p class="text-info mt-2">Cargando productos...</p>
-  </div>
+  <!-- Inventario (visible tras seleccionar sede o si no es gerente general) -->
+  <div *ngIf="!esGerenteGeneral || sedeSeleccionada">
 
-  <div *ngIf="!cargando" class="table-responsive">
-    <table class="table table-dark table-bordered table-hover align-middle text-center">
-      <thead style="background-color: var(--primary-dark);">
-        <tr>
-          <th>SKU</th>
-          <th>Imagen</th>
-          <th>Nombre</th>
-          <th>Categoría</th>
-          <th>Precio (S/.)</th>
-          <th>Stock</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="snacks.length === 0">
-          <td colspan="8" class="text-secondary py-4">No hay productos registrados aún.</td>
-        </tr>
-        <tr *ngFor="let snack of snacks; let i = index">
-          <td>CK-{{ (i + 1).toString().padStart(3, '0') }}</td>
-          <td>
-            <img [src]="snack.imageUrlSnack || 'https://via.placeholder.com/60x60?text=?'"
-                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
-          </td>
-          <td>{{ snack.nameSnack }}</td>
-          <td>{{ snack.nameCategory }}</td>
-          <td>{{ snack.price }}</td>
-          <td>{{ snack.stock }}</td>
-          <td>
-            <span class="badge" [ngClass]="snack.status === 'Activo' ? 'bg-success' : 'bg-danger'">
-              {{ snack.status }}
-            </span>
-          </td>
-          <td>
-            <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalEditar(snack)" title="Editar">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button *ngIf="snack.status === 'Activo'" class="btn btn-sm btn-outline-danger" (click)="inhabilitarSnack(snack.idSnack)" title="Inhabilitar">
-              <i class="fa-solid fa-ban"></i>
-            </button>
-            <button *ngIf="snack.status === 'Inactivo'" class="btn btn-sm btn-outline-success" (click)="habilitarSnack(snack.idSnack)" title="Habilitar">
-              <i class="fa-solid fa-circle-check"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+      <div>
+        <h2 class="fw-bold text-uppercase mb-0" style="color: var(--primary-color);">Inventario Confitería</h2>
+        <small *ngIf="sedeSeleccionada" class="text-secondary">Sede: {{ sedeSeleccionada.nameVenue }}
+          <span class="ms-2" style="cursor:pointer; color: var(--primary-color);" (click)="sedeSeleccionada = null">Cambiar sede</span>
+        </small>
+      </div>
+      <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalNuevo()">
+        <i class="fa-solid fa-plus me-2"></i>Agregar Producto
+      </button>
+    </div>
+
+    <div *ngIf="cargando" class="text-center my-5">
+      <div class="spinner-border text-info" role="status"></div>
+      <p class="text-info mt-2">Cargando productos...</p>
+    </div>
+
+    <div *ngIf="!cargando" class="table-responsive">
+      <table class="table table-dark table-bordered table-hover align-middle text-center">
+        <thead style="background-color: var(--primary-dark);">
+          <tr>
+            <th>SKU</th>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio (S/.)</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="snacks.length === 0">
+            <td colspan="8" class="text-secondary py-4">No hay productos registrados aún.</td>
+          </tr>
+          <tr *ngFor="let snack of snacks; let i = index">
+            <td>CK-{{ (i + 1).toString().padStart(3, '0') }}</td>
+            <td>
+              <img [src]="snack.imageUrlSnack || 'https://via.placeholder.com/60x60?text=?'"
+                   style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+            </td>
+            <td>{{ snack.nameSnack }}</td>
+            <td>{{ snack.nameCategory }}</td>
+            <td>{{ snack.price }}</td>
+            <td>{{ snack.stock }}</td>
+            <td>
+              <span class="badge" [ngClass]="snack.status === 'Activo' ? 'bg-success' : 'bg-danger'">
+                {{ snack.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalEditar(snack)" title="Editar">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button *ngIf="snack.status === 'Activo'" class="btn btn-sm btn-outline-danger" (click)="inhabilitarSnack(snack.idSnack)" title="Inhabilitar">
+                <i class="fa-solid fa-ban"></i>
+              </button>
+              <button *ngIf="snack.status === 'Inactivo'" class="btn btn-sm btn-outline-success" (click)="habilitarSnack(snack.idSnack)" title="Habilitar">
+                <i class="fa-solid fa-circle-check"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 
 </div>
@@ -90,8 +122,8 @@
           </div>
           <div class="col-md-3">
             <label class="form-label fw-bold">Precio (S/.)</label>
-         <input type="number" class="form-control bg-dark text-white border-secondary" 
-       [(ngModel)]="currentSnack.price" min="0.01" step="0.01">
+            <input type="number" class="form-control bg-dark text-white border-secondary"
+              [(ngModel)]="currentSnack.price" min="0.01" step="0.01">
           </div>
           <div class="col-md-3">
             <label class="form-label fw-bold">Stock Inicial</label>

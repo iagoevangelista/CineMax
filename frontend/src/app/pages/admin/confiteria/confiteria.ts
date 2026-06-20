@@ -1,7 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ConfiteriaService } from '../../../services/confiteria.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-confiteria',
@@ -14,10 +16,16 @@ export class Confiteria implements OnInit {
 
   snacks: any[] = [];
   categories: any[] = [];
+  sedes: any[] = [];
+  sedeSeleccionada: any = null;
   cargando: boolean = true;
+  cargandoSedes: boolean = false;
   isEditMode: boolean = false;
   currentSnackId: number | null = null;
   selectedFile: File | null = null;
+  esGerenteGeneral: boolean = false;
+
+  private apiUrl = 'http://localhost:8080/api/v1';
 
   currentSnack: any = {
     nameSnack: '', descriptionSnack: '', price: null,
@@ -26,10 +34,42 @@ export class Confiteria implements OnInit {
 
   constructor(
     private confiteriaService: ConfiteriaService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    const rol = this.authService.getRole();
+    this.esGerenteGeneral = rol === 'GERENTE_GENERAL';
+
+    if (this.esGerenteGeneral) {
+      this.cargando = false;
+      this.cargandoSedes = true;
+      this.cargarSedes();
+    } else {
+      this.cargarCategorias();
+      this.cargarSnacks();
+    }
+  }
+
+  cargarSedes() {
+    this.http.get<any[]>(`${this.apiUrl}/venues`).subscribe({
+      next: (res) => {
+        this.sedes = res;
+        this.cargandoSedes = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargandoSedes = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  seleccionarSede(sede: any) {
+    this.sedeSeleccionada = sede;
+    this.cargando = true;
     this.cargarCategorias();
     this.cargarSnacks();
   }
@@ -80,7 +120,7 @@ export class Confiteria implements OnInit {
       alert('El precio debe ser mayor a S/. 0.00');
       return;
     }
-    
+
     const formData = new FormData();
     const snackData = JSON.stringify({
       nameSnack: this.currentSnack.nameSnack,
