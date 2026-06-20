@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ConfiteriaService } from '../../../services/confiteria.service';
 import { AuthService } from '../../../services/auth.service';
+import { environment } from '../../../enviroments/environment';
 
 @Component({
   selector: 'app-confiteria',
@@ -26,8 +27,6 @@ export class Confiteria implements OnInit {
   esGerenteGeneral: boolean = false;
   idVenueAsignada: number | null = null;
 
-  private apiUrl = 'http://localhost:8080/api/v1';
-
   currentSnack: any = {
     nameSnack: '', descriptionSnack: '', price: null,
     stock: null, status: 'Activo', idSnackCategory: null
@@ -49,7 +48,6 @@ export class Confiteria implements OnInit {
       this.cargandoSedes = true;
       this.cargarSedes();
     } else {
-      // Gerente de operaciones/marketing: carga snacks de su sede asignada
       this.idVenueAsignada = this.authService.getIdVenue();
       this.cargarCategorias();
       if (this.idVenueAsignada) {
@@ -61,7 +59,7 @@ export class Confiteria implements OnInit {
   }
 
   cargarSedes() {
-    this.http.get<any[]>(`${this.apiUrl}/venues`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/venues`).subscribe({
       next: (res) => {
         this.sedes = res;
         this.cargandoSedes = false;
@@ -91,7 +89,7 @@ export class Confiteria implements OnInit {
 
   cargarSnacksPorSede(idVenue: number) {
     this.cargando = true;
-    this.http.get<any[]>(`${this.apiUrl}/snacks/venue/${idVenue}`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${idVenue}`).subscribe({
       next: (res) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
       error: () => { this.cargando = false; this.cdr.detectChanges(); }
     });

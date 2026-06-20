@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ConfiteriaService } from '../../services/confiteria.service';
-
+import { environment } from '../../enviroments/environment';
 @Component({
   selector: 'app-confiteria',
   standalone: true,
@@ -22,8 +22,6 @@ export class Confiteria implements OnInit {
   error = false;
   categoriaActiva: any = null;
   carrito: { snack: any; cantidad: number }[] = [];
-
-  private apiUrl = 'http://localhost:8080/api/v1';
 
   constructor(
     private snackService: ConfiteriaService,
@@ -44,7 +42,7 @@ export class Confiteria implements OnInit {
   }
 
   cargarSedes() {
-    this.http.get<any[]>(`${this.apiUrl}/venues/public`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
       next: (res) => {
         this.sedes = res;
         this.cargandoSedes = false;
