@@ -12,4 +12,7 @@ public interface SnackService {
     void deleteSnack(Integer id);
     List<SnackResponseDTO> getSnacksByCategory(Integer idCategory);
     List<SnackResponseDTO> getSnacksByVenue(Integer idVenue);
+    List<SnackResponseDTO> getSnacksByVenueAdmin(Integer idVenue);
+    void inhabilitarSnackEnSede(Integer idSnack, Integer idVenue);
+    void habilitarSnackEnSede(Integer idSnack, Integer idVenue);
 }

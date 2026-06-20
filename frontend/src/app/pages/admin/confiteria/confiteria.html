@@ -1,7 +1,7 @@
 <div class="container mt-5 text-white">
 
-  <!-- Selector de sede para gerente de marketing/operaciones -->
-  <div *ngIf="!esGerenteGeneral && !sedeSeleccionada" class="sede-selector-wrapper">
+  <!-- Selector de sede: todos pasan por aquí (General ve 2 sedes, Marketing/Operaciones ve solo la suya) -->
+  <div *ngIf="!sedeSeleccionada" class="sede-selector-wrapper">
     <div class="text-center mb-5">
       <i class="fa-solid fa-popcorn fs-1 mb-3" style="color: var(--primary-color);"></i>
       <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Selecciona una Sede</h2>
@@ -28,13 +28,13 @@
     </div>
   </div>
 
-  <!-- Inventario (visible si es gerente general, o si ya seleccionó sede) -->
-  <div *ngIf="esGerenteGeneral || sedeSeleccionada">
+  <!-- Inventario: solo visible cuando ya se seleccionó una sede -->
+  <div *ngIf="sedeSeleccionada">
 
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
       <div>
         <h2 class="fw-bold text-uppercase mb-0" style="color: var(--primary-color);">Inventario Confitería</h2>
-        <small *ngIf="sedeSeleccionada" class="text-secondary">Sede: {{ sedeSeleccionada.nameVenue }}
+        <small class="text-secondary">Sede: {{ sedeSeleccionada.nameVenue }}
           <span class="ms-2" style="cursor:pointer; color: var(--primary-color);" (click)="sedeSeleccionada = null">Cambiar sede</span>
         </small>
       </div>

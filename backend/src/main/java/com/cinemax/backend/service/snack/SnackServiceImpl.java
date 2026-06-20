@@ -4,8 +4,11 @@ import com.cinemax.backend.model.dto.snack.SnackRequestDTO;
 import com.cinemax.backend.model.dto.snack.SnackResponseDTO;
 import com.cinemax.backend.model.entity.Snack;
 import com.cinemax.backend.model.entity.SnackCategory;
+import com.cinemax.backend.model.entity.SnackVenueStock;
 import com.cinemax.backend.repository.SnackCategoryRepository;
 import com.cinemax.backend.repository.SnackRepository;
+import com.cinemax.backend.repository.SnackVenueStockRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ public class SnackServiceImpl implements SnackService {
 
     private final SnackRepository snackRepository;
     private final SnackCategoryRepository snackCategoryRepository;
+    private final SnackVenueStockRepository snackVenueStockRepository;
 
     @Override
     public List<SnackResponseDTO> getAllSnacks() {
@@ -92,9 +96,50 @@ public class SnackServiceImpl implements SnackService {
 
     @Override
     public List<SnackResponseDTO> getSnacksByVenue(Integer idVenue) {
-        return snackRepository.findByVenue_IdVenue(idVenue).stream()
-                .map(this::convertToDTO)
+        return snackVenueStockRepository.findByVenue_IdVenueAndStockGreaterThan(idVenue, 0).stream()
+                .filter(svs -> "Activo".equals(svs.getStatus()))
+                .map(svs -> {
+                    SnackResponseDTO dto = convertToDTO(svs.getSnack());
+                    dto.setStock(svs.getStock());
+                    dto.setStatus(svs.getStatus());
+                    return dto;
+                })
                 .toList();
+    }
+
+    @Override
+    public List<SnackResponseDTO> getSnacksByVenueAdmin(Integer idVenue) {
+        return snackVenueStockRepository.findByVenue_IdVenue(idVenue).stream()
+                .map(svs -> {
+                    SnackResponseDTO dto = convertToDTO(svs.getSnack());
+                    dto.setStock(svs.getStock());
+                    dto.setStatus(svs.getStatus());
+                    return dto;
+                })
+                .toList();
+    }
+
+    @Override
+    public void inhabilitarSnackEnSede(Integer idSnack, Integer idVenue) {
+        System.out.println(">>> INHABILITANDO snack " + idSnack + " en venue " + idVenue);
+        SnackVenueStock svs = snackVenueStockRepository
+                .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
+        System.out.println(">>> Encontrado: " + svs.getIdSnackVenueStock() + " status actual: " + svs.getStatus());
+        svs.setStatus("Inactivo");
+        snackVenueStockRepository.save(svs);
+        System.out.println(">>> Guardado OK");
+    }
+
+    @Override
+    public void habilitarSnackEnSede(Integer idSnack, Integer idVenue) {
+        System.out.println(">>> HABILITANDO snack " + idSnack + " en venue " + idVenue);
+        SnackVenueStock svs = snackVenueStockRepository
+                .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
+        svs.setStatus("Activo");
+        snackVenueStockRepository.save(svs);
+        System.out.println(">>> Guardado OK");
     }
 
     private SnackResponseDTO convertToDTO(Snack snack) {
