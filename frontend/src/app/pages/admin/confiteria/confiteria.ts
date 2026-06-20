@@ -24,6 +24,7 @@ export class Confiteria implements OnInit {
   currentSnackId: number | null = null;
   selectedFile: File | null = null;
   esGerenteGeneral: boolean = false;
+  idVenueAsignada: number | null = null;
 
   private apiUrl = 'http://localhost:8080/api/v1';
 
@@ -48,8 +49,14 @@ export class Confiteria implements OnInit {
       this.cargandoSedes = true;
       this.cargarSedes();
     } else {
+      // Gerente de operaciones/marketing: carga snacks de su sede asignada
+      this.idVenueAsignada = this.authService.getIdVenue();
       this.cargarCategorias();
-      this.cargarSnacks();
+      if (this.idVenueAsignada) {
+        this.cargarSnacksPorSede(this.idVenueAsignada);
+      } else {
+        this.cargarSnacks();
+      }
     }
   }
 
@@ -79,6 +86,14 @@ export class Confiteria implements OnInit {
     this.confiteriaService.cargarSnacks().subscribe({
       next: (res: any) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
       error: () => { this.cargando = false; }
+    });
+  }
+
+  cargarSnacksPorSede(idVenue: number) {
+    this.cargando = true;
+    this.http.get<any[]>(`${this.apiUrl}/snacks/venue/${idVenue}`).subscribe({
+      next: (res) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
+      error: () => { this.cargando = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -135,21 +150,29 @@ export class Confiteria implements OnInit {
 
     if (this.isEditMode && this.currentSnackId) {
       this.confiteriaService.actualizarSnack(this.currentSnackId, formData).subscribe({
-        next: () => { this.cargarSnacks(); alert('Snack actualizado'); },
+        next: () => { this.recargarSnacks(); alert('Snack actualizado'); },
         error: (err: any) => alert('Error: ' + err.message)
       });
     } else {
       this.confiteriaService.crearSnack(formData).subscribe({
-        next: () => { this.cargarSnacks(); alert('Snack creado'); },
+        next: () => { this.recargarSnacks(); alert('Snack creado'); },
         error: (err: any) => alert('Error: ' + err.message)
       });
+    }
+  }
+
+  recargarSnacks() {
+    if (this.idVenueAsignada) {
+      this.cargarSnacksPorSede(this.idVenueAsignada);
+    } else {
+      this.cargarSnacks();
     }
   }
 
   inhabilitarSnack(id: number) {
     if (confirm('¿Inhabilitar este producto?')) {
       this.confiteriaService.inhabilitarSnack(id).subscribe({
-        next: () => { this.cargarSnacks(); alert('Producto inhabilitado'); },
+        next: () => { this.recargarSnacks(); alert('Producto inhabilitado'); },
         error: (err: any) => alert('Error: ' + err.message)
       });
     }
@@ -170,7 +193,7 @@ export class Confiteria implements OnInit {
     formData.append('snack', snackData);
 
     this.confiteriaService.actualizarSnack(id, formData).subscribe({
-      next: () => { this.cargarSnacks(); alert('Producto habilitado'); },
+      next: () => { this.recargarSnacks(); alert('Producto habilitado'); },
       error: (err: any) => alert('Error: ' + err.message)
     });
   }

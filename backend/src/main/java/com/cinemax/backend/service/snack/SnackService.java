@@ -11,4 +11,5 @@ public interface SnackService {
     SnackResponseDTO updateSnack(Integer id, SnackRequestDTO request, String imageUrl);
     void deleteSnack(Integer id);
     List<SnackResponseDTO> getSnacksByCategory(Integer idCategory);
+    List<SnackResponseDTO> getSnacksByVenue(Integer idVenue);
 }

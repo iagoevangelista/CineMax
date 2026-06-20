@@ -40,6 +40,12 @@ public class SnackController {
         return ResponseEntity.ok(snackService.getSnacksByCategory(idCategory));
     }
 
+    @GetMapping("/venue/{idVenue}")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<List<SnackResponseDTO>> getSnacksByVenue(@PathVariable Integer idVenue) {
+        return ResponseEntity.ok(snackService.getSnacksByVenue(idVenue));
+    }
+
     // Solo quien tenga MANAGE_CONFITERIA puede modificar productos
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")

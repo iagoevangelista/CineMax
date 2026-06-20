@@ -90,6 +90,13 @@ public class SnackServiceImpl implements SnackService {
                 .toList();
     }
 
+    @Override
+    public List<SnackResponseDTO> getSnacksByVenue(Integer idVenue) {
+        return snackRepository.findByVenue_IdVenue(idVenue).stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     private SnackResponseDTO convertToDTO(Snack snack) {
         SnackResponseDTO dto = new SnackResponseDTO();
         dto.setIdSnack(snack.getIdSnack());
