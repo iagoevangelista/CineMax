@@ -85,11 +85,14 @@
               <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#modalSnack" (click)="abrirModalEditar(snack)" title="Editar">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button *ngIf="snack.status === 'Activo'" class="btn btn-sm btn-outline-danger" (click)="inhabilitarSnack(snack.idSnack)" title="Inhabilitar">
+              <button *ngIf="snack.status === 'Activo'" class="btn btn-sm btn-outline-danger me-2" (click)="inhabilitarSnack(snack.idSnack)" title="Inhabilitar">
                 <i class="fa-solid fa-ban"></i>
               </button>
-              <button *ngIf="snack.status === 'Inactivo'" class="btn btn-sm btn-outline-success" (click)="habilitarSnack(snack.idSnack)" title="Habilitar">
+              <button *ngIf="snack.status === 'Inactivo'" class="btn btn-sm btn-outline-success me-2" (click)="habilitarSnack(snack.idSnack)" title="Habilitar">
                 <i class="fa-solid fa-circle-check"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-light" (click)="eliminarSnack(snack.idSnack)" title="Eliminar">
+                <i class="fa-solid fa-trash"></i>
               </button>
             </td>
           </tr>
@@ -99,6 +102,54 @@
 
   </div>
 
+</div>
+
+<!-- Modal selección de sede para producto nuevo -->
+<div *ngIf="mostrarModalSede" class="modal-overlay-sede">
+  <div class="modal-sede-card">
+    <div class="modal-sede-icon">
+      <i class="fa-solid fa-popcorn" style="color: var(--primary-color); font-size: 2.5rem;"></i>
+    </div>
+    <h4 class="fw-bold text-uppercase mb-1" style="color: var(--primary-color);">¿Dónde disponibilizar el producto?</h4>
+    <p class="text-secondary mb-4 small">Elige si el nuevo producto estará disponible solo en esta sede o en todas las sedes del cine.</p>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <button class="btn btn-outline-info fw-bold px-4" (click)="agregarASede(true)">
+        <i class="fa-solid fa-location-dot me-2"></i>Solo esta sede
+        <div class="small fw-normal opacity-75 mt-1">{{ sedeSeleccionada?.nameVenue }}</div>
+      </button>
+      <button class="btn btn-success fw-bold px-4" (click)="agregarASede(false)">
+        <i class="fa-solid fa-film me-2"></i>Todas las sedes
+        <div class="small fw-normal opacity-75 mt-1">VMT + Miraflores</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal eliminar de varias sedes -->
+<div *ngIf="mostrarModalEliminar" class="modal-overlay-sede">
+  <div class="modal-sede-card">
+    <div class="modal-sede-icon">
+      <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 2.5rem;"></i>
+    </div>
+    <h4 class="fw-bold text-uppercase mb-1" style="color: #dc3545;">¿Dónde eliminar el producto?</h4>
+    <p class="text-secondary mb-4 small">Este producto está disponible en varias sedes. Elige si quieres eliminarlo solo de esta sede o de todas.</p>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <button class="btn btn-outline-info fw-bold px-4" (click)="confirmarEliminar(false)">
+        <i class="fa-solid fa-location-dot me-2"></i>Solo esta sede
+        <div class="small fw-normal opacity-75 mt-1">{{ sedeSeleccionada?.nameVenue }}</div>
+      </button>
+      <button class="btn btn-danger fw-bold px-4" (click)="confirmarEliminar(true)">
+        <i class="fa-solid fa-trash me-2"></i>Todas las sedes
+        <div class="small fw-normal opacity-75 mt-1">Eliminación total</div>
+      </button>
+    </div>
+
+    <button class="btn btn-sm btn-outline-secondary mt-4" (click)="mostrarModalEliminar = false; snackAEliminar = null">
+      Cancelar
+    </button>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -143,7 +194,7 @@
       </div>
       <div class="modal-footer border-secondary">
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success fw-bold" (click)="guardarSnack()" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-success fw-bold" (click)="guardarSnack()">
           {{ isEditMode ? 'Modificar' : 'Guardar Producto' }}
         </button>
       </div>

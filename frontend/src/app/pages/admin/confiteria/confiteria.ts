@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../../services/confiteria.service';
 import { AuthService } from '../../../services/auth.service';
 import { environment } from '../../../enviroments/environment';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-confiteria',
@@ -20,13 +21,17 @@ export class Confiteria implements OnInit {
   categories: any[] = [];
   sedes: any[] = [];
   sedeSeleccionada: any = null;
-  cargando: boolean = true;
+  cargando: boolean = false;
   cargandoSedes: boolean = false;
   isEditMode: boolean = false;
   currentSnackId: number | null = null;
   selectedFile: File | null = null;
   esGerenteGeneral: boolean = false;
   idVenueAsignada: number | null = null;
+  mostrarModalSede: boolean = false;
+  snackRecienCreado: any = null;
+  mostrarModalEliminar: boolean = false;
+  snackAEliminar: number | null = null;
 
   currentSnack: any = {
     nameSnack: '', descriptionSnack: '', price: null,
@@ -51,7 +56,6 @@ export class Confiteria implements OnInit {
     this.esGerenteGeneral = rol === 'GERENTE_GENERAL';
     this.idVenueAsignada = this.authService.getIdVenue();
 
-    this.cargando = false;
     this.cargandoSedes = true;
     this.cargarSedes();
     this.cargarCategorias();
@@ -75,28 +79,36 @@ export class Confiteria implements OnInit {
     });
   }
 
-  seleccionarSede(sede: any) {
-    this.sedeSeleccionada = sede;
-    this.cargando = true;
-    this.cargarSnacksPorSede(sede.idVenue);
-  }
+ seleccionarSede(sede: any) {
+  this.sedeSeleccionada = sede;
+  this.cdr.detectChanges();
+  this.cargarSnacksPorSede(sede.idVenue);
+}
 
   cargarSnacks() {
     this.cargando = true;
     this.confiteriaService.cargarSnacks().subscribe({
       next: (res: any) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
-      error: () => { this.cargando = false; }
+      error: () => { this.cargando = false; this.cdr.detectChanges(); }
     });
   }
 
   cargarSnacksPorSede(idVenue: number) {
-    this.cargando = true;
-    const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
-    this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${idVenue}/admin`, { headers }).subscribe({
-      next: (res) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
-      error: () => { this.cargando = false; this.cdr.detectChanges(); }
-    });
-  }
+  this.cargando = true;
+  this.cdr.detectChanges();
+  const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+  this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${idVenue}/admin`, { headers }).subscribe({
+    next: (res) => { 
+      this.snacks = res; 
+      this.cargando = false; 
+      this.cdr.detectChanges(); 
+    },
+    error: () => { 
+      this.cargando = false; 
+      this.cdr.detectChanges(); 
+    }
+  });
+}
 
   cargarCategorias() {
     this.confiteriaService.cargarCategorias().subscribe({
@@ -127,6 +139,21 @@ export class Confiteria implements OnInit {
     if (event.target.files.length > 0) this.selectedFile = event.target.files[0];
   }
 
+  private cerrarModalSnack() {
+  const modalEl = document.getElementById('modalSnack');
+  if (modalEl) {
+    const modal = Modal.getInstance(modalEl) || new Modal(modalEl);
+    modal.hide();
+  }
+  setTimeout(() => {
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(b => b.remove());
+  }, 300);
+}
+
   guardarSnack() {
     if (!this.currentSnack.nameSnack || this.currentSnack.nameSnack.trim() === '') {
       alert('El nombre del producto es obligatorio');
@@ -137,6 +164,7 @@ export class Confiteria implements OnInit {
       return;
     }
 
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
     const formData = new FormData();
     const snackData = JSON.stringify({
       nameSnack: this.currentSnack.nameSnack,
@@ -151,12 +179,58 @@ export class Confiteria implements OnInit {
 
     if (this.isEditMode && this.currentSnackId) {
       this.confiteriaService.actualizarSnack(this.currentSnackId, formData).subscribe({
-        next: () => { this.recargarSnacks(); alert('Snack actualizado'); },
+        next: () => {
+          if (this.sedeSeleccionada) {
+            this.http.patch(
+              `${environment.apiUrl}/snacks/${this.currentSnackId}/venue/${this.sedeSeleccionada.idVenue}/stock?stock=${this.currentSnack.stock}`,
+              {},
+              { headers }
+            ).subscribe({
+              next: () => { this.cerrarModalSnack(); this.recargarSnacks(); alert('Producto actualizado'); },
+              error: (err: any) => alert('Error al actualizar stock: ' + err.message)
+            });
+          } else {
+            this.cerrarModalSnack();
+            this.recargarSnacks();
+            alert('Producto actualizado');
+          }
+        },
         error: (err: any) => alert('Error: ' + err.message)
       });
     } else {
       this.confiteriaService.crearSnack(formData).subscribe({
-        next: () => { this.recargarSnacks(); alert('Snack creado'); },
+        next: (res: any) => {
+          this.cerrarModalSnack();
+          this.snackRecienCreado = res;
+          this.mostrarModalSede = true;
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => alert('Error: ' + err.message)
+      });
+    }
+  }
+
+  agregarASede(solo: boolean) {
+    if (!this.snackRecienCreado) return;
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+    const stock = this.snackRecienCreado.stock ?? 0;
+
+    if (solo && this.sedeSeleccionada) {
+      this.http.post(
+        `${environment.apiUrl}/snacks/${this.snackRecienCreado.idSnack}/venue/${this.sedeSeleccionada.idVenue}/agregar?stock=${stock}`,
+        {},
+        { headers }
+      ).subscribe({
+        next: () => { this.mostrarModalSede = false; this.snackRecienCreado = null; this.recargarSnacks(); this.cdr.detectChanges(); },
+        error: (err: any) => alert('Error: ' + err.message)
+      });
+    } else {
+      this.http.post(
+        `${environment.apiUrl}/snacks/${this.snackRecienCreado.idSnack}/venue/todas/agregar?stock=${stock}`,
+        {},
+        { headers }
+      ).subscribe({
+        next: () => { this.mostrarModalSede = false; this.snackRecienCreado = null; this.recargarSnacks(); this.cdr.detectChanges(); },
         error: (err: any) => alert('Error: ' + err.message)
       });
     }
@@ -191,4 +265,52 @@ export class Confiteria implements OnInit {
       });
     }
   }
+
+eliminarSnack(idSnack: number) {
+  if (!this.sedeSeleccionada) return;
+
+  const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+
+  this.http.get<number>(`${environment.apiUrl}/snacks/${idSnack}/sedes-count`, { headers }).subscribe({
+    next: (count) => {
+      if (count <= 1) {
+        if (confirm('¿Eliminar este producto definitivamente?')) {
+          this.http.delete(`${environment.apiUrl}/snacks/${idSnack}/venue/todas`, { headers }).subscribe({
+            next: () => { 
+              this.recargarSnacks(); 
+              alert('Producto eliminado'); 
+              this.cdr.detectChanges();
+            },
+            error: (err: any) => alert('Error: ' + err.message)
+          });
+        }
+      } else {
+        this.snackAEliminar = idSnack;
+        this.mostrarModalEliminar = true;
+        this.cdr.detectChanges();
+      }
+    },
+    error: (err: any) => alert('Error al verificar sedes: ' + err.message)
+  });
+}
+
+confirmarEliminar(todas: boolean) {
+  if (!this.snackAEliminar) return;
+  const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+
+  const url = todas
+    ? `${environment.apiUrl}/snacks/${this.snackAEliminar}/venue/todas`
+    : `${environment.apiUrl}/snacks/${this.snackAEliminar}/venue/${this.sedeSeleccionada.idVenue}`;
+
+  this.http.delete(url, { headers }).subscribe({
+    next: () => {
+      this.mostrarModalEliminar = false;
+      this.snackAEliminar = null;
+      this.recargarSnacks();
+      alert('Producto eliminado');
+      this.cdr.detectChanges();
+    },
+    error: (err: any) => alert('Error: ' + err.message)
+  });
+}
 }

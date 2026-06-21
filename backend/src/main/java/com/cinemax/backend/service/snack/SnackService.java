@@ -15,4 +15,10 @@ public interface SnackService {
     List<SnackResponseDTO> getSnacksByVenueAdmin(Integer idVenue);
     void inhabilitarSnackEnSede(Integer idSnack, Integer idVenue);
     void habilitarSnackEnSede(Integer idSnack, Integer idVenue);
+    void actualizarStockEnSede(Integer idSnack, Integer idVenue, Integer stock);
+    void agregarSnackASede(Integer idSnack, Integer idVenue, Integer stock);
+    void agregarSnackATodasLasSedes(Integer idSnack, Integer stock);
+    void eliminarSnackDeSede(Integer idSnack, Integer idVenue);
+    void eliminarSnackDeTodo(Integer idSnack);
+    int contarSedesConSnack(Integer idSnack);
 }

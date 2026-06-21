@@ -5,9 +5,11 @@ import com.cinemax.backend.model.dto.snack.SnackResponseDTO;
 import com.cinemax.backend.model.entity.Snack;
 import com.cinemax.backend.model.entity.SnackCategory;
 import com.cinemax.backend.model.entity.SnackVenueStock;
+import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.SnackCategoryRepository;
 import com.cinemax.backend.repository.SnackRepository;
 import com.cinemax.backend.repository.SnackVenueStockRepository;
+import com.cinemax.backend.repository.VenueRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class SnackServiceImpl implements SnackService {
     private final SnackRepository snackRepository;
     private final SnackCategoryRepository snackCategoryRepository;
     private final SnackVenueStockRepository snackVenueStockRepository;
+    private final VenueRepository venueRepository;
 
     @Override
     public List<SnackResponseDTO> getAllSnacks() {
@@ -121,25 +124,75 @@ public class SnackServiceImpl implements SnackService {
 
     @Override
     public void inhabilitarSnackEnSede(Integer idSnack, Integer idVenue) {
-        System.out.println(">>> INHABILITANDO snack " + idSnack + " en venue " + idVenue);
         SnackVenueStock svs = snackVenueStockRepository
                 .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
                 .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
-        System.out.println(">>> Encontrado: " + svs.getIdSnackVenueStock() + " status actual: " + svs.getStatus());
         svs.setStatus("Inactivo");
         snackVenueStockRepository.save(svs);
-        System.out.println(">>> Guardado OK");
     }
 
     @Override
     public void habilitarSnackEnSede(Integer idSnack, Integer idVenue) {
-        System.out.println(">>> HABILITANDO snack " + idSnack + " en venue " + idVenue);
         SnackVenueStock svs = snackVenueStockRepository
                 .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
                 .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
         svs.setStatus("Activo");
         snackVenueStockRepository.save(svs);
-        System.out.println(">>> Guardado OK");
+    }
+
+    @Override
+    public void actualizarStockEnSede(Integer idSnack, Integer idVenue, Integer stock) {
+        SnackVenueStock svs = snackVenueStockRepository
+                .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
+        svs.setStock(stock);
+        snackVenueStockRepository.save(svs);
+    }
+
+    @Override
+    public void agregarSnackASede(Integer idSnack, Integer idVenue, Integer stock) {
+        Snack snack = snackRepository.findById(idSnack)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado"));
+        Venue venue = venueRepository.findById(idVenue)
+                .orElseThrow(() -> new RuntimeException("Sede no encontrada"));
+        SnackVenueStock svs = SnackVenueStock.builder()
+                .snack(snack).venue(venue).stock(stock).status("Activo").build();
+        snackVenueStockRepository.save(svs);
+    }
+
+    @Override
+    public void agregarSnackATodasLasSedes(Integer idSnack, Integer stock) {
+        Snack snack = snackRepository.findById(idSnack)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado"));
+        for (Venue venue : venueRepository.findAll()) {
+            SnackVenueStock svs = SnackVenueStock.builder()
+                    .snack(snack).venue(venue).stock(stock).status("Activo").build();
+            snackVenueStockRepository.save(svs);
+        }
+    }
+
+    @Override
+    public int contarSedesConSnack(Integer idSnack) {
+        return snackVenueStockRepository.findAll().stream()
+                .filter(svs -> svs.getSnack().getIdSnack().equals(idSnack))
+                .toList().size();
+    }
+
+    @Override
+    public void eliminarSnackDeSede(Integer idSnack, Integer idVenue) {
+        SnackVenueStock svs = snackVenueStockRepository
+                .findBySnack_IdSnackAndVenue_IdVenue(idSnack, idVenue)
+                .orElseThrow(() -> new RuntimeException("Snack no encontrado en esta sede"));
+        snackVenueStockRepository.delete(svs);
+    }
+
+    @Override
+    public void eliminarSnackDeTodo(Integer idSnack) {
+        List<SnackVenueStock> registros = snackVenueStockRepository.findAll().stream()
+                .filter(svs -> svs.getSnack().getIdSnack().equals(idSnack))
+                .toList();
+        snackVenueStockRepository.deleteAll(registros);
+        snackRepository.deleteById(idSnack);
     }
 
     private SnackResponseDTO convertToDTO(Snack snack) {
