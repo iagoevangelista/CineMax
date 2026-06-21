@@ -40,10 +40,37 @@ public class SnackController {
         return ResponseEntity.ok(snackService.getSnacksByCategory(idCategory));
     }
 
+    // Cliente: solo snacks con stock > 0 y status Activo en esa sede
     @GetMapping("/venue/{idVenue}")
-    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
     public ResponseEntity<List<SnackResponseDTO>> getSnacksByVenue(@PathVariable Integer idVenue) {
         return ResponseEntity.ok(snackService.getSnacksByVenue(idVenue));
+    }
+
+    // Admin: todos los snacks de la sede sin importar stock ni status
+    @GetMapping("/venue/{idVenue}/admin")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<List<SnackResponseDTO>> getSnacksByVenueAdmin(@PathVariable Integer idVenue) {
+        return ResponseEntity.ok(snackService.getSnacksByVenueAdmin(idVenue));
+    }
+
+    // Inhabilitar snack solo en una sede
+    @PatchMapping("/{idSnack}/venue/{idVenue}/inhabilitar")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<Void> inhabilitarSnackEnSede(
+            @PathVariable Integer idSnack,
+            @PathVariable Integer idVenue) {
+        snackService.inhabilitarSnackEnSede(idSnack, idVenue);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Habilitar snack solo en una sede
+    @PatchMapping("/{idSnack}/venue/{idVenue}/habilitar")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<Void> habilitarSnackEnSede(
+            @PathVariable Integer idSnack,
+            @PathVariable Integer idVenue) {
+        snackService.habilitarSnackEnSede(idSnack, idVenue);
+        return ResponseEntity.noContent().build();
     }
 
     // Solo quien tenga MANAGE_CONFITERIA puede modificar productos

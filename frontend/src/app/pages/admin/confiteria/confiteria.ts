@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../../services/confiteria.service';
 import { AuthService } from '../../../services/auth.service';
@@ -49,25 +49,22 @@ export class Confiteria implements OnInit {
 
     const rol = this.authService.getRole();
     this.esGerenteGeneral = rol === 'GERENTE_GENERAL';
+    this.idVenueAsignada = this.authService.getIdVenue();
 
-    if (this.esGerenteGeneral) {
-      // Gerente General ve todos los snacks directo, sin selector de sedes
-      this.cargarCategorias();
-      this.cargarSnacks();
-    } else {
-      // Gerente de Marketing / Operaciones → selector de sedes
-      this.idVenueAsignada = this.authService.getIdVenue();
-      this.cargando = false;
-      this.cargandoSedes = true;
-      this.cargarSedes();
-      this.cargarCategorias();
-    }
+    this.cargando = false;
+    this.cargandoSedes = true;
+    this.cargarSedes();
+    this.cargarCategorias();
   }
 
   cargarSedes() {
     this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
       next: (res) => {
-        this.sedes = res;
+        if (!this.esGerenteGeneral && this.idVenueAsignada) {
+          this.sedes = res.filter(s => s.idVenue === this.idVenueAsignada);
+        } else {
+          this.sedes = res;
+        }
         this.cargandoSedes = false;
         this.cdr.detectChanges();
       },
@@ -77,7 +74,7 @@ export class Confiteria implements OnInit {
       }
     });
   }
-  
+
   seleccionarSede(sede: any) {
     this.sedeSeleccionada = sede;
     this.cargando = true;
@@ -94,7 +91,8 @@ export class Confiteria implements OnInit {
 
   cargarSnacksPorSede(idVenue: number) {
     this.cargando = true;
-    this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${idVenue}`).subscribe({
+    const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+    this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${idVenue}/admin`, { headers }).subscribe({
       next: (res) => { this.snacks = res; this.cargando = false; this.cdr.detectChanges(); },
       error: () => { this.cargando = false; this.cdr.detectChanges(); }
     });
@@ -165,41 +163,32 @@ export class Confiteria implements OnInit {
   }
 
   recargarSnacks() {
-    if (this.esGerenteGeneral) {
-      this.cargarSnacks();
-    } else if (this.sedeSeleccionada) {
+    if (this.sedeSeleccionada) {
       this.cargarSnacksPorSede(this.sedeSeleccionada.idVenue);
     } else {
       this.cargarSnacks();
     }
   }
 
-  inhabilitarSnack(id: number) {
-    if (confirm('¿Inhabilitar este producto?')) {
-      this.confiteriaService.inhabilitarSnack(id).subscribe({
-        next: () => { this.recargarSnacks(); alert('Producto inhabilitado'); },
+  inhabilitarSnack(idSnack: number) {
+    if (!this.sedeSeleccionada) return;
+    if (confirm('¿Inhabilitar este producto en esta sede?')) {
+      const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+      this.http.patch(`${environment.apiUrl}/snacks/${idSnack}/venue/${this.sedeSeleccionada.idVenue}/inhabilitar`, {}, { headers }).subscribe({
+        next: () => { this.recargarSnacks(); alert('Producto inhabilitado en esta sede'); },
         error: (err: any) => alert('Error: ' + err.message)
       });
     }
   }
 
-  habilitarSnack(id: number) {
-    const snack = this.snacks.find(s => s.idSnack === id);
-    if (!snack) return;
-    const formData = new FormData();
-    const snackData = JSON.stringify({
-      nameSnack: snack.nameSnack,
-      descriptionSnack: snack.descriptionSnack,
-      price: Number(snack.price),
-      stock: Number(snack.stock),
-      status: 'Activo',
-      idSnackCategory: Number(snack.idSnackCategory)
-    });
-    formData.append('snack', snackData);
-
-    this.confiteriaService.actualizarSnack(id, formData).subscribe({
-      next: () => { this.recargarSnacks(); alert('Producto habilitado'); },
-      error: (err: any) => alert('Error: ' + err.message)
-    });
+  habilitarSnack(idSnack: number) {
+    if (!this.sedeSeleccionada) return;
+    if (confirm('¿Habilitar este producto en esta sede?')) {
+      const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
+      this.http.patch(`${environment.apiUrl}/snacks/${idSnack}/venue/${this.sedeSeleccionada.idVenue}/habilitar`, {}, { headers }).subscribe({
+        next: () => { this.recargarSnacks(); alert('Producto habilitado en esta sede'); },
+        error: (err: any) => alert('Error: ' + err.message)
+      });
+    }
   }
 }
