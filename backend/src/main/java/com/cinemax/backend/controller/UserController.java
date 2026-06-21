@@ -73,4 +73,10 @@ public class UserController {
             Principal principal) {
         return ResponseEntity.ok(userService.updateProfile(updateDTO, image, principal.getName()));
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMyAccount(Principal principal) {
+        userService.deleteMyAccount(principal.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

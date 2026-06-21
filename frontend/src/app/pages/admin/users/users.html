@@ -1,7 +1,7 @@
 <div class="container mt-5 text-white">
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
         <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Usuarios</h2>
-        <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+        <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario" (click)="abrirModalNuevoUsuario()">
             <i class="fa-solid fa-plus me-2"></i>Nuevo Colaborador
         </button>
     </div>
@@ -102,36 +102,53 @@
         <p>Estás modificando los permisos de: <br>
            <strong class="fs-5" style="color: #6f42c1;">{{ usuarioSeleccionado.firstName }} {{ usuarioSeleccionado.lastName }}</strong>
         </p>
-        
-        <div class="mt-4">
-          <label class="form-label fw-bold">Selecciona el nuevo Rol:</label>
-          <!-- Roles cargados dinámicamente desde la BD -->
-          <select class="form-select bg-dark text-white shadow-sm border-secondary" 
-                  [(ngModel)]="nuevoIdRole" name="rolUpdate" (ngModelChange)="onRoleChangeUpdate()">
-            <option *ngFor="let rol of listaRoles" [ngValue]="rol.idRole">
-              {{ formatearRol(rol.roleName) }}
-            </option>
-          </select>
+
+        <div class="alert alert-danger py-2" *ngIf="errorServidorRol">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorServidorRol }}
         </div>
 
-        <div class="mt-3" *ngIf="mostrarSedeUpdate">
-          <label class="form-label fw-bold">Asignar Nueva Sede:</label>
-          <select class="form-select bg-dark text-white shadow-sm border-secondary" 
-                  [(ngModel)]="nuevoIdVenue" name="venueUpdate">
-            <option [ngValue]="0">Seleccione sede...</option>
-            <option *ngFor="let sede of listaSedes" [ngValue]="sede.idVenue || sede.id_venue">
-              {{ sede.nameVenue || sede.name_venue }}
-            </option>
-          </select>
-          <div class="form-text text-secondary">
-            Un Gerente debe tener una sede asignada obligatoriamente.
+        <form [formGroup]="cambiarRolForm" (ngSubmit)="guardarNuevoRol()" novalidate>
+          <div class="mt-4">
+            <label class="form-label fw-bold">Selecciona el nuevo Rol <span class="text-danger">*</span></label>
+            <!-- Roles cargados dinámicamente desde la BD -->
+            <select class="form-select bg-dark text-white shadow-sm border-secondary"
+                    formControlName="idRole"
+                    [class.is-invalid]="campoRolInvalido('idRole')">
+              <option *ngFor="let rol of listaRoles" [ngValue]="rol.idRole">
+                {{ formatearRol(rol.roleName) }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="campoRolInvalido('idRole')">
+              Debes seleccionar un rol.
+            </div>
           </div>
-        </div>
+
+          <div class="mt-3" *ngIf="mostrarSedeUpdate">
+            <label class="form-label fw-bold">Asignar Nueva Sede <span class="text-danger">*</span></label>
+            <select class="form-select bg-dark text-white shadow-sm border-secondary"
+                    formControlName="idVenue"
+                    [class.is-invalid]="campoRolInvalido('idVenue')">
+              <option [ngValue]="0">Seleccione sede...</option>
+              <option *ngFor="let sede of listaSedes" [ngValue]="sede.idVenue || sede.id_venue">
+                {{ sede.nameVenue || sede.name_venue }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="campoRolInvalido('idVenue')">
+              Este rol requiere una sede asignada.
+            </div>
+            <div class="form-text text-secondary">
+              Un Gerente debe tener una sede asignada obligatoriamente.
+            </div>
+          </div>
+        </form>
       </div>
       
       <div class="modal-footer border-secondary">
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success fw-bold text-white" (click)="guardarNuevoRol()">Guardar Cambios</button>
+        <button type="button" class="btn btn-success fw-bold text-white" (click)="guardarNuevoRol()" [disabled]="guardandoRol">
+          <span *ngIf="guardandoRol" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ guardandoRol ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
       </div>
     </div>
   </div>
@@ -146,69 +163,121 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="cerrarModalNuevoUser"></button>
       </div>
       <div class="modal-body p-4">
-        <form class="row g-3">
+
+        <div class="alert alert-danger py-2" *ngIf="errorServidor">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorServidor }}
+        </div>
+
+        <form class="row g-3" [formGroup]="nuevoUsuarioForm" (ngSubmit)="guardarNuevoUsuario()" novalidate>
+
           <div class="col-md-6">
-            <label class="form-label fw-bold">Nombre</label>
-            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.firstName" name="nombre">
+            <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control bg-dark text-white border-secondary"
+                   formControlName="firstName"
+                   [class.is-invalid]="campoInvalido('firstName')">
+            <div class="invalid-feedback" *ngIf="campoInvalido('firstName')">
+              <span *ngIf="nuevoUsuarioForm.get('firstName')?.hasError('required')">El nombre es obligatorio.</span>
+              <span *ngIf="nuevoUsuarioForm.get('firstName')?.hasError('minlength')">Debe tener al menos 2 caracteres.</span>
+            </div>
           </div>
+
           <div class="col-md-6">
-            <label class="form-label fw-bold">Apellidos</label>
-            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.lastName" name="apellido">
+            <label class="form-label fw-bold">Apellidos <span class="text-danger">*</span></label>
+            <input type="text" class="form-control bg-dark text-white border-secondary"
+                   formControlName="lastName"
+                   [class.is-invalid]="campoInvalido('lastName')">
+            <div class="invalid-feedback" *ngIf="campoInvalido('lastName')">
+              <span *ngIf="nuevoUsuarioForm.get('lastName')?.hasError('required')">El apellido es obligatorio.</span>
+              <span *ngIf="nuevoUsuarioForm.get('lastName')?.hasError('minlength')">Debe tener al menos 2 caracteres.</span>
+            </div>
           </div>
-          
+
           <div class="col-md-6">
-            <label class="form-label fw-bold">Tipo Doc.</label>
-            <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.idDocumentType" name="docType">
+            <label class="form-label fw-bold">Tipo Doc. <span class="text-danger">*</span></label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    formControlName="idDocumentType">
               <option [ngValue]="1">DNI</option>
               <option [ngValue]="2">Carné de Extranjería</option>
             </select>
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-bold">Nro. Documento</label>
-            <input type="text" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.documentNumber" name="docNumber">
+            <label class="form-label fw-bold">Nro. Documento <span class="text-danger">*</span></label>
+            <input type="text" class="form-control bg-dark text-white border-secondary"
+                   formControlName="documentNumber"
+                   [class.is-invalid]="campoInvalido('documentNumber')">
+            <div class="invalid-feedback" *ngIf="campoInvalido('documentNumber')">
+              <span *ngIf="nuevoUsuarioForm.get('documentNumber')?.hasError('required')">El número de documento es obligatorio.</span>
+              <span *ngIf="nuevoUsuarioForm.get('documentNumber')?.hasError('pattern')">Debe tener entre 6 y 15 caracteres alfanuméricos.</span>
+            </div>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-bold">Correo Corporativo</label>
-            <input type="email" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.email" name="email">
+            <label class="form-label fw-bold">Correo Corporativo <span class="text-danger">*</span></label>
+            <input type="email" class="form-control bg-dark text-white border-secondary"
+                   formControlName="email"
+                   [class.is-invalid]="campoInvalido('email')">
+            <div class="invalid-feedback" *ngIf="campoInvalido('email')">
+              <span *ngIf="nuevoUsuarioForm.get('email')?.hasError('required')">El correo es obligatorio.</span>
+              <span *ngIf="nuevoUsuarioForm.get('email')?.hasError('email')">Ingresa un correo válido (ej. nombre&#64;cinemax.com).</span>
+            </div>
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-bold">Contraseña Temporal</label>
-            <input type="password" class="form-control bg-dark text-white border-secondary" [(ngModel)]="nuevoUsuario.password" name="password">
+            <label class="form-label fw-bold">Contraseña Temporal <span class="text-danger">*</span></label>
+            <input type="password" class="form-control bg-dark text-white border-secondary"
+                   formControlName="password"
+                   [class.is-invalid]="campoInvalido('password')"
+                   autocomplete="new-password">
+            <div class="invalid-feedback" *ngIf="campoInvalido('password')">
+              <span *ngIf="nuevoUsuarioForm.get('password')?.hasError('required')">La contraseña es obligatoria.</span>
+              <span *ngIf="nuevoUsuarioForm.get('password')?.hasError('pattern')">Mínimo 8 caracteres, con al menos una letra y un número.</span>
+            </div>
           </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Rol del Colaborador</label>
+
+          <div class="col-md-6">
+            <label class="form-label">Rol del Colaborador <span class="text-danger">*</span></label>
             <!-- Roles cargados dinámicamente desde la BD -->
-            <select class="form-select bg-dark text-white border-secondary" 
-                    [(ngModel)]="nuevoUsuario.idRole" 
-                    name="idRole" 
-                    (ngModelChange)="onRoleChangeCreate()">
+            <select class="form-select bg-dark text-white border-secondary"
+                    formControlName="idRole"
+                    [class.is-invalid]="campoInvalido('idRole')">
               <option [ngValue]="0" disabled>Seleccione un rol...</option>
               <option *ngFor="let rol of listaRoles" [ngValue]="rol.idRole">
                 {{ formatearRol(rol.roleName) }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="campoInvalido('idRole')">
+              Debes seleccionar un rol.
+            </div>
           </div>
-          
-          <div class="mb-3" *ngIf="mostrarSedeCreate">
-            <label class="form-label">Asignar Sede</label>
-            <select class="form-select bg-dark text-white border-secondary" 
-                    [(ngModel)]="nuevoUsuario.idVenue" name="idVenue">
+
+          <div class="col-md-6" *ngIf="mostrarSedeCreate">
+            <label class="form-label">
+              Asignar Sede <span class="text-danger">*</span>
+            </label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    formControlName="idVenue"
+                    [class.is-invalid]="campoInvalido('idVenue')">
               <option [ngValue]="0">Seleccione sede...</option>
               <option *ngFor="let sede of listaSedes" [ngValue]="sede.idVenue || sede.id_venue">
                 {{ sede.nameVenue || sede.name_venue }}
               </option>
             </select>
+            <div class="invalid-feedback" *ngIf="campoInvalido('idVenue')">
+              Este rol requiere una sede asignada.
+            </div>
             <div class="form-text text-secondary">
-              Solo se muestran sedes disponibles.
+              Solo se muestran sedes disponibles para este rol.
             </div>
           </div>
+
+          <p class="text-secondary small mb-0 mt-2"><span class="text-danger">*</span> Campos obligatorios</p>
         </form>
       </div>
       <div class="modal-footer border-secondary">
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success fw-bold" (click)="guardarNuevoUsuario()">Crear Colaborador</button>
+        <button type="button" class="btn btn-success fw-bold" (click)="guardarNuevoUsuario()" [disabled]="creandoUsuario">
+          <span *ngIf="creandoUsuario" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ creandoUsuario ? 'Creando...' : 'Crear Colaborador' }}
+        </button>
       </div>
     </div>
   </div>

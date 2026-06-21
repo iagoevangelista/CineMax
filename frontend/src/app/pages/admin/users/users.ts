@@ -1,14 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { VenueService } from '../../../services/venue.service';
 import { RoleService, Role } from '../../../services/role.service';
 
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
@@ -19,22 +21,25 @@ export class Users implements OnInit {
   cargando: boolean = false;
 
   usuarioSeleccionado: any = null;
-  nuevoIdRole: number = 0;
 
-  nuevoUsuario = {
-    firstName: '', lastName: '', email: '', password: '',
-    documentNumber: '', idDocumentType: 1, idRole: 0, idVenue: 0,
-  };
+  //  Formulario: Cambiar Rol
+  cambiarRolForm!: FormGroup;
+  formRolEnviado = false;
+  guardandoRol = false;
+  errorServidorRol: string | null = null;
+
+  // Formulario: Nuevo Colaborador 
+  nuevoUsuarioForm!: FormGroup;
+  formEnviado = false;          
+  creandoUsuario = false;       
+  errorServidor: string | null = null;
 
   mostrarSedeCreate = false;
   mostrarSedeUpdate = false;
-  nuevoIdVenue: number = 0;
 
   filtroEstado: string = 'Activo';
   filtroRol: string = 'TODOS';
   filtroSede: string = 'TODOS';
-
-  // Helpers para saber si un rol requiere sede 
 
   private rolSeleccionadoRequiereSede(idRole: number): boolean {
     const rol = this.listaRoles.find(r => r.idRole === idRole);
@@ -47,6 +52,11 @@ export class Users implements OnInit {
     const rol = this.listaRoles.find(r => r.idRole === idRole);
     if (!rol) return false;
     return rol.roleName === 'ADMIN' || rol.roleName === 'GERENTE_GENERAL';
+  }
+
+  rolActualRequiereSede(): boolean {
+    const idRole = this.nuevoUsuarioForm?.get('idRole')?.value;
+    return this.rolSeleccionadoRequiereSede(idRole);
   }
 
   // Getters para los filtros
@@ -72,12 +82,123 @@ export class Users implements OnInit {
     private userService: UserService,
     private venueService: VenueService,
     private roleService: RoleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
+    this.construirFormularioNuevoUsuario();
+    this.construirFormularioCambiarRol();
     this.cargarUsuarios();
     this.cargarRoles();
+  }
+
+  private construirFormularioCambiarRol(): void {
+    this.cambiarRolForm = this.fb.group({
+      idRole: [0, [Validators.required, this.rolValidoValidator()]],
+      idVenue: [0],
+    });
+
+    this.cambiarRolForm.get('idRole')?.valueChanges.subscribe(() => {
+      this.actualizarValidacionSedeRol();
+    });
+  }
+
+  private actualizarValidacionSedeRol(): void {
+    const idRoleControl = this.cambiarRolForm.get('idRole');
+    const idVenueControl = this.cambiarRolForm.get('idVenue');
+    if (!idRoleControl || !idVenueControl) return;
+
+    const idRole = idRoleControl.value;
+
+    if (this.rolSeleccionadoEsGlobal(idRole)) {
+      this.mostrarSedeUpdate = false;
+      idVenueControl.clearValidators();
+      idVenueControl.setValue(0);
+    } else if (this.rolSeleccionadoRequiereSede(idRole)) {
+      this.mostrarSedeUpdate = true;
+      idVenueControl.setValidators([Validators.required, this.sedeValidaValidator()]);
+      this.venueService.getAvailableVenuesForRole(idRole).subscribe({
+        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
+        error: (err) => console.error('Error al traer sedes:', err)
+      });
+    } else {
+      this.mostrarSedeUpdate = false;
+      idVenueControl.clearValidators();
+      idVenueControl.setValue(0);
+    }
+    idVenueControl.updateValueAndValidity();
+  }
+
+  campoRolInvalido(nombreControl: string): boolean {
+    const control = this.cambiarRolForm.get(nombreControl);
+    if (!control) return false;
+    return control.invalid && (control.touched || this.formRolEnviado);
+  }
+
+  // Construcción del formulario reactivo
+
+  private construirFormularioNuevoUsuario(): void {
+    this.nuevoUsuarioForm = this.fb.group({
+      firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      idDocumentType: [1, [Validators.required]],
+      documentNumber: ['', [Validators.required, Validators.pattern(/^[0-9A-Za-z]{6,15}$/)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.pattern(PASSWORD_PATTERN)]],
+      idRole: [0, [Validators.required, this.rolValidoValidator()]],
+      idVenue: [0],
+    });
+
+    // Cada vez que cambia el rol, revalidamos la sede (obligatoria solo para ciertos roles)
+    this.nuevoUsuarioForm.get('idRole')?.valueChanges.subscribe(() => {
+      this.actualizarValidacionSede();
+    });
+  }
+
+  private rolValidoValidator() {
+    return (control: AbstractControl): ValidationErrors | null => {
+      return control.value === 0 || control.value === null ? { required: true } : null;
+    };
+  }
+
+  // Activa/desactiva el Validators.required de idVenue según el rol elegido,
+  private actualizarValidacionSede(): void {
+    const idRoleControl = this.nuevoUsuarioForm.get('idRole');
+    const idVenueControl = this.nuevoUsuarioForm.get('idVenue');
+    if (!idRoleControl || !idVenueControl) return;
+
+    const idRole = idRoleControl.value;
+
+    if (this.rolSeleccionadoEsGlobal(idRole)) {
+      this.mostrarSedeCreate = false;
+      idVenueControl.clearValidators();
+      idVenueControl.setValue(0);
+    } else if (this.rolSeleccionadoRequiereSede(idRole)) {
+      this.mostrarSedeCreate = true;
+      idVenueControl.setValidators([Validators.required, this.sedeValidaValidator()]);
+      this.venueService.getAvailableVenuesForRole(idRole).subscribe({
+        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
+        error: (err) => console.error('Error al traer sedes:', err)
+      });
+    } else {
+      this.mostrarSedeCreate = false;
+      idVenueControl.clearValidators();
+      idVenueControl.setValue(0);
+    }
+    idVenueControl.updateValueAndValidity();
+  }
+
+  private sedeValidaValidator() {
+    return (control: AbstractControl): ValidationErrors | null => {
+      return control.value === 0 || control.value === null ? { required: true } : null;
+    };
+  }
+
+  campoInvalido(nombreControl: string): boolean {
+    const control = this.nuevoUsuarioForm.get(nombreControl);
+    if (!control) return false;
+    return control.invalid && (control.touched || this.formEnviado);
   }
 
   // Carga de datos
@@ -101,7 +222,6 @@ export class Users implements OnInit {
   cargarRoles() {
     this.roleService.getRoles().subscribe({
       next: (roles) => {
-        // Excluir CLIENTE porque no es un rol asignable a colaboradores
         this.listaRoles = roles.filter(r => r.roleName !== 'CLIENTE');
         this.cdr.detectChanges();
       },
@@ -109,117 +229,92 @@ export class Users implements OnInit {
     });
   }
 
-  // Eventos de cambio de rol
-
-  onRoleChangeUpdate() {
-    if (this.rolSeleccionadoEsGlobal(this.nuevoIdRole)) {
-      this.mostrarSedeUpdate = false;
-      this.nuevoIdVenue = 0;
-    } else if (this.rolSeleccionadoRequiereSede(this.nuevoIdRole)) {
-      this.mostrarSedeUpdate = true;
-      this.venueService.getAvailableVenuesForRole(this.nuevoIdRole).subscribe({
-        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
-        error: (err) => console.error('Error al traer sedes:', err)
-      });
-    } else {
-      this.mostrarSedeUpdate = false;
-      this.nuevoIdVenue = 0;
-    }
-  }
-
-  onRoleChangeCreate() {
-    if (this.rolSeleccionadoEsGlobal(this.nuevoUsuario.idRole)) {
-      this.mostrarSedeCreate = false;
-      this.nuevoUsuario.idVenue = 0;
-    } else if (this.rolSeleccionadoRequiereSede(this.nuevoUsuario.idRole)) {
-      this.mostrarSedeCreate = true;
-      this.venueService.getAvailableVenuesForRole(this.nuevoUsuario.idRole).subscribe({
-        next: (sedes) => { this.listaSedes = sedes; this.cdr.detectChanges(); },
-        error: (err) => console.error('Error al traer sedes:', err)
-      });
-    } else {
-      this.mostrarSedeCreate = false;
-      this.nuevoUsuario.idVenue = 0;
-    }
-  }
-
-  // Modales
-
   abrirModalRol(usuario: any) {
     this.usuarioSeleccionado = usuario;
-    this.nuevoIdRole  = usuario.idRole;
-    this.nuevoIdVenue = usuario.idVenue || 0;
-    this.onRoleChangeUpdate();
+    this.formRolEnviado = false;
+    this.errorServidorRol = null;
+    this.cambiarRolForm.reset({
+      idRole: usuario.idRole,
+      idVenue: usuario.idVenue || 0
+    });
+    this.actualizarValidacionSedeRol();
+  }
+
+  // Se llama al abrir el modal "Nuevo Colaborador" para asegurar que arranca limpio
+  abrirModalNuevoUsuario() {
+    this.formEnviado = false;
+    this.errorServidor = null;
+    this.mostrarSedeCreate = false;
+    this.nuevoUsuarioForm.reset({
+      firstName: '', lastName: '', idDocumentType: 1, documentNumber: '',
+      email: '', password: '', idRole: 0, idVenue: 0
+    });
   }
 
   guardarNuevoRol() {
-    if (!this.usuarioSeleccionado || this.nuevoIdRole === 0) return;
+    this.formRolEnviado = true;
+    this.errorServidorRol = null;
 
-    if (this.rolSeleccionadoRequiereSede(this.nuevoIdRole) && this.nuevoIdVenue === 0) {
-      alert('¡Atención! Un Gerente de Marketing u Operaciones DEBE tener una nueva sede asignada.');
+    if (this.cambiarRolForm.invalid) {
+      this.cambiarRolForm.markAllAsTouched();
       return;
     }
+    if (!this.usuarioSeleccionado) return;
 
+    const { idRole, idVenue } = this.cambiarRolForm.value;
     const payloadUpdate = {
-      idRole: this.nuevoIdRole,
-      idVenue: this.nuevoIdVenue === 0 ? null : this.nuevoIdVenue
+      idRole,
+      idVenue: idVenue === 0 ? null : idVenue
     };
 
+    this.guardandoRol = true;
     this.userService.updateUserRole(this.usuarioSeleccionado.idUser, payloadUpdate).subscribe({
       next: () => {
+        this.guardandoRol = false;
         alert('¡Rol y permisos actualizados con éxito!');
         document.getElementById('cerrarModalRol')?.click();
         this.cargarUsuarios();
       },
       error: (err) => {
+        this.guardandoRol = false;
         console.error('Error al actualizar:', err);
-        alert('Hubo un error al actualizar los permisos.');
+        this.errorServidorRol =
+          err?.error?.message
+          || (typeof err?.error === 'string' ? err.error : null)
+          || 'Hubo un error al actualizar los permisos.';
       }
     });
   }
 
+  // Crear colaborador
+
   guardarNuevoUsuario() {
-    if (!this.nuevoUsuario.firstName || !this.nuevoUsuario.email
-        || !this.nuevoUsuario.password || !this.nuevoUsuario.documentNumber) {
-      alert('Por favor llena los datos principales, incluyendo el documento de identidad.');
+    this.formEnviado = true;
+    this.errorServidor = null;
+
+    if (this.nuevoUsuarioForm.invalid) {
+      this.nuevoUsuarioForm.markAllAsTouched();
       return;
     }
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$/;
-    if (!emailRegex.test(this.nuevoUsuario.email)) {
-      alert('Por favor ingresa un correo válido. Debe contener un "@" y terminar en ".com".');
-      return;
-    }
+    this.creandoUsuario = true;
+    const payload = this.nuevoUsuarioForm.value;
 
-    if (this.rolSeleccionadoEsGlobal(this.nuevoUsuario.idRole)) {
-      this.nuevoUsuario.idVenue = 0;
-    }
-
-    if (this.rolSeleccionadoRequiereSede(this.nuevoUsuario.idRole) && this.nuevoUsuario.idVenue === 0) {
-      alert('¡Atención! Un Gerente de Marketing u Operaciones DEBE tener una sede asignada obligatoriamente.');
-      return;
-    }
-
-    this.userService.createUser(this.nuevoUsuario).subscribe({
+    this.userService.createUser(payload).subscribe({
       next: () => {
+        this.creandoUsuario = false;
         alert('¡Colaborador creado exitosamente!');
         document.getElementById('cerrarModalNuevoUser')?.click();
         this.cargarUsuarios();
-        this.mostrarSedeCreate = false;
-        this.nuevoUsuario = {
-          firstName: '', lastName: '', email: '', password: '',
-          documentNumber: '', idDocumentType: 1, idRole: 0, idVenue: 0
-        };
+        this.abrirModalNuevoUsuario(); // resetea el formulario para la próxima vez
       },
       error: (err) => {
+        this.creandoUsuario = false;
         console.error('Error al crear usuario:', err);
-        if (err.error && typeof err.error === 'string') {
-          alert(err.error);
-        } else if (err.error && err.error.message) {
-          alert(err.error.message);
-        } else {
-          alert('Error al crear usuario. Verifica que el correo o DNI no estén repetidos.');
-        }
+        this.errorServidor =
+          err?.error?.message
+          || (typeof err?.error === 'string' ? err.error : null)
+          || 'No se pudo crear el colaborador. Verifica que el correo y el documento no estén ya registrados.';
       }
     });
   }

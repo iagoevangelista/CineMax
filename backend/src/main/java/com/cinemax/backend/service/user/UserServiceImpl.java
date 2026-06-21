@@ -33,19 +33,11 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final CloudinaryService cloudinaryService;
 
-    /**
-     * Indica si un rol requiere tener una sede asignada obligatoriamente.
-     * Centralizado aquí para no repetir la condición en createUser,
-     * updateUserRole y activateUser.
-     */
     private boolean rolRequiereSede(String roleName) {
         return RoleConstants.GERENTE_MARKETING.equals(roleName)
                 || RoleConstants.GERENTE_OPERACIONES.equals(roleName);
     }
 
-    /**
-     * Indica si un rol debe ser único en todo el sistema (sin importar sede).
-     */
     private boolean rolEsUnicoGlobal(String roleName) {
         return RoleConstants.GERENTE_GENERAL.equals(roleName);
     }
@@ -75,7 +67,6 @@ public class UserServiceImpl implements UserService {
 
         String roleName = rol.getRoleName();
 
-        // Gerente General: solo puede existir uno activo en todo el sistema
         if (rolEsUnicoGlobal(roleName)) {
             if (userRepository.existsByRole_IdRoleAndStatus(rol.getIdRole(), "Activo")) {
                 throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
@@ -224,6 +215,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteMyAccount(String email) {
+        UserAccount user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        // Solo un CLIENTE puede autoeliminarse.
+        String roleName = user.getRole() != null ? user.getRole().getRoleName() : null;
+        if (!RoleConstants.CLIENTE.equals(roleName)) {
+            throw new RuntimeException(
+                    "Los colaboradores no pueden eliminar su propia cuenta. Solicita la baja a un administrador.");
+        }
+
+        user.setStatus("Inactivo");
+        userRepository.save(user);
+    }
+
+    @Override
     public UserResponseDTO updateProfile(UserUpdateDTO updateDTO, MultipartFile image, String email) {
         UserAccount user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
@@ -253,8 +260,6 @@ public class UserServiceImpl implements UserService {
         UserAccount updatedUser = userRepository.save(user);
         return mapToResponseDTO(updatedUser);
     }
-
-    // ── Helper privado ────────────────────────────────────────────────────────
 
     private UserResponseDTO mapToResponseDTO(UserAccount usuario) {
         UserResponseDTO response = new UserResponseDTO();

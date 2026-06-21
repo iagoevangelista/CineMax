@@ -1,7 +1,7 @@
 .admin-wrapper {
   display: flex;
   height: 100vh;
-  background-color: #131313; /* Fondo negro suave de tu imagen */
+  background-color: #131313; 
 }
 
 .sidebar-container {

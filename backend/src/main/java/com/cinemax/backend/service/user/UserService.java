@@ -14,5 +14,6 @@ public interface UserService {
     void activateUser(Integer idUser);
     UserResponseDTO getMyProfile(String email);
     UserResponseDTO updateProfile(UserUpdateDTO updateDTO, org.springframework.web.multipart.MultipartFile image, String email);
-    
+    void deleteMyAccount(String email);
+
 }

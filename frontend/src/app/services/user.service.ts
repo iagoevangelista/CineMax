@@ -45,6 +45,10 @@ export class UserService {
     return this.http.put<any>(`${this.apiUrl}/profile`, profileData);
   }
 
+  deleteMyAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/me`);
+  }
+
   updateLocalUser(user: any) {
     this.userSubject.next(user);
   }
