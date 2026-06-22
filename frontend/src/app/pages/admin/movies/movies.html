@@ -1,185 +1,245 @@
 <div class="container mt-5 text-white">
-  
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
-      <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Películas</h2>
-      <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalPelicula" (click)="abrirModalNuevo()">
-        <i class="fa-solid fa-plus me-2"></i>Nueva Película
-      </button>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+    <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Gestión de Películas</h2>
+    <button class="btn btn-success fw-bold"
+            data-bs-toggle="modal" data-bs-target="#modalPelicula"
+            (click)="abrirModalNuevo()">
+      <i class="fa-solid fa-plus me-2"></i>Nueva Película
+    </button>
+  </div>
+
+  <div *ngIf="cargando" class="text-center my-5">
+    <div class="spinner-border text-info" role="status"></div>
+    <p class="text-info mt-2">Cargando cartelera...</p>
+  </div>
+
+  <div *ngIf="!cargando" class="row mb-3 bg-dark p-3 rounded border border-secondary shadow-sm mx-0">
+    <div class="col-md-4">
+      <label class="form-label fw-bold text-white mb-1">
+        <i class="fa-solid fa-filter me-2"></i>Estado de Película
+      </label>
+      <select class="form-select bg-dark text-white border-secondary"
+              [(ngModel)]="filtroEstado" (ngModelChange)="onEstadoChange()"
+              [ngModelOptions]="{standalone: true}">
+        <option value="Cartelera">En Cartelera</option>
+        <option value="Estreno">Próximos Estrenos</option>
+        <option value="Preventa">En Preventa</option>
+      </select>
     </div>
-  
-    <div *ngIf="cargando" class="text-center my-5">
-      <div class="spinner-border text-info" role="status"></div>
-      <p class="text-info mt-2">Cargando cartelera...</p>
-    </div>
-  
-    <div *ngIf="!cargando" class="row mb-3 bg-dark p-3 rounded border border-secondary shadow-sm mx-0">
-      <div class="col-md-4">
-        <label class="form-label fw-bold text-white mb-1"><i class="fa-solid fa-filter me-2"></i>Estado de Película</label>
-        <select class="form-select bg-dark text-white border-secondary" [(ngModel)]="filtroEstado" (ngModelChange)="onEstadoChange()">
-          <option value="Cartelera">En Cartelera</option>
-          <option value="Estreno">Próximos Estrenos</option>
-          <option value="Preventa">En Preventa</option>
-        </select>
-      </div>
-    </div>
-  
-    <div *ngIf="!cargando" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
-      <div class="col" *ngFor="let peli of movies">
-        <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
-          
-          <img [src]="peli.posterUrl" class="card-img-top" style="height: 350px; object-fit: cover; border-bottom: 1px solid var(--secondary-color);">
-          
-          <div class="card-body">
-            <h5 class="card-title fw-bold text-truncate" style="color: var(--secondary-color);" [title]="peli.titleMovie">{{ peli.titleMovie }}</h5>
-            
-            <p class="card-text small mb-2">
-              <i class="fa-solid fa-clock me-1 text-info"></i> Duración: {{ peli.durationMinutes || 'Ver detalles' }} min
-            </p>
-  
-            <div>
-              <span class="badge bg-primary me-2">{{ peli.rating || 'S/C' }}</span>
-              <span class="badge bg-success">{{ peli.status }}</span>
-            </div>
+  </div>
+
+  <div *ngIf="!cargando" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+    <div class="col" *ngFor="let peli of movies">
+      <div class="card h-100 bg-dark text-white border-secondary shadow-sm">
+        <img [src]="peli.posterUrl" class="card-img-top"
+             style="height:350px;object-fit:cover;border-bottom:1px solid var(--secondary-color);">
+        <div class="card-body">
+          <h5 class="card-title fw-bold text-truncate" style="color:var(--secondary-color);" [title]="peli.titleMovie">
+            {{ peli.titleMovie }}
+          </h5>
+          <p class="card-text small mb-2">
+            <i class="fa-solid fa-clock me-1 text-info"></i> {{ peli.durationMinutes || 'Ver detalles' }} min
+          </p>
+          <div>
+            <span class="badge bg-primary me-2">{{ peli.rating || 'S/C' }}</span>
+            <span class="badge bg-success">{{ peli.status }}</span>
           </div>
-  
-          <div class="card-footer bg-transparent border-top border-secondary d-flex justify-content-between">
-            <button class="btn btn-sm btn-outline-info" title="Ver Detalles" data-bs-toggle="modal" data-bs-target="#modalDetalles" (click)="abrirModalDetalles(peli)">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalPelicula" (click)="abrirModalEditar(peli)">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" title="Inhabilitar" (click)="inhabilitarPelicula(peli.idMovie)">
-              <i class="fa-solid fa-ban"></i>
-            </button>
-          </div>
+        </div>
+        <div class="card-footer bg-transparent border-top border-secondary d-flex justify-content-between">
+          <button class="btn btn-sm btn-outline-info" title="Ver Detalles"
+                  data-bs-toggle="modal" data-bs-target="#modalDetalles"
+                  (click)="abrirModalDetalles(peli)">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-warning" title="Editar"
+                  data-bs-toggle="modal" data-bs-target="#modalPelicula"
+                  (click)="abrirModalEditar(peli)">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" title="Inhabilitar"
+                  (click)="inhabilitarPelicula(peli.idMovie)">
+            <i class="fa-solid fa-ban"></i>
+          </button>
         </div>
       </div>
     </div>
   </div>
-  
-  <div class="modal fade text-dark" id="modalPelicula" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg"> 
-      <div class="modal-content bg-dark text-white border-secondary">
-        
-        <div class="modal-header border-secondary" style="background-color: var(--primary-dark);">
-          <h5 class="modal-title fw-bold text-white">{{ isEditMode ? 'Editar Película' : 'Registrar Nueva Película' }}</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        
-        <div class="modal-body p-4">
-          <form class="row g-3">
-            
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Título</label>
-              <input type="text" class="form-control bg-dark text-white border-secondary" name="titleMovie" [(ngModel)]="currentMovie.titleMovie">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Director</label>
-              <input type="text" class="form-control bg-dark text-white border-secondary" name="director" [(ngModel)]="currentMovie.director">
-            </div>
-  
-            <div class="col-12">
-              <label class="form-label fw-bold">Sinopsis</label>
-              <textarea class="form-control bg-dark text-white border-secondary" rows="3" name="synopsis" [(ngModel)]="currentMovie.synopsis"></textarea>
-            </div>
-  
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Duración (Minutos)</label>
-              <input type="number" class="form-control bg-dark text-white border-secondary" name="durationMinutes" [(ngModel)]="currentMovie.durationMinutes">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Fecha de Estreno</label>
-              <input type="date" class="form-control bg-dark text-white border-secondary" name="releaseDate" [(ngModel)]="currentMovie.releaseDate">
-            </div>
-  
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Clasificación</label>
-              <select class="form-select bg-dark text-white border-secondary" name="idClassification" [(ngModel)]="currentMovie.idClassification">
-                <option [ngValue]="null" disabled>Seleccione...</option>
-                <option *ngFor="let c of classifications" [ngValue]="c.idClassification || c.id_classification">
-                  {{ c.nameClassification || c.name_classification }}
-                </option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Estado</label>
-              <select class="form-select bg-dark text-white border-secondary" name="status" [(ngModel)]="currentMovie.status">
-                <option value="Cartelera">Cartelera</option>
-                <option value="Estreno">Estreno</option>
-                <option value="Preventa">Preventa</option>
-              </select>
-            </div>
-  
-            <div class="col-12">
-              <label class="form-label fw-bold">Póster (Imagen)</label>
-              <input type="file" class="form-control bg-dark text-white border-secondary" accept="image/*" (change)="onFileSelected($event)">
-            </div>
-  
-            <div class="col-12">
-              <label class="form-label fw-bold d-block">Géneros</label>
-              <div class="border border-secondary rounded p-3 bg-dark" style="max-height: 120px; overflow-y: auto;">
-                <div class="form-check form-check-inline" *ngFor="let genre of genres">
-                  <input class="form-check-input" type="checkbox" 
-                         [checked]="isGenreSelected(genre.idGenre || genre.id_genre)"
-                         (change)="toggleGenre(genre.idGenre || genre.id_genre)">
-                  <label class="form-check-label text-white">
-                    {{ genre.nameGenre || genre.name_genre }}
-                  </label>
-                </div>
+</div>
+
+<div class="modal fade text-dark" id="modalPelicula" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white border-secondary">
+
+      <div class="modal-header border-secondary" style="background-color:var(--primary-dark);">
+        <h5 class="modal-title fw-bold text-white">
+          {{ isEditMode ? 'Editar Película' : 'Registrar Nueva Película' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" 
+        data-bs-dismiss="modal" id="btnCerrarModalPelicula"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form [formGroup]="form" class="row g-3" novalidate>
+
+          <!-- Título -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Título <span class="text-danger">*</span></label>
+            <input type="text" formControlName="titleMovie" placeholder="Ej: El Rey León"
+                   class="form-control bg-dark text-white border-secondary"
+                   [class.is-invalid]="invalido('titleMovie')">
+            <div class="invalid-feedback" *ngIf="ctrl('titleMovie').hasError('required')">El título es obligatorio.</div>
+            <div class="invalid-feedback" *ngIf="ctrl('titleMovie').hasError('minlength')">Mínimo 2 caracteres.</div>
+            <div class="invalid-feedback" *ngIf="ctrl('titleMovie').hasError('maxlength')">Máximo 100 caracteres.</div>
+          </div>
+
+          <!-- Director -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Director <span class="text-danger">*</span></label>
+            <input type="text" formControlName="director" placeholder="Ej: James Cameron"
+                   class="form-control bg-dark text-white border-secondary"
+                   [class.is-invalid]="invalido('director')">
+            <div class="invalid-feedback">El director es obligatorio.</div>
+            <div class="invalid-feedback" *ngIf="ctrl('director').hasError('maxlength')">Máximo 100 caracteres.</div>
+          </div>
+
+          <!-- Sinopsis -->
+          <div class="col-12">
+            <label class="form-label fw-bold">Sinopsis</label>
+            <textarea formControlName="synopsis" rows="3" placeholder="Breve descripción de la película..."
+                      class="form-control bg-dark text-white border-secondary"></textarea>
+          </div>
+
+          <!-- Duración -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Duración (minutos) <span class="text-danger">*</span></label>
+            <input type="number" formControlName="durationMinutes" min="1" placeholder="120"
+                   class="form-control bg-dark text-white border-secondary"
+                   [class.is-invalid]="invalido('durationMinutes')">
+            <div class="invalid-feedback" *ngIf="ctrl('durationMinutes').hasError('required')">La duración es obligatoria.</div>
+            <div class="invalid-feedback" *ngIf="ctrl('durationMinutes').hasError('min')">Debe ser mayor a 0.</div>
+            <div class="invalid-feedback" *ngIf="ctrl('durationMinutes').hasError('max')">Máximo 300 minutos.</div>
+          </div>
+
+          <!-- Fecha de estreno -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Fecha de Estreno</label>
+            <input type="date" formControlName="releaseDate"
+                   class="form-control bg-dark text-white border-secondary">
+          </div>
+
+          <!-- Clasificación -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Clasificación <span class="text-danger">*</span></label>
+            <select formControlName="idClassification"
+                    class="form-select bg-dark text-white border-secondary"
+                    [class.is-invalid]="invalido('idClassification')">
+              <option [ngValue]="null" disabled>Seleccione...</option>
+              <option *ngFor="let c of classifications"
+                      [ngValue]="c.idClassification || c.id_classification">
+                {{ c.nameClassification || c.name_classification }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Debe seleccionar una clasificación.</div>
+          </div>
+
+          <!-- Estado -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Estado <span class="text-danger">*</span></label>
+            <select formControlName="status"
+                    class="form-select bg-dark text-white border-secondary">
+              <option value="Cartelera">Cartelera</option>
+              <option value="Estreno">Estreno</option>
+              <option value="Preventa">Preventa</option>
+            </select>
+          </div>
+
+          <!-- Póster -->
+          <div class="col-12">
+            <label class="form-label fw-bold">Póster (Imagen)</label>
+            <input type="file" accept="image/*"
+                   class="form-control bg-dark text-white border-secondary"
+                   (change)="onFileSelected($event)">
+          </div>
+
+          <!-- Géneros -->
+          <div class="col-12">
+            <label class="form-label fw-bold d-block">
+              Géneros <span class="text-danger">*</span>
+            </label>
+            <div class="border rounded p-3 bg-dark"
+                  [class.border-danger]="sinGeneros && (form.touched || formEnviado)"
+                  [class.border-secondary]="!sinGeneros || !(form.touched || formEnviado)"
+                  style="max-height:120px;overflow-y:auto;">
+              <div class="form-check form-check-inline" *ngFor="let genre of genres">
+                <input class="form-check-input" type="checkbox"
+                       [checked]="isGenreSelected(genre.idGenre || genre.id_genre)"
+                       (change)="toggleGenre(genre.idGenre || genre.id_genre)">
+                <label class="form-check-label text-white">
+                  {{ genre.nameGenre || genre.name_genre }}
+                </label>
               </div>
             </div>
-  
-          </form>
-        </div>
-        
-        <div class="modal-footer border-secondary">
-          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-success fw-bold text-white" (click)="guardarPelicula()" data-bs-dismiss="modal">Guardar Película</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="modal fade" id="modalDetalles" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content bg-dark text-white border-secondary">
-        
-        <div class="modal-header border-secondary" style="background-color: var(--primary-dark);">
-          <h5 class="modal-title fw-bold text-white">Ficha Técnica</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        
-        <div class="modal-body p-4" *ngIf="peliculaDetalle">
-          <div class="row">
-            <div class="col-md-4">
-              <img [src]="peliculaDetalle.posterUrl" class="img-fluid rounded border border-secondary shadow">
-            </div>
-            <div class="col-md-8">
-              <h3 class="fw-bold" style="color: var(--primary-color);">{{ peliculaDetalle.titleMovie }}</h3>
-              <p class="text-secondary mb-3"><i class="fa-solid fa-video me-2"></i>Director: {{ peliculaDetalle.director }}</p>
-              
-              <p style="text-align: justify;">{{ peliculaDetalle.synopsis }}</p>
-              
-              <ul class="list-group list-group-flush mt-3 border border-secondary rounded">
-                <li class="list-group-item bg-dark text-white border-secondary">
-                  <strong>Duración:</strong> {{ peliculaDetalle.durationMinutes }} Minutos
-                </li>
-                <li class="list-group-item bg-dark text-white border-secondary">
-                  <strong>Clasificación:</strong> {{ peliculaDetalle.classificationName }}
-                </li>
-                <li class="list-group-item bg-dark text-white border-secondary">
-                  <strong>Estreno:</strong> {{ peliculaDetalle.releaseDate }}
-                </li>
-                <li class="list-group-item bg-dark text-white border-secondary">
-                  <strong>Géneros:</strong> 
-                  <span class="badge bg-secondary me-1" *ngFor="let g of peliculaDetalle.genreNames">{{ g }}</span>
-                </li>
-              </ul>
+            <div class="text-danger small mt-1" *ngIf="sinGeneros && (form.touched || formEnviado)">
+              Debe seleccionar al menos un género.
             </div>
           </div>
-        </div>
-  
+
+        </form>
       </div>
+
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success fw-bold text-white"
+                [disabled]="form.invalid || sinGeneros"
+                (click)="guardarPelicula()">
+          Guardar Película
+        </button>
+      </div>
+
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white border-secondary">
+
+      <div class="modal-header border-secondary" style="background-color:var(--primary-dark);">
+        <h5 class="modal-title fw-bold text-white">Ficha Técnica</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4" *ngIf="peliculaDetalle">
+        <div class="row">
+          <div class="col-md-4">
+            <img [src]="peliculaDetalle.posterUrl" class="img-fluid rounded border border-secondary shadow">
+          </div>
+          <div class="col-md-8">
+            <h3 class="fw-bold" style="color:var(--primary-color);">{{ peliculaDetalle.titleMovie }}</h3>
+            <p class="text-secondary mb-3">
+              <i class="fa-solid fa-video me-2"></i>Director: {{ peliculaDetalle.director }}
+            </p>
+            <p style="text-align:justify;">{{ peliculaDetalle.synopsis }}</p>
+            <ul class="list-group list-group-flush mt-3 border border-secondary rounded">
+              <li class="list-group-item bg-dark text-white border-secondary">
+                <strong>Duración:</strong> {{ peliculaDetalle.durationMinutes }} min
+              </li>
+              <li class="list-group-item bg-dark text-white border-secondary">
+                <strong>Clasificación:</strong> {{ peliculaDetalle.classificationName }}
+              </li>
+              <li class="list-group-item bg-dark text-white border-secondary">
+                <strong>Estreno:</strong> {{ peliculaDetalle.releaseDate }}
+              </li>
+              <li class="list-group-item bg-dark text-white border-secondary">
+                <strong>Géneros:</strong>
+                <span class="badge bg-secondary me-1" *ngFor="let g of peliculaDetalle.genreNames">{{ g }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
