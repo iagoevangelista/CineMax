@@ -1,4 +1,3 @@
-
 <!-- LOADING -->
 <div *ngIf="loading && !movie" class="loading-screen">
   <div class="spinner-ring"></div>
@@ -81,55 +80,30 @@
         <div class="section-block">
           <h3 class="section-title">Horarios disponibles</h3>
 
-          <!-- Días -->
-          <div class="dias-row">
-            <button class="dia-btn active-dia">Hoy</button>
-            <button class="dia-btn">Mañana</button>
-            <button class="dia-btn">Miércoles</button>
-            <button class="dia-btn">Jueves</button>
+          <!-- Sin resultados -->
+          <div *ngIf="sedesAgrupadas.length === 0" class="text-secondary py-3">
+            No hay funciones programadas para esta película por el momento.
           </div>
 
           <!-- Sedes -->
-          <div class="sede-block">
+          <div class="sede-block" *ngFor="let sede of sedesAgrupadas">
             <div class="sede-header">
               <i class="fa-solid fa-location-dot"></i>
               <div>
-                <span class="sede-nombre">CineMax VMT</span>
-                <span class="sede-dir">Villa María del Triunfo, Lima</span>
+                <span class="sede-nombre">{{ sede.nameVenue }}</span>
               </div>
             </div>
             <div class="formatos-wrap">
-              <div class="formato-row">
-                <span class="formato-tag">2D</span>
+              <div class="formato-row" *ngFor="let f of sede.formatos">
+                <span class="formato-tag" [class.tag-3d]="f.formato === '3D'">{{ f.formato }}</span>
                 <div class="horas-wrap">
-                  <button class="hora-btn">2:30 PM</button>
-                  <button class="hora-btn">5:00 PM</button>
-                  <button class="hora-btn">8:30 PM</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="sede-block">
-            <div class="sede-header">
-              <i class="fa-solid fa-location-dot"></i>
-              <div>
-                <span class="sede-nombre">CineMax Miraflores</span>
-                <span class="sede-dir">Miraflores, Lima</span>
-              </div>
-            </div>
-            <div class="formatos-wrap">
-              <div class="formato-row">
-                <span class="formato-tag">2D</span>
-                <div class="horas-wrap">
-                  <button class="hora-btn">3:00 PM</button>
-                  <button class="hora-btn">6:15 PM</button>
-                </div>
-              </div>
-              <div class="formato-row">
-                <span class="formato-tag tag-3d">3D</span>
-                <div class="horas-wrap">
-                  <button class="hora-btn">9:00 PM</button>
+                  <button
+                    *ngFor="let h of f.horas"
+                    class="hora-btn"
+                    [class.hora-activa]="showtimeSeleccionado === h.idShowtime"
+                    (click)="seleccionarHorario(h.idShowtime)">
+                    {{ h.hora }}
+                  </button>
                 </div>
               </div>
             </div>

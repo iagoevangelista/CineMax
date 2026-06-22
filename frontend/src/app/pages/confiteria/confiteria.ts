@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ConfiteriaService } from '../../services/confiteria.service';
 import { environment } from '../../enviroments/environment';
+import { AuthService } from '../../services/auth.service';
+import { Offcanvas } from 'bootstrap';
+
 @Component({
   selector: 'app-confiteria',
   standalone: true,
@@ -17,7 +20,7 @@ export class Confiteria implements OnInit {
   categories: any[] = [];
   sedes: any[] = [];
   sedeSeleccionada: any = null;
-  cargando = true;
+  cargando = false;
   cargandoSedes = true;
   error = false;
   categoriaActiva: any = null;
@@ -26,22 +29,17 @@ export class Confiteria implements OnInit {
   constructor(
     private snackService: ConfiteriaService,
     private cdr: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.cargarSedes();
-
-    setTimeout(() => {
-      if (this.cargandoSedes) {
-        this.cargandoSedes = false;
-        this.error = true;
-        this.cdr.detectChanges();
-      }
-    }, 5000);
   }
 
   cargarSedes() {
+    this.cargandoSedes = true;
+    this.error = false;
     this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
       next: (res) => {
         this.sedes = res;
@@ -60,23 +58,40 @@ export class Confiteria implements OnInit {
     this.sedeSeleccionada = sede;
     this.cargando = true;
     this.error = false;
+    this.cdr.detectChanges();
     this.cargarDatos();
+  }
 
-    setTimeout(() => {
-      if (this.cargando) {
-        this.cargando = false;
-        this.error = true;
-        this.cdr.detectChanges();
-      }
-    }, 5000);
+  cambiarSede() {
+    this.sedeSeleccionada = null;
+    this.carrito = [];
+    this.snacks = [];
+    this.categoriaActiva = null;
+    this.cargando = false;
+    this.error = false;
+    this.cdr.detectChanges();
   }
 
   cargarDatos() {
+    this.cargando = true;
+    this.error = false;
+    let categoriasOk = false;
+    let snacksOk = false;
+
+    const verificarFin = () => {
+      if (categoriasOk && snacksOk) {
+        this.cargando = false;
+        this.error = false;
+        this.cdr.detectChanges();
+      }
+    };
+
     this.snackService.cargarCategorias().subscribe({
       next: (cats: any[]) => {
         this.categories = cats;
         if (cats.length) this.categoriaActiva = cats[0];
-        this.cdr.detectChanges();
+        categoriasOk = true;
+        verificarFin();
       },
       error: () => {
         this.cargando = false;
@@ -85,11 +100,11 @@ export class Confiteria implements OnInit {
       }
     });
 
-    this.snackService.cargarSnacks().subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/snacks/venue/${this.sedeSeleccionada.idVenue}`).subscribe({
       next: (res: any[]) => {
         this.snacks = res.filter((s: any) => s.status === 'Activo');
-        this.cargando = false;
-        this.cdr.detectChanges();
+        snacksOk = true;
+        verificarFin();
       },
       error: () => {
         this.cargando = false;
@@ -121,6 +136,18 @@ export class Confiteria implements OnInit {
     } else {
       this.carrito.splice(idx, 1);
     }
+  }
+
+  continuarCompra() {
+    if (!this.authService.isLoggedIn()) {
+      const offcanvasEl = document.getElementById('authOffcanvas');
+      if (offcanvasEl) {
+        const offcanvas = Offcanvas.getOrCreateInstance(offcanvasEl);
+        offcanvas.show();
+      }
+      return;
+    }
+    console.log('Continuar compra con carrito:', this.carrito);
   }
 
   cantidadEnCarrito(snack: any): number {
