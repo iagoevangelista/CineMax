@@ -67,6 +67,13 @@ public class UserServiceImpl implements UserService {
 
         String roleName = rol.getRoleName();
 
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Error: El correo ya está registrado.");
+        }
+        if (userRepository.existsByDocumentNumber(request.getDocumentNumber())) {
+            throw new RuntimeException("Error: El número de documento ya está registrado.");
+        }
+
         if (rolEsUnicoGlobal(roleName)) {
             if (userRepository.existsByRole_IdRoleAndStatus(rol.getIdRole(), "Activo")) {
                 throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
@@ -219,7 +226,6 @@ public class UserServiceImpl implements UserService {
         UserAccount user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 
-        // Solo un CLIENTE puede autoeliminarse.
         String roleName = user.getRole() != null ? user.getRole().getRoleName() : null;
         if (!RoleConstants.CLIENTE.equals(roleName)) {
             throw new RuntimeException(
@@ -260,6 +266,8 @@ public class UserServiceImpl implements UserService {
         UserAccount updatedUser = userRepository.save(user);
         return mapToResponseDTO(updatedUser);
     }
+
+    // Helper privado
 
     private UserResponseDTO mapToResponseDTO(UserAccount usuario) {
         UserResponseDTO response = new UserResponseDTO();
