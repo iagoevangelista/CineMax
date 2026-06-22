@@ -20,7 +20,7 @@ export class Confiteria implements OnInit {
   categories: any[] = [];
   sedes: any[] = [];
   sedeSeleccionada: any = null;
-  cargando = true;
+  cargando = false;
   cargandoSedes = true;
   error = false;
   categoriaActiva: any = null;
@@ -35,17 +35,11 @@ export class Confiteria implements OnInit {
 
   ngOnInit() {
     this.cargarSedes();
-
-    setTimeout(() => {
-      if (this.cargandoSedes) {
-        this.cargandoSedes = false;
-        this.error = true;
-        this.cdr.detectChanges();
-      }
-    }, 5000);
   }
 
   cargarSedes() {
+    this.cargandoSedes = true;
+    this.error = false;
     this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
       next: (res) => {
         this.sedes = res;
@@ -66,14 +60,6 @@ export class Confiteria implements OnInit {
     this.error = false;
     this.cdr.detectChanges();
     this.cargarDatos();
-
-    setTimeout(() => {
-      if (this.cargando) {
-        this.cargando = false;
-        this.error = true;
-        this.cdr.detectChanges();
-      }
-    }, 5000);
   }
 
   cambiarSede() {
@@ -81,22 +67,36 @@ export class Confiteria implements OnInit {
     this.carrito = [];
     this.snacks = [];
     this.categoriaActiva = null;
+    this.cargando = false;
+    this.error = false;
     this.cdr.detectChanges();
   }
 
   cargarDatos() {
+    this.cargando = true;
+    this.error = false;
     let categoriasOk = false;
     let snacksOk = false;
+
+    const verificarFin = () => {
+      if (categoriasOk && snacksOk) {
+        this.cargando = false;
+        this.error = false;
+        this.cdr.detectChanges();
+      }
+    };
 
     this.snackService.cargarCategorias().subscribe({
       next: (cats: any[]) => {
         this.categories = cats;
         if (cats.length) this.categoriaActiva = cats[0];
         categoriasOk = true;
-        this.cdr.detectChanges();
+        verificarFin();
       },
       error: () => {
-        categoriasOk = false;
+        this.cargando = false;
+        this.error = true;
+        this.cdr.detectChanges();
       }
     });
 
@@ -104,9 +104,7 @@ export class Confiteria implements OnInit {
       next: (res: any[]) => {
         this.snacks = res.filter((s: any) => s.status === 'Activo');
         snacksOk = true;
-        this.cargando = false;
-        this.error = false;
-        this.cdr.detectChanges();
+        verificarFin();
       },
       error: () => {
         this.cargando = false;
@@ -149,10 +147,7 @@ export class Confiteria implements OnInit {
       }
       return;
     }
-
-    // Usuario logueado → continuar con la compra
     console.log('Continuar compra con carrito:', this.carrito);
-    // Aquí luego conectamos a /checkout o donde corresponda
   }
 
   cantidadEnCarrito(snack: any): number {
