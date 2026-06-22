@@ -1,51 +1,53 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ShowtimeService } from '../../../services/showtime.service';
 import { MovieService } from '../../../services/movie.service';
 import { RoomService } from '../../../services/room.service';
 import { VenueService } from '../../../services/venue.service';
 import { AuthService } from '../../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-showtimes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './showtimes.html',
   styleUrls: ['./showtimes.css']
 })
 export class AdminShowtimes implements OnInit {
 
-  // Datos de sesión
+  // Sesión
   idVenueSesion: number | null = null;
-  roleUsuario: string = '';
-  esGerGeneral: boolean = false;
+  roleUsuario = '';
+  esGerGeneral = false;
 
   // Catálogos
   movies: any[] = [];
   rooms: any[] = [];
   sedes: any[] = [];
-
   sedeSeleccionadaId: number | null = null;
 
-  // Lista y filtros
+  // Lista y filtros (estos siguen con ngModel porque son filtros, no un form de negocio)
   showtimes: any[] = [];
-  filtroFecha: string = '';
+  filtroFecha = '';
   filtroSala: number | null = null;
-  filtroFormato: string = '';
+  filtroFormato = '';
 
   cargando = false;
   guardando = false;
   mensajeError = '';
   mensajeExito = '';
+  formEnviado = false;
 
-  // Modal
   isEditMode = false;
   currentShowtimeId: number | null = null;
-  currentShowtime: any = this.emptyShowtime();
-  horaFinEstimada: string = '';
+  horaFinEstimada = '';
+
+  form!: FormGroup;
 
   constructor(
+    private fb: FormBuilder,
     private showtimeService: ShowtimeService,
     private movieService: MovieService,
     private roomService: RoomService,
@@ -60,6 +62,7 @@ export class AdminShowtimes implements OnInit {
     this.roleUsuario   = this.authService.getRole();
     this.esGerGeneral  = this.idVenueSesion === null;
 
+    this.construirForm();
     this.cargarPeliculas();
 
     if (this.esGerGeneral) {
@@ -69,6 +72,84 @@ export class AdminShowtimes implements OnInit {
     }
   }
 
+  // ── Formulario ────────────────────────────────────────────────────────────
+
+  private fechaNoPassadaValidator() {
+    return (control: import('@angular/forms').AbstractControl) => {
+      if (!control.value) return null; // si está vacío, 'required' ya lo captura — no apilar errores
+      const hoy = new Date().toISOString().split('T')[0];
+      return control.value < hoy ? { fechaPasada: true } : null;
+    };
+  }
+  
+  private horaNoPassadaValidator() {
+    return (control: import('@angular/forms').AbstractControl) => {
+      const form = control.parent;
+      if (!form) return null;
+      const fecha = form.get('showDate')?.value;
+      const hora  = control.value;
+      if (!fecha || !hora) return null;
+  
+      const hoy  = new Date().toISOString().split('T')[0];
+      if (fecha !== hoy) return null; // solo aplica si la fecha ES hoy
+  
+      const [h, m] = hora.split(':').map(Number);
+      const ahora  = new Date();
+      const minutosIngresados = h * 60 + m;
+      const minutosActuales   = ahora.getHours() * 60 + ahora.getMinutes();
+      return minutosIngresados <= minutosActuales ? { horaPassada: true } : null;
+    };
+  }
+  
+  private construirForm(): void {
+    this.form = this.fb.group({
+      idMovie:         [null, Validators.required],
+      idRoom:          [null, Validators.required],
+      showDate:        [this.filtroFecha, [Validators.required, this.fechaNoPassadaValidator()]],
+      startTime:       ['',  [Validators.required, this.horaNoPassadaValidator()]],
+      languageFormat:  ['Doblada 2D', Validators.required],
+      baseTicketPrice: [15.00, [Validators.required, Validators.min(1), Validators.max(999)]]
+    });
+  
+    this.form.get('idMovie')!.valueChanges.subscribe(() => this.calcularHoraFin());
+  
+    // Cuando cambia la fecha, re-validar la hora (puede haber quedado inválida)
+    this.form.get('showDate')!.valueChanges.subscribe(() => {
+      this.form.get('startTime')!.updateValueAndValidity();
+      this.calcularHoraFin();
+    });
+  
+    this.form.get('startTime')!.valueChanges.subscribe(() => this.calcularHoraFin());
+  }
+
+  ctrl(name: string) { return this.form.get(name)!; }
+
+  invalido(name: string): boolean {
+    const c = this.ctrl(name);
+    return c.invalid && (c.touched || this.formEnviado);
+  }
+
+  // ── Hora fin estimada ─────────────────────────────────────────────────────
+
+  calcularHoraFin(): void {
+    const movie = this.movies.find(m => m.idMovie === +this.ctrl('idMovie').value);
+    const startTime = this.ctrl('startTime').value;
+    if (!movie || !startTime) { this.horaFinEstimada = ''; return; }
+
+    const [h, m] = startTime.split(':').map(Number);
+    const totalMin = h * 60 + m + movie.durationMinutes + 30;
+    const hFin = Math.floor(totalMin / 60) % 24;
+    const mFin = totalMin % 60;
+    this.horaFinEstimada = `${String(hFin).padStart(2, '0')}:${String(mFin).padStart(2, '0')}`;
+  }
+
+  // ── Tarifas estimadas (computed) ──────────────────────────────────────────
+
+  get precioBase(): number { return +(this.ctrl('baseTicketPrice').value ?? 0); }
+  get precioNino(): number  { return Math.max(0, this.precioBase - 11); }
+  get precioMayor(): number { return Math.max(0, this.precioBase - 9); }
+
+  // ── Datos ─────────────────────────────────────────────────────────────────
 
   cargarPeliculas(): void {
     this.movieService.getMoviesByStatus('Cartelera').subscribe(res => {
@@ -86,41 +167,29 @@ export class AdminShowtimes implements OnInit {
 
   cargarSalas(idVenue: number): void {
     this.roomService.getRoomsByVenue(idVenue).subscribe(res => {
-      this.rooms = (res as any[]).filter((r: any) => r.status === 'Activo');
+      this.rooms = (res as any[]).filter(r => r.status === 'Activo');
       this.cdr.detectChanges();
       this.cargarFunciones();
     });
   }
 
-  // Gerente General selecciona sede en el selector
   onSedeChange(): void {
     this.rooms = [];
     this.showtimes = [];
     this.filtroSala = null;
-    if (this.sedeSeleccionadaId) {
-      this.cargarSalas(this.sedeSeleccionadaId);
-    }
+    if (this.sedeSeleccionadaId) this.cargarSalas(this.sedeSeleccionadaId);
   }
 
-  // Devuelve el idVenue efectivo (según rol)
   get idVenueEfectivo(): number | null {
     return this.esGerGeneral ? this.sedeSeleccionadaId : this.idVenueSesion;
   }
-
 
   cargarFunciones(): void {
     if (!this.idVenueEfectivo || !this.filtroFecha) return;
     this.cargando = true;
     this.showtimeService.getShowtimesByVenue(this.idVenueEfectivo, this.filtroFecha).subscribe({
-      next: res => {
-        this.showtimes = res;
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: err => {
-        this.cargando = false;
-        this.mostrarError(this.extraerMensaje(err, 'Error al cargar las funciones.'));
-      }
+      next: res => { this.showtimes = res; this.cargando = false; this.cdr.detectChanges(); },
+      error: err => { this.cargando = false; this.mostrarError(this.extraerMensaje(err, 'Error al cargar funciones.')); }
     });
   }
 
@@ -136,15 +205,20 @@ export class AdminShowtimes implements OnInit {
     return Array.from(new Set(this.showtimes.map(f => f.languageFormat)));
   }
 
+  // ── Modales ───────────────────────────────────────────────────────────────
 
   abrirModalNuevo(): void {
     this.isEditMode = false;
     this.currentShowtimeId = null;
     this.mensajeError = '';
     this.mensajeExito = '';
-    this.currentShowtime = this.emptyShowtime();
     this.horaFinEstimada = '';
-    this.cdr.detectChanges();
+    this.formEnviado = false;
+    this.form.reset({
+      idMovie: null, idRoom: null,
+      showDate: this.filtroFecha,
+      startTime: '', languageFormat: 'Doblada 2D', baseTicketPrice: 15.00
+    });
   }
 
   abrirModalEditar(f: any): void {
@@ -152,45 +226,34 @@ export class AdminShowtimes implements OnInit {
     this.currentShowtimeId = f.idShowtime;
     this.mensajeError = '';
     this.mensajeExito = '';
-    this.currentShowtime = {
-      idMovie: f.idMovie,
-      idRoom: f.idRoom,
-      showDate: f.showDate,
-      startTime: f.startTime,
-      languageFormat: f.languageFormat,
+    this.formEnviado = false;
+    this.form.setValue({
+      idMovie:         f.idMovie,
+      idRoom:          f.idRoom,
+      showDate:        f.showDate,
+      startTime:       f.startTime,
+      languageFormat:  f.languageFormat,
       baseTicketPrice: f.baseTicketPrice
-    };
+    });
     this.calcularHoraFin();
-    this.cdr.detectChanges();
   }
 
-  calcularHoraFin(): void {
-    const movie = this.movies.find(m => m.idMovie === +this.currentShowtime.idMovie);
-    if (!movie || !this.currentShowtime.startTime) { this.horaFinEstimada = ''; return; }
-    const [h, m] = this.currentShowtime.startTime.split(':').map(Number);
-    const totalMin = h * 60 + m + movie.durationMinutes + 30;
-    const hFin = Math.floor(totalMin / 60) % 24;
-    const mFin = totalMin % 60;
-    this.horaFinEstimada = `${String(hFin).padStart(2, '0')}:${String(mFin).padStart(2, '0')}`;
-  }
+  // ── Guardar ───────────────────────────────────────────────────────────────
 
   guardarFuncion(): void {
     this.mensajeError = '';
     this.mensajeExito = '';
-
-    if (!this.currentShowtime.idMovie)        return this.mostrarError('Selecciona una película.');
-    if (!this.currentShowtime.idRoom)         return this.mostrarError('Selecciona una sala.');
-    if (!this.currentShowtime.showDate)       return this.mostrarError('Selecciona una fecha.');
-    if (!this.currentShowtime.startTime)      return this.mostrarError('Selecciona una hora de inicio.');
-    if (!this.currentShowtime.languageFormat) return this.mostrarError('Selecciona el formato.');
-    if (!this.currentShowtime.baseTicketPrice || this.currentShowtime.baseTicketPrice <= 0)
-      return this.mostrarError('El precio debe ser mayor a 0.');
+    this.formEnviado = true;
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
 
     this.guardando = true;
-    const payload = { ...this.currentShowtime };
-    payload.idMovie = +payload.idMovie;
-    payload.idRoom  = +payload.idRoom;
-    payload.baseTicketPrice = +payload.baseTicketPrice;
+    const payload = {
+      ...this.form.value,
+      idMovie:         +this.ctrl('idMovie').value,
+      idRoom:          +this.ctrl('idRoom').value,
+      baseTicketPrice: +this.ctrl('baseTicketPrice').value
+    };
 
     const op = this.isEditMode
       ? this.showtimeService.updateShowtime(this.currentShowtimeId!, payload)
@@ -203,10 +266,7 @@ export class AdminShowtimes implements OnInit {
         this.cargarFunciones();
         setTimeout(() => this.cerrarModal(), 1500);
       },
-      error: err => {
-        this.guardando = false;
-        this.mostrarError(this.extraerMensaje(err, 'Error al guardar la función.'));
-      }
+      error: err => { this.guardando = false; this.mostrarError(this.extraerMensaje(err, 'Error al guardar.')); }
     });
   }
 
@@ -218,41 +278,24 @@ export class AdminShowtimes implements OnInit {
     });
   }
 
-  cerrarModal(): void {
-    const btn = document.getElementById('btnCerrarModal');
-    if (btn) btn.click();
-  }
+  cerrarModal(): void { document.getElementById('btnCerrarModal')?.click(); }
+
+  mostrarError(msg: string): void { this.mensajeError = msg; this.cdr.detectChanges(); }
 
   extraerMensaje(err: any, fallback: string): string {
-    if (!err) return fallback;
-    const body = err.error;
-    if (typeof body === 'string' && body.trim().length > 0) return body;
-    if (typeof body === 'object' && body !== null) {
-      return body.message || body.error || JSON.stringify(body);
-    }
-    return err.message || fallback;
-  }
-
-  mostrarError(msg: string): void {
-    this.mensajeError = msg;
-    this.cdr.detectChanges();
-  }
-
-  emptyShowtime(): any {
-    return {
-      idMovie: null, idRoom: null,
-      showDate: this.filtroFecha || new Date().toISOString().split('T')[0],
-      startTime: '', languageFormat: 'Doblada 2D', baseTicketPrice: 15.00
-    };
+    const body = err?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (typeof body === 'object' && body) return body.message || body.error || JSON.stringify(body);
+    return err?.message || fallback;
   }
 
   getBadgeClase(status: string): string {
-    switch (status) {
-      case 'Programada': return 'badge bg-success';
-      case 'En Curso':   return 'badge bg-warning text-dark';
-      case 'Finalizada': return 'badge bg-secondary';
-      case 'Cancelada':  return 'badge bg-danger';
-      default:           return 'badge bg-light text-dark';
-    }
+    const map: Record<string, string> = {
+      'Programada': 'badge bg-success',
+      'En Curso':   'badge bg-warning text-dark',
+      'Finalizada': 'badge bg-secondary',
+      'Cancelada':  'badge bg-danger'
+    };
+    return map[status] ?? 'badge bg-light text-dark';
   }
 }
