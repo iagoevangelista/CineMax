@@ -118,7 +118,7 @@
         <i class="fa-solid fa-location-dot me-2"></i>Solo esta sede
         <div class="small fw-normal opacity-75 mt-1">{{ sedeSeleccionada?.nameVenue }}</div>
       </button>
-      <button class="btn btn-success fw-bold px-4" (click)="agregarASede(false)">
+      <button *ngIf="esGerenteGeneral" class="btn btn-success fw-bold px-4" (click)="agregarASede(false)">
         <i class="fa-solid fa-film me-2"></i>Todas las sedes
         <div class="small fw-normal opacity-75 mt-1">VMT + Miraflores</div>
       </button>

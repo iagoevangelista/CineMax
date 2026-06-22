@@ -200,11 +200,19 @@ export class Confiteria implements OnInit {
     } else {
       this.confiteriaService.crearSnack(formData).subscribe({
         next: (res: any) => {
-          this.cerrarModalSnack();
-          this.snackRecienCreado = res;
-          this.mostrarModalSede = true;
-          this.cdr.detectChanges();
-        },
+  this.cerrarModalSnack();
+  this.snackRecienCreado = res;
+
+  if (this.esGerenteGeneral) {
+    // Gerente General → muestra modal para elegir sede
+    this.mostrarModalSede = true;
+    this.cdr.detectChanges();
+  } else {
+    // Otro rol → agrega directo a su sede sin mostrar modal
+    this.agregarASede(true);
+    alert('Producto agregado exitosamente a ' + this.sedeSeleccionada?.nameVenue);
+  }
+},
         error: (err: any) => alert('Error: ' + err.message)
       });
     }
