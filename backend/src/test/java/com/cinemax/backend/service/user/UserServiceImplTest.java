@@ -47,7 +47,6 @@ class UserServiceImplTest {
     // Datos reutilizables entre pruebas
     private Role rolGerenteOperaciones;
     private Role rolGerenteGeneral;
-    private Role rolAdmin;
     private Venue sedeSanIsidro;
     private UserCreateDTO requestValido;
 
@@ -68,10 +67,10 @@ class UserServiceImplTest {
                 .roleName(RoleConstants.GERENTE_GENERAL)
                 .build();
 
-        rolAdmin = Role.builder()
-                .idRole(1)
-                .roleName(RoleConstants.ADMIN)
-                .build();
+        Role rolAdmin = Role.builder()
+        .idRole(1)
+        .roleName(RoleConstants.ADMIN)
+        .build();
 
         sedeSanIsidro = Venue.builder()
                 .idVenue(1)
