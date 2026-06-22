@@ -24,6 +24,8 @@ public class SnackController {
     private final SnackService snackService;
     private final CloudinaryService cloudinaryService;
 
+    // --- ENDPOINTS PÚBLICOS (Accesibles sin Token / Sesión) ---
+
     @GetMapping
     public ResponseEntity<List<SnackResponseDTO>> getAllSnacks() {
         return ResponseEntity.ok(snackService.getAllSnacks());
@@ -43,6 +45,8 @@ public class SnackController {
     public ResponseEntity<List<SnackResponseDTO>> getSnacksByVenue(@PathVariable Integer idVenue) {
         return ResponseEntity.ok(snackService.getSnacksByVenue(idVenue));
     }
+
+    // --- ENDPOINTS PROTEGIDOS (Requieren rol MANAGE_CONFITERIA) ---
 
     @GetMapping("/venue/{idVenue}/admin")
     @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
@@ -134,24 +138,22 @@ public class SnackController {
         return ResponseEntity.ok(snackService.updateSnack(id, request, imageUrl));
     }
 
-    // Eliminar snack solo de una sede (borra de snack_venue_stock)
-@DeleteMapping("/{idSnack}/venue/{idVenue}")
-@PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
-public ResponseEntity<Void> eliminarSnackDeSede(
-        @PathVariable Integer idSnack,
-        @PathVariable Integer idVenue) {
-    snackService.eliminarSnackDeSede(idSnack, idVenue);
-    return ResponseEntity.noContent().build();
-}
+    @DeleteMapping("/{idSnack}/venue/{idVenue}")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<Void> eliminarSnackDeSede(
+            @PathVariable Integer idSnack,
+            @PathVariable Integer idVenue) {
+        snackService.eliminarSnackDeSede(idSnack, idVenue);
+        return ResponseEntity.noContent().build();
+    }
 
-// Eliminar snack de todas las sedes y de la tabla snack
-@DeleteMapping("/{idSnack}/venue/todas")
-@PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
-public ResponseEntity<Void> eliminarSnackDeTodo(
-        @PathVariable Integer idSnack) {
-    snackService.eliminarSnackDeTodo(idSnack);
-    return ResponseEntity.noContent().build();
-}
+    @DeleteMapping("/{idSnack}/venue/todas")
+    @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")
+    public ResponseEntity<Void> eliminarSnackDeTodo(
+            @PathVariable Integer idSnack) {
+        snackService.eliminarSnackDeTodo(idSnack);
+        return ResponseEntity.noContent().build();
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGE_CONFITERIA')")

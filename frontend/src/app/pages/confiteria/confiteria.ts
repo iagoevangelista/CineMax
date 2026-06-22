@@ -86,7 +86,8 @@ export class Confiteria implements OnInit {
       }
     };
 
-    this.snackService.cargarCategorias().subscribe({
+    // CORRECCIÓN AQUÍ: Consumir el endpoint público de categorías habilitado en tu Spring Security
+    this.http.get<any[]>(`${environment.apiUrl}/snack-categories`).subscribe({
       next: (cats: any[]) => {
         this.categories = cats;
         if (cats.length) this.categoriaActiva = cats[0];
