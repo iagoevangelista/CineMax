@@ -1,7 +1,10 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';import { CommonModule } from '@angular/common';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking';
 import { MovieService } from '../../services/movie.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../enviroments/environment';
 
 @Component({
   selector: 'app-movie-detail',
@@ -14,7 +17,10 @@ export class MovieDetail implements OnInit {
   movie: any = null;
   loading = true;
   error = false;
-  idShowtime = 8;
+
+  horarios: any[] = [];
+  sedesAgrupadas: any[] = [];
+  showtimeSeleccionado: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -22,7 +28,8 @@ export class MovieDetail implements OnInit {
     private bookingService: BookingService,
     private movieService: MovieService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -36,6 +43,7 @@ export class MovieDetail implements OnInit {
           this.movie = data;
           this.loading = false;
           this.cdr.detectChanges();
+          this.cargarHorarios(id);
         },
         error: () => {
           this.error = true;
@@ -45,26 +53,61 @@ export class MovieDetail implements OnInit {
       });
     });
   }
-    volver() {
-      this.router.navigate(['/movies']);
+
+  cargarHorarios(idMovie: number) {
+    this.http.get<any[]>(`${environment.apiUrl}/showtimes?idMovie=${idMovie}`).subscribe({
+      next: (data) => {
+        this.horarios = data;
+        this.agruparPorSede();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.horarios = [];
+        this.sedesAgrupadas = [];
+        this.cdr.detectChanges();
+      }
+    });
   }
 
+  agruparPorSede() {
+    const mapa = new Map<string, any>();
 
-  /*
-  empezarCompra(idShowtime: number) {
-    if (!idShowtime) return;
-    this.bookingService.iniciarReserva(idShowtime);
-    this.router.navigate(['/seats'], { queryParams: { idShowtime } });
+    for (const h of this.horarios) {
+      if (!mapa.has(h.nameVenue)) {
+        mapa.set(h.nameVenue, { nameVenue: h.nameVenue, formatos: new Map() });
+      }
+      const sede = mapa.get(h.nameVenue);
+
+      if (!sede.formatos.has(h.languageFormat)) {
+        sede.formatos.set(h.languageFormat, []);
+      }
+      sede.formatos.get(h.languageFormat).push({
+        idShowtime: h.idShowtime,
+        hora: h.startTime,
+        precio: h.baseTicketPrice
+      });
+    }
+
+    this.sedesAgrupadas = Array.from(mapa.values()).map(s => ({
+      nameVenue: s.nameVenue,
+      formatos: (Array.from(s.formatos.entries()) as [string, any][]).map(([formato, horas]) => ({ formato, horas }))
+    }));
   }
-    */
 
-
-  empezarCompra(){
-    this.idShowtime = 8;
-    const show = this.idShowtime
-    this.bookingService.iniciarReserva(this.idShowtime);
-    this.router.navigate(['/seats'], { queryParams: { show } })
-    
+  seleccionarHorario(idShowtime: number) {
+    this.showtimeSeleccionado = idShowtime;
   }
-  
+
+  volver() {
+    this.router.navigate(['/movies']);
+  }
+
+  empezarCompra() {
+    if (!this.showtimeSeleccionado) {
+      alert('Por favor selecciona un horario primero.');
+      return;
+    }
+    this.bookingService.iniciarReserva(this.showtimeSeleccionado);
+    this.router.navigate(['/seats'], { queryParams: { show: this.showtimeSeleccionado } });
+  }
 }

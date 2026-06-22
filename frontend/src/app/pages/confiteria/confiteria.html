@@ -38,6 +38,11 @@
         <!-- Columna izquierda: catálogo -->
         <div class="col-lg-8">
 
+  <!-- Cambiar sede -->
+<button class="btn btn-sm btn-outline-light" (click)="cambiarSede()">
+  Cambiar sede
+</button>
+
           <!-- Tabs de categorías -->
           <div class="conf-tabs mb-4">
             <button
@@ -122,7 +127,7 @@
               <span class="total-price">S/ {{ totalCarrito | number:'1.2-2' }}</span>
             </div>
 
-            <button class="btn-continuar w-100 mt-4" [disabled]="carrito.length === 0">
+            <button class="btn-continuar w-100 mt-4" [disabled]="carrito.length === 0" (click)="continuarCompra()">
               CONTINUAR →
             </button>
           </div>
