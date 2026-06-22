@@ -1,0 +1,48 @@
+.summary-card {
+background-color: #161619;
+border: 1px solid #2a2a2a;
+color: #fff;
+}
+
+.summary-label {
+color: #888;
+font-size: 0.9rem;
+}
+
+.divider {
+border-color: #2a2a2a;
+opacity: 1;
+margin: 1rem 0 1.2rem;
+}
+
+.icon-box {
+background-color: #222;
+padding: 12px;
+border-radius: 8px;
+border: 1px solid #333;
+color: #fff;
+flex-shrink: 0;
+}
+
+.badge-formato {
+background-color: #222;
+color: #ccc;
+border: 1px solid #444;
+font-size: 0.85rem;
+padding: 3px 10px;
+border-radius: 20px;
+}
+
+.selection-text {
+word-break: break-word;
+}
+
+.total-box {
+background-color: rgba(0, 0, 0, 0.4);
+border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.poster-img {
+object-fit: cover;
+flex-shrink: 0;
+}
