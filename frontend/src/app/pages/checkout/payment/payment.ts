@@ -44,7 +44,7 @@ export class Payment implements OnInit {
   // Resultado exitoso — guardamos la respuesta del backend
   pagoExitoso       = false;
   transaccionRespuesta: SaleTransactionResponseDTO | null = null;
-  resumenSnapshot: any = null; // copia del resumen ANTES de limpiar
+  resumenSnapshot: any = null;
 
   // Número de tarjeta formateado para la vista previa
   numeroMostrado = '';
@@ -143,12 +143,22 @@ export class Payment implements OnInit {
   }
 
   // ── Validación ────────────────────────────────────────────────────────────
+  get tarjetaVencida(): boolean {
+    if (!/^\d{2}\/\d{2}$/.test(this.card.vencimiento)) return false;
+    const [mes, anio] = this.card.vencimiento.split('/').map(Number);
+    const anioCompleto = 2000 + anio;
+    const ahora = new Date();
+    const vencimiento = new Date(anioCompleto, mes, 1);
+    return vencimiento <= ahora;
+  }
+
   get formularioValido(): boolean {
     if (this.metodoPago === 'tarjeta') {
       return (
         this.card.titular.trim().length >= 3 &&
         this.card.numero.length === 16 &&
         /^\d{2}\/\d{2}$/.test(this.card.vencimiento) &&
+        !this.tarjetaVencida &&
         this.card.cvv.length >= 3
       );
     }
@@ -166,7 +176,6 @@ export class Payment implements OnInit {
     this.errorPago  = '';
     this.cdr.detectChanges();
 
-    // Guardamos snapshot ANTES de limpiar el booking
     this.resumenSnapshot = JSON.parse(JSON.stringify(this.resumen));
 
     const request: SaleTransactionRequestDTO = {
@@ -179,7 +188,6 @@ export class Payment implements OnInit {
         precioUnitario: t.precioUnitario
       })),
 
-      // FIX: garantizar array vacío si no hay snacks (nunca null)
       snacks: (this.resumen.snacks ?? []).map((s: any) => ({
         idSnack:   s.idSnack,
         cantidad:  s.cantidad,
@@ -213,21 +221,16 @@ export class Payment implements OnInit {
   }
 
   // ── Helpers de la pantalla de éxito ──────────────────────────────────────
-
-  /** URL del QR generado a partir del qrCodeData que devuelve el backend */
   get qrImageUrl(): string {
     const data = this.transaccionRespuesta?.qrCodeData ?? '';
-    // Usamos la API gratuita de QR Server para generar el QR en el cliente
     return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data)}`;
   }
 
   descargarTicket(): void {
-    // Abre el QR en una pestaña nueva para que el usuario lo guarde
     window.open(this.qrImageUrl + '&format=png', '_blank');
   }
 
   qrFallback(event: Event): void {
-    // Si falla la carga del QR externo, mostrar el código en texto
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
   }
