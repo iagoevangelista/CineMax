@@ -36,8 +36,8 @@ describe('AdminShowtimes (HU-14)', () => {
   const MANANA = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
   const peliculasMock = [
-    { idMovie: 1, titleMovie: 'Inception',    durationMinutes: 148, status: 'Cartelera' },
-    { idMovie: 2, titleMovie: 'Dune Part Two', durationMinutes: 166, status: 'Cartelera' },
+    { idMovie: 1, titleMovie: 'Inception',    durationMinutes: 148, status: 'Cartelera', synopsis: 'A thief leads a team of specialists', posterUrl: 'inception.jpg', releaseDate: '2010-07-16', director: 'Christopher Nolan', premiereWeek: false },
+    { idMovie: 2, titleMovie: 'Dune Part Two', durationMinutes: 166, status: 'Cartelera', synopsis: 'The saga continues', posterUrl: 'dune2.jpg', releaseDate: '2024-02-28', director: 'Denis Villeneuve', premiereWeek: true },
   ];
 
   const salasMock = [

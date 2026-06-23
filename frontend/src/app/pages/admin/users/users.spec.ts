@@ -7,16 +7,6 @@ import { UserService } from '../../../services/user.service';
 import { VenueService } from '../../../services/venue.service';
 import { RoleService } from '../../../services/role.service';
 
-/**
- * Pruebas unitarias del componente Users (panel admin).
- *
- * Estrategia: TestBed mínimo con mocks de los 3 servicios.
- * Se prueban:
- *   - Inicialización del FormGroup (campos y validadores)
- *   - Validaciones de cada campo (required, pattern, email)
- *   - Lógica de negocio del componente (filtros, formatearRol, sede condicional)
- *   - Integración con servicios (cargarUsuarios, guardarNuevoUsuario, etc.)
- */
 describe('Users (admin)', () => {
 
   let component: Users;
