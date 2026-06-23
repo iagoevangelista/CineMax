@@ -144,27 +144,46 @@
         <div>{{ mensajeAuth }}</div>
       </div>
 
-      <form class="w-100" (ngSubmit)="iniciarSesion()">
-        <div class="input-group mb-4 custom-input-group">
-          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="email" [(ngModel)]="loginData.email">
-          <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
-        </div>
-        
-        <div class="input-group mb-5 custom-input-group">
-          <input [type]="mostrarPassword ? 'text' : 'password'" class="form-control" placeholder="CONTRASEÑA" name="password" [(ngModel)]="loginData.password">
-          <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPassword()">
-            <i class="fa-regular" [ngClass]="mostrarPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
-          </span>
-        </div>
+          <!-- MODAL LOGIN -->
+    <form class="w-100" [formGroup]="loginForm" (ngSubmit)="iniciarSesion()">
+      <div class="input-group mb-2 custom-input-group">
+        <input type="email" class="form-control"
+              placeholder="CORREO ELECTRÓNICO"
+              formControlName="email">
+        <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
+      </div>
+      <!-- Mensaje de error de email -->
+      <div *ngIf="lf['email'].invalid && lf['email'].touched"
+          class="text-danger small mb-3 ps-1">
+        <span *ngIf="lf['email'].errors?.['required']">El correo es obligatorio.</span>
+        <span *ngIf="lf['email'].errors?.['email']">Ingresa un correo válido (ej: usuario@correo.com).</span>
+      </div>
 
-        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 d-flex align-items-center justify-content-center gap-2" [disabled]="cargandoLogin" style="height: 50px;">
-          <span *ngIf="!cargandoLogin">INICIAR SESIÓN</span>
-          <span *ngIf="cargandoLogin" class="d-flex align-items-center gap-2">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            VALIDANDO...
-          </span>
-        </button>
-      </form>
+      <div class="input-group mb-2 custom-input-group" [class.mt-4]="lf['email'].valid || lf['email'].untouched">
+        <input [type]="mostrarPassword ? 'text' : 'password'"
+              class="form-control"
+              placeholder="CONTRASEÑA"
+              formControlName="password">
+        <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPassword()">
+          <i class="fa-regular" [ngClass]="mostrarPassword ? 'fa-eye' : 'fa-eye-slash'"></i>
+        </span>
+      </div>
+      <!-- Mensaje de error de contraseña -->
+      <div *ngIf="lf['password'].invalid && lf['password'].touched"
+          class="text-danger small mb-3 ps-1">
+        <span *ngIf="lf['password'].errors?.['required']">La contraseña es obligatoria.</span>
+        <span *ngIf="lf['password'].errors?.['minlength']">Mínimo 6 caracteres.</span>
+      </div>
+
+      <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 d-flex align-items-center justify-content-center gap-2 mt-4"
+              [disabled]="cargandoLogin" style="height: 50px;">
+        <span *ngIf="!cargandoLogin">INICIAR SESIÓN</span>
+        <span *ngIf="cargandoLogin" class="d-flex align-items-center gap-2">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          VALIDANDO...
+        </span>
+      </button>
+    </form>
       <div class="mt-5 text-center login-links">
         <span style="cursor: pointer; display: block; color: #999; margin-bottom: 1rem;" (click)="cambiarVista('recuperar', $event)">¿OLVIDASTE TU CONTRASEÑA?</span>
         <span class="small" style="color: #999;">¿NO TIENES UNA CUENTA? </span>
@@ -181,44 +200,84 @@
         <div>{{ mensajeAuth }}</div>
       </div>
 
-      <form class="w-100" (ngSubmit)="registrarse()">
-        <div class="input-group mb-3 custom-input-group">
-          <input type="text" class="form-control" placeholder="NOMBRE" name="firstName" [(ngModel)]="registerData.firstName" required>
-        </div>
-        <div class="input-group mb-3 custom-input-group">
-          <input type="text" class="form-control" placeholder="APELLIDOS" name="lastName" [(ngModel)]="registerData.lastName" required>
-        </div>
-        <div class="row mb-3">
-          <div class="col-4 pe-1">
-            <div class="input-group custom-input-group h-100">
-              <select class="form-control" name="idDocumentType" [(ngModel)]="registerData.idDocumentType" required style="cursor: pointer;">
-                <option value="1">DNI</option>
-                <option value="2">CE</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-8 ps-1">
-            <div class="input-group custom-input-group h-100">
-              <input type="text" class="form-control" placeholder="N° DOCUMENTO" name="documentNumber" [(ngModel)]="registerData.documentNumber" required>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3 custom-input-group">
-          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="registerEmail" [(ngModel)]="registerData.email" required>
-        </div>
+              <!-- MODAL REGISTRO -->
+        <form class="w-100" [formGroup]="registerForm" (ngSubmit)="registrarse()">
+    <div class="input-group mb-1 custom-input-group">
+      <input type="text" class="form-control" placeholder="NOMBRE" formControlName="firstName"
+            [class.is-invalid]="rf['firstName'].invalid && rf['firstName'].touched">
+    </div>
+    <div *ngIf="rf['firstName'].invalid && rf['firstName'].touched"
+        class="text-danger small mb-2 ps-1">
+      <span *ngIf="rf['firstName'].errors?.['required']">El nombre es obligatorio.</span>
+      <span *ngIf="rf['firstName'].errors?.['minlength']">Mínimo 2 caracteres.</span>
+    </div>
 
-        <div class="input-group mb-2 custom-input-group">
-          <input [type]="mostrarPasswordReg ? 'text' : 'password'" class="form-control" placeholder="CONTRASEÑA" name="registerPassword" [(ngModel)]="registerData.password" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$" required>
-          <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPasswordReg()">
-            <i class="fa-regular" [ngClass]="mostrarPasswordReg ? 'fa-eye' : 'fa-eye-slash'"></i>
-          </span>
-        </div>
+    <div class="input-group mb-1 custom-input-group mt-2">
+      <input type="text" class="form-control" placeholder="APELLIDOS" formControlName="lastName"
+            [class.is-invalid]="rf['lastName'].invalid && rf['lastName'].touched">
+    </div>
+    <div *ngIf="rf['lastName'].invalid && rf['lastName'].touched"
+        class="text-danger small mb-2 ps-1">
+      <span *ngIf="rf['lastName'].errors?.['required']">El apellido es obligatorio.</span>
+      <span *ngIf="rf['lastName'].errors?.['minlength']">Mínimo 2 caracteres.</span>
+    </div>
 
-        <small class="text-start d-block text-white mb-4 w-100 ps-1" style="font-size: 12px; font-weight: 500;">
-         <i class="fa-solid fa-circle-info me-1 text-warning"></i> Mínimo 8 caracteres, al menos 1 letra y 1 número.
-        </small>
-        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
-      </form>
+    <div class="row mb-1 mt-2">
+      <div class="col-4 pe-1">
+        <div class="input-group custom-input-group h-100">
+          <select class="form-control" formControlName="idDocumentType" style="cursor: pointer;"
+                  [class.is-invalid]="rf['idDocumentType'].invalid && rf['idDocumentType'].touched">
+            <option value="1">DNI</option>
+            <option value="2">CE</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-8 ps-1">
+        <div class="input-group custom-input-group h-100">
+          <input type="text" class="form-control" placeholder="N° DOCUMENTO" formControlName="documentNumber"
+                [class.is-invalid]="rf['documentNumber'].invalid && rf['documentNumber'].touched">
+        </div>
+      </div>
+    </div>
+    <div *ngIf="rf['documentNumber'].invalid && rf['documentNumber'].touched"
+        class="text-danger small mb-2 ps-1">
+      <span *ngIf="rf['documentNumber'].errors?.['required']">El documento es obligatorio.</span>
+      <span *ngIf="rf['documentNumber'].errors?.['minlength']">Mínimo 8 dígitos.</span>
+      <span *ngIf="rf['documentNumber'].errors?.['maxlength']">Máximo 12 dígitos.</span>
+    </div>
+
+    <div class="input-group mb-1 custom-input-group mt-2">
+      <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" formControlName="email"
+            [class.is-invalid]="rf['email'].invalid && rf['email'].touched">
+    </div>
+    <div *ngIf="rf['email'].invalid && rf['email'].touched"
+        class="text-danger small mb-2 ps-1">
+      <span *ngIf="rf['email'].errors?.['required']">El correo es obligatorio.</span>
+      <span *ngIf="rf['email'].errors?.['email']">Ingresa un correo válido.</span>
+    </div>
+
+    <div class="input-group mb-1 custom-input-group mt-2">
+      <input [type]="mostrarPasswordReg ? 'text' : 'password'"
+            class="form-control" placeholder="CONTRASEÑA" formControlName="password"
+            [class.is-invalid]="rf['password'].invalid && rf['password'].touched">
+      <span class="input-group-text" style="cursor: pointer;" (click)="toggleMostrarPasswordReg()">
+        <i class="fa-regular" [ngClass]="mostrarPasswordReg ? 'fa-eye' : 'fa-eye-slash'"></i>
+      </span>
+    </div>
+    <div *ngIf="rf['password'].invalid && rf['password'].touched"
+        class="text-danger small mb-1 ps-1">
+      <span *ngIf="rf['password'].errors?.['required']">La contraseña es obligatoria.</span>
+      <span *ngIf="rf['password'].errors?.['pattern']">
+        Mínimo 8 caracteres, al menos 1 letra y 1 número.
+      </span>
+    </div>
+
+    <small class="text-start d-block text-white mb-3 mt-1 w-100 ps-1" style="font-size: 12px;">
+      <i class="fa-solid fa-circle-info me-1 text-warning"></i> Mínimo 8 caracteres, al menos 1 letra y 1 número.
+    </small>
+
+    <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5">CREAR CUENTA</button>
+  </form>
       <div class="mt-4 text-center login-links">
         <span class="small" style="color: #999;">¿YA TIENES CUENTA? </span>
         <span style="cursor: pointer; color: var(--primary-color); font-weight: bold;" (click)="cambiarVista('login', $event)">INICIA SESIÓN AQUÍ</span>
@@ -234,13 +293,24 @@
         <div>{{ mensajeRecuperacion.texto }}</div>
       </div>
 
-      <form class="w-100" (ngSubmit)="solicitarRecuperacion()">
-        <div class="input-group mb-4 custom-input-group">
-          <input type="email" class="form-control" placeholder="CORREO ELECTRÓNICO" name="correoRecuperacion" [(ngModel)]="correoRecuperacion" required [disabled]="loadingRecuperacion">
+            <!-- MODAL RECUPERAR CONTRASEÑA -->
+      <form class="w-100" [formGroup]="recuperarForm" (ngSubmit)="solicitarRecuperacion()">
+        <div class="input-group mb-1 custom-input-group">
+          <input type="email" class="form-control"
+                placeholder="CORREO ELECTRÓNICO"
+                formControlName="correoRecuperacion"
+                [class.is-invalid]="rec['correoRecuperacion'].invalid && rec['correoRecuperacion'].touched"
+                [disabled]="loadingRecuperacion">
           <span class="input-group-text"><i class="fa-regular fa-envelope"></i></span>
         </div>
-        
-        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 mb-3" [disabled]="loadingRecuperacion">
+        <div *ngIf="rec['correoRecuperacion'].invalid && rec['correoRecuperacion'].touched"
+            class="text-danger small mb-3 ps-1">
+          <span *ngIf="rec['correoRecuperacion'].errors?.['required']">El correo es obligatorio.</span>
+          <span *ngIf="rec['correoRecuperacion'].errors?.['email']">Ingresa un correo válido.</span>
+        </div>
+
+        <button type="submit" class="btn btn-login w-100 text-white fw-bold fs-5 mb-3 mt-4"
+                [disabled]="loadingRecuperacion">
           <span *ngIf="!loadingRecuperacion">ENVIAR ENLACE</span>
           <span *ngIf="loadingRecuperacion">
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

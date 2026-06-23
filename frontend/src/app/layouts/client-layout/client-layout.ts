@@ -1,31 +1,36 @@
+// client-layout.ts
 import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+// ✅ CAMBIO: Reemplazar FormsModule por ReactiveFormsModule
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { UserService } from '../../services/user.service'; 
+import { UserService } from '../../services/user.service';
 import { finalize, delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-client-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  // ✅ CAMBIO: ReactiveFormsModule en lugar de FormsModule
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './client-layout.html',
   styleUrl: './client-layout.css',
 })
 export class ClientLayout implements OnInit {
 
-  loginData = { email: '', password: '' };
-  registerData = { firstName: '', lastName: '', idDocumentType: 1, documentNumber: '', email: '', password: '' };
-  
+  // ✅ NUEVO: FormGroups reactivos (reemplazan a loginData, registerData y correoRecuperacion)
+  loginForm!: FormGroup;
+  registerForm!: FormGroup;
+  recuperarForm!: FormGroup;
+
   isLogged: boolean = false;
   userEmail: string = '';
   menuAbierto: boolean = false;
-  vistaActiva: string = 'login'; 
+  vistaActiva: string = 'login';
 
   userFullName: string = 'Usuario';
   userInitials: string = 'U';
-  userImageUrl: string | null = null; 
+  userImageUrl: string | null = null;
 
   mostrarPassword = false;
   mostrarPasswordReg = false;
@@ -33,33 +38,58 @@ export class ClientLayout implements OnInit {
 
   mensajeAuth: string = '';
   esErrorAuth: boolean = false;
-  correoRecuperacion: string = '';
   loadingRecuperacion: boolean = false;
   mensajeRecuperacion: { texto: string, tipo: 'success' | 'danger' } | null = null;
 
+  // ✅ NUEVO: Regex igual al @Pattern del backend (RegisterRequestDTO)
+  private readonly PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
   constructor(
+    private fb: FormBuilder,          // ✅ NUEVO
     private authService: AuthService,
     private userService: UserService,
     private router: Router,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    // ✅ NUEVO: Inicialización de formularios reactivos
+    this.loginForm = this.fb.group({
+      email:    ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+
+    this.registerForm = this.fb.group({
+      firstName:      ['', [Validators.required, Validators.minLength(2)]],
+      lastName:       ['', [Validators.required, Validators.minLength(2)]],
+      idDocumentType: [1,  [Validators.required]],
+      documentNumber: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(12)]],
+      email:          ['', [Validators.required, Validators.email]],
+      password:       ['', [Validators.required, Validators.pattern(this.PASSWORD_PATTERN)]]
+    });
+
+    this.recuperarForm = this.fb.group({
+      correoRecuperacion: ['', [Validators.required, Validators.email]]
+    });
+
     this.verificarSesion();
 
-    // MAGIA: Escuchamos en vivo cualquier cambio que sufra el usuario
     this.userService.user$.subscribe(user => {
       if (user) {
         this.userFullName = `${user.firstName} ${user.lastName}`.trim();
         this.userInitials = this.obtenerIniciales(user.firstName, user.lastName);
-        this.userImageUrl = user.imageUrl || null; // Carga la URL si existe
-        this.cdr.detectChanges(); // Fuerza a pintar la foto arriba
+        this.userImageUrl = user.imageUrl || null;
+        this.cdr.detectChanges();
       }
     });
   }
 
+  // ✅ HELPERS de acceso rápido a los controles (para mostrar errores en el HTML)
+  get lf() { return this.loginForm.controls; }
+  get rf() { return this.registerForm.controls; }
+  get rec() { return this.recuperarForm.controls; }
+
   cargarDatosUsuario() {
-    // Al pedir el perfil, nuestro servicio ahora dispara el user$ automáticamente
     this.userService.getProfile().subscribe({
       error: (err) => console.error('Error al cargar perfil rápido:', err)
     });
@@ -68,34 +98,27 @@ export class ClientLayout implements OnInit {
   obtenerIniciales(nombre: string, apellido: string): string {
     const n = nombre ? nombre.charAt(0).toUpperCase() : '';
     const a = apellido ? apellido.charAt(0).toUpperCase() : '';
-    return n + a || 'U'; 
+    return n + a || 'U';
   }
 
   cambiarVista(vista: string, event?: Event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+    if (event) { event.preventDefault(); event.stopPropagation(); }
     this.vistaActiva = vista;
-    this.mensajeAuth = ''; 
+    this.mensajeAuth = '';
     this.cdr.detectChanges();
   }
 
-  toggleMostrarPassword() {
-    this.mostrarPassword = !this.mostrarPassword;
-    this.cdr.detectChanges();
-  }
-
-  toggleMostrarPasswordReg() {
-    this.mostrarPasswordReg = !this.mostrarPasswordReg;
-    this.cdr.detectChanges();
-  }
+  toggleMostrarPassword() { this.mostrarPassword = !this.mostrarPassword; this.cdr.detectChanges(); }
+  toggleMostrarPasswordReg() { this.mostrarPasswordReg = !this.mostrarPasswordReg; this.cdr.detectChanges(); }
 
   iniciarSesion() {
-    this.mensajeAuth = ''; 
-    if (!this.loginData.email || !this.loginData.password) {
+    this.mensajeAuth = '';
+    // ✅ NUEVO: Marcar todos los campos como tocados para mostrar errores
+    this.loginForm.markAllAsTouched();
+
+    if (this.loginForm.invalid) {
       this.esErrorAuth = true;
-      this.mensajeAuth = 'Por favor ingresa tu correo y contraseña.';
+      this.mensajeAuth = 'Por favor ingresa un correo válido y tu contraseña.';
       this.cdr.detectChanges();
       return;
     }
@@ -103,23 +126,24 @@ export class ClientLayout implements OnInit {
     this.cargandoLogin = true;
     this.cdr.detectChanges();
 
-    this.authService.login(this.loginData).subscribe({
+    // ✅ CAMBIO: loginForm.value en lugar de loginData
+    this.authService.login(this.loginForm.value).subscribe({
       next: (res: any) => {
         this.esErrorAuth = false;
         this.mensajeAuth = '¡Sesión iniciada con éxito! Entrando...';
         this.cargandoLogin = false;
         this.cdr.detectChanges();
-        
+
         setTimeout(() => {
           document.getElementById('btn-cerrar-panel')?.click();
-          this.verificarSesion(); 
-          this.loginData = { email: '', password: '' };
+          this.verificarSesion();
+          this.loginForm.reset();   // ✅ CAMBIO
           this.mensajeAuth = '';
           this.cdr.detectChanges();
 
-          const rolUsuario = this.authService.getRole(); 
+          const rolUsuario = this.authService.getRole();
           if (rolUsuario === 'ADMIN' || (rolUsuario && rolUsuario.toUpperCase().startsWith('GERENTE'))) {
-            this.router.navigate(['/admin/dashboard']); 
+            this.router.navigate(['/admin/dashboard']);
           }
         }, 1500);
       },
@@ -134,22 +158,22 @@ export class ClientLayout implements OnInit {
 
   registrarse() {
     this.mensajeAuth = '';
-    if (!this.registerData.firstName || !this.registerData.email || !this.registerData.password) {
+    this.registerForm.markAllAsTouched();
+
+    if (this.registerForm.invalid) {
       this.esErrorAuth = true;
-      this.mensajeAuth = 'Por favor completa todos los campos obligatorios.';
+      this.mensajeAuth = 'Por favor completa todos los campos correctamente.';
       this.cdr.detectChanges();
       return;
     }
 
-    this.authService.register(this.registerData).subscribe({
+    // ✅ CAMBIO: registerForm.value en lugar de registerData
+    this.authService.register(this.registerForm.value).subscribe({
       next: () => {
         this.esErrorAuth = false;
         this.mensajeAuth = '¡Registro exitoso! Redirigiendo al login...';
         this.cdr.detectChanges();
-        
-        setTimeout(() => {
-          this.cambiarVista('login');
-        }, 2000);
+        setTimeout(() => { this.cambiarVista('login'); this.registerForm.reset({ idDocumentType: 1 }); }, 2000);
       },
       error: (err: any) => {
         this.esErrorAuth = true;
@@ -161,30 +185,30 @@ export class ClientLayout implements OnInit {
 
   solicitarRecuperacion() {
     this.mensajeRecuperacion = null;
-    if (!this.correoRecuperacion) {
-      this.mensajeRecuperacion = { texto: 'Por favor ingresa tu correo.', tipo: 'danger' };
+    this.recuperarForm.markAllAsTouched();
+
+    if (this.recuperarForm.invalid) {
+      this.mensajeRecuperacion = { texto: 'Por favor ingresa un correo electrónico válido.', tipo: 'danger' };
       this.cdr.detectChanges();
       return;
     }
 
     this.loadingRecuperacion = true;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
 
-    this.authService.forgotPassword(this.correoRecuperacion)
+    // ✅ CAMBIO: recuperarForm.value.correoRecuperacion
+    this.authService.forgotPassword(this.recuperarForm.value.correoRecuperacion)
       .pipe(
-        delay(3000), 
-        finalize(() => {
-          this.loadingRecuperacion = false;
-          this.cdr.detectChanges();
-        }) 
+        delay(3000),
+        finalize(() => { this.loadingRecuperacion = false; this.cdr.detectChanges(); })
       )
       .subscribe({
         next: (res: any) => {
-          this.mensajeRecuperacion = { 
-            texto: res.message || '¡Enlace enviado! Revisa tu bandeja de entrada.', 
-            tipo: 'success' 
+          this.mensajeRecuperacion = {
+            texto: res.message || '¡Enlace enviado! Revisa tu bandeja de entrada.',
+            tipo: 'success'
           };
-          this.correoRecuperacion = '';  
+          this.recuperarForm.reset();
           this.cdr.detectChanges();
         },
         error: (err: any) => {
@@ -198,14 +222,14 @@ export class ClientLayout implements OnInit {
   verificarSesion() {
     this.isLogged = this.authService.isLoggedIn();
     if (this.isLogged) {
-      this.userEmail = this.authService.getEmail() || localStorage.getItem('email') || 'Mi Cuenta'; 
-      this.cargarDatosUsuario(); 
+      this.userEmail = this.authService.getEmail() || localStorage.getItem('email') || 'Mi Cuenta';
+      this.cargarDatosUsuario();
     }
     this.cdr.detectChanges();
   }
 
   cerrarSesion() {
-    this.menuAbierto = false; 
+    this.menuAbierto = false;
     this.authService.logout();
     this.isLogged = false;
     this.cdr.detectChanges();
@@ -214,17 +238,13 @@ export class ClientLayout implements OnInit {
   }
 
   toggleMenu(event: Event) {
-    event.preventDefault();
-    event.stopPropagation(); 
+    event.preventDefault(); event.stopPropagation();
     this.menuAbierto = !this.menuAbierto;
     this.cdr.detectChanges();
   }
 
   @HostListener('document:click', ['$event'])
   clickFuera(event: any) {
-    if (this.menuAbierto) {
-      this.menuAbierto = false;
-      this.cdr.detectChanges();
-    }
+    if (this.menuAbierto) { this.menuAbierto = false; this.cdr.detectChanges(); }
   }
 }
