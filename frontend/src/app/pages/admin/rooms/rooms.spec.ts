@@ -37,8 +37,8 @@ describe('Rooms (HU-16)', () => {
   ];
 
   const sedesMock = [
-    { idVenue: 1, nameVenue: 'Sede Lima' },
-    { idVenue: 2, nameVenue: 'Sede Miraflores' },
+    { idVenue: 1, nameVenue: 'Sede Lima', addressVenue: 'Av. Lima 123', phoneNumber: '987654321', status: 'Activo' },
+    { idVenue: 2, nameVenue: 'Sede Miraflores', addressVenue: 'Calle Miraflores 45', phoneNumber: '912345678', status: 'Activo' },
   ];
 
   const perfilMock = { idUser: 10, firstName: 'Gerente', idVenue: 1 };

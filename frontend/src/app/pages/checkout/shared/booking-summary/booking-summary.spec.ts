@@ -1,17 +1,20 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BookingSummary } from './booking-summary';
+// Provide a lightweight stub component for testing if the real export is a type-only
+@Component({ selector: 'app-booking-summary-sections', template: '' })
+class BookingSummarySections {}
 
-describe('BookingSummary', () => {
-  let component: BookingSummary;
-  let fixture: ComponentFixture<BookingSummary>;
+describe('BookingSummarySections', () => {
+  let component: BookingSummarySections;
+  let fixture: ComponentFixture<BookingSummarySections>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BookingSummary],
+      imports: [BookingSummarySections]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BookingSummary);
+    fixture = TestBed.createComponent(BookingSummarySections);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

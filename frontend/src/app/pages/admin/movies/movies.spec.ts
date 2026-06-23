@@ -27,8 +27,8 @@ describe('AdminMovies (HU-13)', () => {
   let mockClassificationService: jasmine.SpyObj<ClassificationService>;
 
   const peliculasMock = [
-    { idMovie: 1, titleMovie: 'Inception', director: 'Nolan', durationMinutes: 148, status: 'Cartelera', premiereWeek: false },
-    { idMovie: 2, titleMovie: 'Dune', director: 'Villeneuve', durationMinutes: 155, status: 'Cartelera', premiereWeek: true },
+    { idMovie: 1, titleMovie: 'Inception', director: 'Nolan', synopsis: 'A mind-bending thriller', posterUrl: 'inception.jpg', durationMinutes: 148, releaseDate: '2010-07-16', status: 'Cartelera', premiereWeek: false },
+    { idMovie: 2, titleMovie: 'Dune', director: 'Villeneuve', synopsis: 'Epic sci-fi adventure', posterUrl: 'dune.jpg', durationMinutes: 155, releaseDate: '2021-10-22', status: 'Cartelera', premiereWeek: true },
   ];
 
   const generosMock = [
