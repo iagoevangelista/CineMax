@@ -234,6 +234,11 @@ export class ClientLayout implements OnInit {
     this.isLogged = false;
     this.cdr.detectChanges();
     alert('Sesión cerrada correctamente.');
+    this.recargarPagina(); // Llamamos al método interno
+  }
+
+  // Envolvemos el comando en una función propia del componente
+  recargarPagina() {
     window.location.reload();
   }
 
