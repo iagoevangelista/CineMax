@@ -69,8 +69,8 @@ class ShowtimeControllerTest {
                 .idUser(1).email("gerente.general@cinemax.com").venue(sinSede).build();
 
         authGerGeneral = mock(Authentication.class);
-        when(authGerGeneral.getPrincipal()).thenReturn(gerGeneral);
-        when(authGerGeneral.getAuthorities()).thenAnswer(inv ->
+        lenient().when(authGerGeneral.getPrincipal()).thenReturn(gerGeneral);
+        lenient().when(authGerGeneral.getAuthorities()).thenAnswer(inv ->
                 List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("MANAGE_VENUES"),
                         new org.springframework.security.core.authority.SimpleGrantedAuthority("MANAGE_SHOWTIMES")));
 
@@ -80,8 +80,8 @@ class ShowtimeControllerTest {
                 .idUser(2).email("gerente.sede@cinemax.com").venue(sedeSanIsidro).build();
 
         authGerenteSede = mock(Authentication.class);
-        when(authGerenteSede.getPrincipal()).thenReturn(gerenteSede);
-        when(authGerenteSede.getAuthorities()).thenAnswer(inv ->
+        lenient().when(authGerenteSede.getPrincipal()).thenReturn(gerenteSede);
+        lenient().when(authGerenteSede.getAuthorities()).thenAnswer(inv ->
                 List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("MANAGE_SHOWTIMES")));
 
         // ── DTO de función reutilizable ──
