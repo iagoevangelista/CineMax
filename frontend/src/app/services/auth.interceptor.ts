@@ -7,12 +7,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // 2. Definir rutas que son ESTRICTAMENTE públicas en el sistema
   const esRutaPublica = 
-    req.url.includes('/api/v1/auth/login') ||
-    req.url.includes('/api/v1/auth/register') ||
-    req.url.includes('/api/v1/auth/forgot') ||
-    (req.method === 'GET' && req.url.includes('/api/v1/snacks')) ||
-    (req.method === 'GET' && req.url.includes('/api/v1/movies')) ||
-    (req.method === 'GET' && req.url.includes('/api/v1/showtimes'));
+  req.url.includes('/api/v1/auth/login') ||
+  req.url.includes('/api/v1/auth/register') ||
+  req.url.includes('/api/v1/auth/forgot') ||
+  (req.method === 'GET' && req.url.includes('/api/v1/snacks')) ||
+  (req.method === 'GET' && req.url.includes('/api/v1/movies')) ||
+  (req.method === 'GET' && req.url.includes('/api/v1/showtimes') 
+    && !req.url.includes('/by-venue'));
 
   // 3. Lógica de clonación de la petición
   if (hasToken && !esRutaPublica) {
