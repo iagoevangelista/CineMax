@@ -25,19 +25,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * Pruebas unitarias del UserController.
- *
- * Estrategia: llamada directa al método Java del Controller, sin levantar Spring.
- * Esto prueba que el Controller:
- *   - llama al Service correcto con los parámetros correctos
- *   - devuelve el ResponseEntity con el status HTTP esperado
- *   - delega correctamente al Principal para perfil/autoeliminación
- *
- * Nota: @PreAuthorize se verifica a nivel de integración o en revisión de código —
- * las anotaciones están visiblemente en el Controller y son correctas por diseño.
- * Las pruebas de reglas de negocio (email duplicado, etc.) están en UserServiceImplTest.
- */
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 

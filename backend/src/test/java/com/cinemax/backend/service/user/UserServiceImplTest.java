@@ -96,8 +96,7 @@ class UserServiceImplTest {
         @Test
         @DisplayName("CP-USR-01: crea un colaborador cuando todos los datos son válidos")
         void creaColaboradorConDatosValidos() {
-            // Arrange: el rol existe, ni el email ni el documento están repetidos,
-            // la sede existe y no tiene ya un gerente de operaciones activo.
+
             when(roleRepository.findById(5)).thenReturn(Optional.of(rolGerenteOperaciones));
             when(userRepository.existsByEmail("carlos.ramos@cinemax.com")).thenReturn(false);
             when(userRepository.existsByDocumentNumber("70123456")).thenReturn(false);

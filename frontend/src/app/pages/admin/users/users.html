@@ -207,7 +207,7 @@
                    [class.is-invalid]="campoInvalido('documentNumber')">
             <div class="invalid-feedback" *ngIf="campoInvalido('documentNumber')">
               <span *ngIf="nuevoUsuarioForm.get('documentNumber')?.hasError('required')">El número de documento es obligatorio.</span>
-              <span *ngIf="nuevoUsuarioForm.get('documentNumber')?.hasError('pattern')">Debe tener entre 6 y 15 caracteres alfanuméricos.</span>
+              <span *ngIf="nuevoUsuarioForm.get('documentNumber')?.hasError('pattern')">Debe ser solo numeros.</span>
             </div>
           </div>
 

@@ -48,13 +48,9 @@ export class Venues implements OnInit {
   map: L.Map | undefined;
   marker: L.Marker | undefined;
 
-  // ── Formulario reactivo (solo campos que el usuario escribe a mano) ─────
   sedeForm!: FormGroup;
   formEnviado = false;
 
-  // latitude/longitude NO viven en el FormGroup: el mapa Leaflet los actualiza
-  // directamente fuera del ciclo de Angular (eventos de clic en el mapa),
-  // así que se manejan como estado simple del componente, igual que antes.
   latitude: number = COORDENADAS_LIMA_DEFAULT.lat;
   longitude: number = COORDENADAS_LIMA_DEFAULT.lng;
 
