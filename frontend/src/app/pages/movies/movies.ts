@@ -1,7 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MovieService, Movie } from '../../services/movie.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../enviroments/environment';
 
 @Component({
   selector: 'app-movies',
@@ -25,13 +27,22 @@ export class Movies implements OnInit {
   clasificaciones: string[] = ['ATP', '+14', '+17', 'PG-13'];
   mensajeFiltro: string = '';
 
+  filtroIdMovie: number | null = null;
+  filtroIdVenue: number | null = null;
+
   constructor(
     private movieService: MovieService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.cargarPorTab('Cartelera');
+    this.route.queryParams.subscribe(params => {
+      this.filtroIdMovie = params['idMovie'] ? +params['idMovie'] : null;
+      this.filtroIdVenue = params['idVenue'] ? +params['idVenue'] : null;
+      this.cargarPorTab('Cartelera');
+    });
   }
 
   cargarPorTab(tab: string) {
@@ -51,13 +62,13 @@ export class Movies implements OnInit {
           this.movieService.getMoviesByStatus('Estreno').subscribe({
             next: (estrenos) => {
               this.todasLasPeliculas = [...cartelera, ...estrenos];
-              this.peliculasFiltradas = [...this.todasLasPeliculas];
+              this.aplicarFiltrosIniciales();
               this.loading = false;
               this.cdr.detectChanges();
             },
             error: () => {
               this.todasLasPeliculas = [...cartelera];
-              this.peliculasFiltradas = [...this.todasLasPeliculas];
+              this.aplicarFiltrosIniciales();
               this.loading = false;
               this.cdr.detectChanges();
             }
@@ -73,7 +84,7 @@ export class Movies implements OnInit {
       this.movieService.getMoviesByStatus(tab as any).subscribe({
         next: (data: Movie[]) => {
           this.todasLasPeliculas = [...data];
-          this.peliculasFiltradas = [...this.todasLasPeliculas];
+          this.aplicarFiltrosIniciales();
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -83,6 +94,29 @@ export class Movies implements OnInit {
           this.cdr.detectChanges();
         }
       });
+    }
+  }
+
+  aplicarFiltrosIniciales() {
+    if (this.filtroIdMovie) {
+      this.peliculasFiltradas = this.todasLasPeliculas.filter(p => p.idMovie === this.filtroIdMovie);
+      this.mensajeFiltro = `${this.peliculasFiltradas.length} película(s) encontrada(s).`;
+    } else if (this.filtroIdVenue) {
+      // Filtra por sede usando showtimes
+      this.http.get<any[]>(`${environment.apiUrl}/showtimes/by-venue?idVenue=${this.filtroIdVenue}&date=${new Date().toISOString().split('T')[0]}`).subscribe({
+        next: (showtimes) => {
+          const idsConFuncion = new Set(showtimes.map((s: any) => s.idMovie));
+          this.peliculasFiltradas = this.todasLasPeliculas.filter(p => idsConFuncion.has(p.idMovie));
+          this.mensajeFiltro = `${this.peliculasFiltradas.length} película(s) en esta sede hoy.`;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.peliculasFiltradas = [...this.todasLasPeliculas];
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.peliculasFiltradas = [...this.todasLasPeliculas];
     }
   }
 
@@ -117,6 +151,8 @@ export class Movies implements OnInit {
     this.textoBusqueda = '';
     this.clasificacionSeleccionada = '';
     this.mensajeFiltro = '';
+    this.filtroIdMovie = null;
+    this.filtroIdVenue = null;
     this.peliculasFiltradas = [...this.todasLasPeliculas];
   }
 

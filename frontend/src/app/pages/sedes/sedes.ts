@@ -13,14 +13,17 @@ import * as L from 'leaflet';
   styleUrl: './sedes.css'
 })
 export class Sedes implements OnInit {
+
+  // --- Estado de datos ---
   sedes: any[] = [];
+  sedesMostradas: any[] = [];
   departamentos: string[] = [];
+
+  // --- Estado de filtros ---
   departamentoSeleccionado: string = '';
-  
   textoBusqueda: string = '';
-  sedesMostradas: any[] = []; 
-  
-  // Variables para el Modal del Mapa
+
+  // --- Estado del modal de mapa ---
   sedeDetalle: any = null;
   map: L.Map | undefined;
   marker: L.Marker | undefined;
@@ -31,54 +34,66 @@ export class Sedes implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  // --- Inicialización ---
+
   ngOnInit() {
     this.venueService.getPublicVenues().subscribe(data => {
       this.sedes = data;
+
+      // Extrae departamentos únicos para los tabs de filtro
       this.departamentos = [...new Set(this.sedes.map(s => s.departmentName))].filter(d => d);
-      
-      // Auto-seleccionar el primer departamento apenas cargan los datos
+
+      // Selecciona el primer departamento por defecto
       if (this.departamentos.length > 0) {
         this.departamentoSeleccionado = this.departamentos[0];
-        this.aplicarFiltros(); 
+        this.aplicarFiltros();
       }
-      
-      this.cdr.detectChanges(); 
+
+      this.cdr.detectChanges();
     });
   }
 
+  // --- Filtros ---
+
   seleccionarDepartamento(dep: string) {
     this.departamentoSeleccionado = dep;
-    this.textoBusqueda = ''; // Limpiamos el buscador al cambiar de ciudad
+    this.textoBusqueda = ''; // limpia el buscador al cambiar de departamento
     this.aplicarFiltros();
   }
 
-  // Filtra por ciudad y por el texto del buscador
+  // Filtra sedes por departamento activo y texto del buscador (nombre o distrito)
   aplicarFiltros() {
     this.sedesMostradas = this.sedes.filter(s => {
       const coincideDep = s.departmentName === this.departamentoSeleccionado;
-      const coincideTexto = s.nameVenue.toLowerCase().includes(this.textoBusqueda.toLowerCase()) || 
-                            s.districtName?.toLowerCase().includes(this.textoBusqueda.toLowerCase());
-      
+      const coincideTexto =
+        s.nameVenue.toLowerCase().includes(this.textoBusqueda.toLowerCase()) ||
+        s.districtName?.toLowerCase().includes(this.textoBusqueda.toLowerCase());
       return coincideDep && coincideTexto;
     });
   }
 
+  // --- Navegación ---
+
+  // Lleva al usuario a la cartelera filtrada por sede
   irACartelera(sedeId: number) {
     this.router.navigate(['/movies'], { queryParams: { sede: sedeId } });
   }
 
+  // --- Modal de detalles con mapa ---
+
   verDetalles(sede: any) {
     this.sedeDetalle = sede;
-    setTimeout(() => this.initMap(sede), 300); 
+    setTimeout(() => this.initMap(sede), 300); // espera a que el DOM renderice el contenedor del mapa
   }
 
   cerrarDetalles() {
     this.sedeDetalle = null;
   }
 
+  // Inicializa el mapa Leaflet centrado en la sede; usa Lima como fallback si no hay coordenadas
   initMap(sede: any) {
     if (this.map) this.map.remove();
-    
+
     const lat = sede.latitude || -12.046374;
     const lng = sede.longitude || -77.042793;
 

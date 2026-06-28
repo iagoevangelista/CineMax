@@ -55,7 +55,7 @@ class MovieControllerTest {
     @InjectMocks
     private MovieController movieController;
 
-    // DTOs reutilizables
+    // DTOs
     private MovieDetailDTO detalleMock;
     private MovieListDTO resumenMock;
     private MovieRequestDTO requestValido;
@@ -96,7 +96,7 @@ class MovieControllerTest {
         );
     }
 
-    // ── getMoviesByStatus() ──────────────────────────────────────────────────
+    // getMoviesByStatus() 
 
     @Nested
     @DisplayName("getMoviesByStatus()")
@@ -129,7 +129,7 @@ class MovieControllerTest {
         }
     }
 
-    // ── getMovieById() ───────────────────────────────────────────────────────
+    // getMovieById() 
 
     @Nested
     @DisplayName("getMovieById()")
@@ -160,7 +160,7 @@ class MovieControllerTest {
         }
     }
 
-    // ── createMovie() ────────────────────────────────────────────────────────
+    // createMovie()
 
     @Nested
     @DisplayName("createMovie()")
@@ -214,7 +214,7 @@ class MovieControllerTest {
         }
     }
 
-    // ── updateMovie() ────────────────────────────────────────────────────────
+    // updateMovie()
 
     @Nested
     @DisplayName("updateMovie()")
@@ -267,7 +267,7 @@ class MovieControllerTest {
         }
     }
 
-    // ── deleteMovie() ────────────────────────────────────────────────────────
+    // deleteMovie()
 
     @Nested
     @DisplayName("deleteMovie()")

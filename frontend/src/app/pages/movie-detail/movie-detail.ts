@@ -21,6 +21,7 @@ export class MovieDetail implements OnInit {
   horarios: any[] = [];
   sedesAgrupadas: any[] = [];
   showtimeSeleccionado: number | null = null;
+  formatoSeleccionado: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -94,8 +95,9 @@ export class MovieDetail implements OnInit {
     }));
   }
 
-  seleccionarHorario(idShowtime: number) {
+  seleccionarHorario(idShowtime: number, formato: string) {
     this.showtimeSeleccionado = idShowtime;
+    this.formatoSeleccionado = formato;
   }
 
   volver() {

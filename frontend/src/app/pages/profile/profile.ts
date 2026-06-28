@@ -28,13 +28,14 @@ export class Profile implements OnInit {
   pestanaActiva: string = 'datos';
   cargando: boolean = false;
   guardando: boolean = false;
+  esAdmin: boolean = false;
 
   mensaje: string = '';
   esError: boolean = false;
 
   // Formularios
-  datosForm!: FormGroup;
-  seguridadForm!: FormGroup;
+  datosForm: FormGroup = new FormGroup({});
+  seguridadForm: FormGroup = new FormGroup({});
   formDatosEnviado = false;
   formSeguridadEnviado = false;
 
@@ -58,22 +59,27 @@ export class Profile implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
-      return;
-    }
-
-    this.construirFormularios();
-    this.cargarPerfil();
-
-    this.route.queryParams.subscribe(params => {
-      if (params['tab']) {
-        this.pestanaActiva = params['tab'];
-        this.mensaje = '';
-        this.cdr.detectChanges();
-      }
-    });
+  if (!this.authService.isLoggedIn()) {
+    this.router.navigate(['/']);
+    return;
   }
+
+  this.construirFormularios();
+  this.cargarPerfil();
+  
+  const rol = this.authService.getRole();
+  const rolesAdmin = ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING', 'GERENTE_DE_OPERACIONES', 'ADMIN'];
+  this.esAdmin = rolesAdmin.includes(rol) || document.referrer.includes('/admin');
+  console.log('ROL detectado:', rol, '| esAdmin:', this.esAdmin);
+  this.cdr.detectChanges();  
+  this.route.queryParams.subscribe(params => {
+    if (params['tab']) {
+      this.pestanaActiva = params['tab'];
+      this.mensaje = '';
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   // Construcción de formularios
 
@@ -292,4 +298,9 @@ export class Profile implements OnInit {
         }
       });
   }
+
+  volver(): void {
+  this.router.navigate(['/admin/dashboard']);
+}
+
 }

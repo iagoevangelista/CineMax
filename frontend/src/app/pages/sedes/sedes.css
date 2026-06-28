@@ -1,0 +1,16 @@
+.btn-sede-primary {
+  background-color: #6f42c1;
+  border: none;
+  color: white;
+}
+
+.btn-sede-primary:hover {
+  background-color: #5a32a3;
+  color: white;
+}
+
+.bg-sede-active {
+  background-color: #6f42c1 !important;
+  color: white;
+  font-weight: bold;
+}

@@ -8,9 +8,37 @@
       </span>
     </div>
 
-    <a routerLink="/perfil" class="profile-icon" title="Mi perfil" style="cursor: pointer;">
-      <i class="fa-solid fa-circle-user text-white"></i>
-    </a>
+    <!-- Avatar con dropdown -->
+    <div class="position-relative">
+      <div class="profile-icon" (click)="toggleDropdown()" style="cursor: pointer;" title="Mi perfil">
+        <i class="fa-solid fa-circle-user text-white fs-2"></i>
+      </div>
+
+      <div *ngIf="dropdownAbierto" class="admin-dropdown">
+        <div class="admin-dropdown-header">
+          <p class="mb-0 fw-bold text-white">{{ nombreUsuario }}</p>
+          <p class="mb-0 small" style="color: var(--primary-color);">{{ formatearRol(rolActual) }}</p>
+        </div>
+        <hr class="my-2 border-secondary">
+        <a class="admin-dropdown-item" routerLink="/perfil" (click)="cerrarDropdown()">
+          <i class="fa-solid fa-user me-2"></i> Mis Datos
+        </a>
+        <a class="admin-dropdown-item" routerLink="/perfil" [queryParams]="{tab: 'compras'}" (click)="cerrarDropdown()">
+          <i class="fa-solid fa-ticket me-2"></i> Mis Compras
+        </a>
+        <a class="admin-dropdown-item" routerLink="/perfil" [queryParams]="{tab: 'seguridad'}" (click)="cerrarDropdown()">
+          <i class="fa-solid fa-shield me-2"></i> Seguridad
+        </a>
+        <hr class="my-2 border-secondary">
+        <a class="admin-dropdown-item text-danger" href="#" (click)="cerrarSesion(); $event.preventDefault()">
+          <i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión
+        </a>
+      </div>
+    </div>
+
   </div>
 
 </nav>
+
+<!-- Overlay para cerrar al hacer click fuera -->
+<div *ngIf="dropdownAbierto" class="dropdown-overlay" (click)="cerrarDropdown()"></div>

@@ -84,7 +84,7 @@ describe('Rooms (HU-16)', () => {
     it('debe construir el FormGroup con todos los campos esperados', () => {
       expect(component.form).toBeTruthy();
       ['nameRoom', 'numRows', 'seatsPerRow', 'capacity', 'status', 'idVenue'].forEach(campo => {
-        expect(component.form.contains(campo)).toBeTrue();
+        expect(component.form.get(campo)).not.toBeNull();
       });
     });
 
