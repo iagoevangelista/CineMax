@@ -7,44 +7,60 @@
   </div>
 
   <!-- Selector de sede -->
-  <div *ngIf="!sedeSeleccionada" class="sede-selector-section">
+<div *ngIf="!sedeSeleccionada" class="sede-selector-section">
 
-    <div *ngIf="cargandoSedes" class="text-center py-5">
-      <div class="spinner-border text-pink" role="status"></div>
+  <div *ngIf="cargandoSedes" class="text-center py-5">
+    <div class="spinner-border text-pink" role="status"></div>
+  </div>
+
+  <div *ngIf="error" class="text-center text-secondary py-5">
+    No se pudieron cargar las sedes. Intenta más tarde.
+  </div>
+
+  <div *ngIf="!cargandoSedes && !error" class="sede-selector-inner">
+
+    <div class="sede-label">
+      <span class="sede-label-line"></span>
+      <span class="sede-label-text">¿EN QUÉ SEDE VAS A DISFRUTAR TU ANTOJO?</span>
+      <span class="sede-label-line"></span>
     </div>
 
-    <div *ngIf="error" class="text-center text-secondary py-5">
-      No se pudieron cargar las sedes. Intenta más tarde.
-    </div>
+    <div class="sede-cards-row">
+      <div *ngFor="let sede of sedes" class="sede-card-new" (click)="seleccionarSede(sede)">
+        <div class="sede-card-glow"></div>
 
-    <div *ngIf="!cargandoSedes && !error" class="sede-selector-inner">
+        <!-- Imagen de fondo decorativa -->
+        <div class="sede-card-bg-icon">
+          <i class="fa-solid fa-popcorn"></i>
+        </div>
 
-      <div class="sede-label">
-        <span class="sede-label-line"></span>
-        <span class="sede-label-text">¿EN QUÉ SEDE VAS A DISFRUTAR TU ANTOJO?</span>
-        <span class="sede-label-line"></span>
-      </div>
+        <div class="sede-card-icon">
+          <i class="fa-solid fa-clapperboard"></i>
+        </div>
 
-      <div class="sede-cards-row">
-        <div *ngFor="let sede of sedes" class="sede-card-new" (click)="seleccionarSede(sede)">
-          <div class="sede-card-glow"></div>
-          <div class="sede-card-icon">
-            <i class="fa-solid fa-clapperboard"></i>
+        <div class="sede-card-content">
+          <h4 class="sede-card-name">{{ sede.nameVenue }}</h4>
+          <p class="sede-card-address">
+            <i class="fa-solid fa-location-dot me-1"></i>{{ sede.address }}
+          </p>
+          <div class="sede-card-tags">
+            <span class="sede-tag">2D</span>
+            <span class="sede-tag">3D</span>
+            <span class="sede-tag"><i class="fa-solid fa-cookie-bite me-1"></i>Confitería</span>
           </div>
-          <div class="sede-card-content">
-            <h4 class="sede-card-name">{{ sede.nameVenue }}</h4>
-            <p class="sede-card-address">
-              <i class="fa-solid fa-location-dot me-1"></i>{{ sede.address }}
-            </p>
-          </div>
+        </div>
+
+        <div class="sede-card-footer">
           <div class="sede-card-action">
             Seleccionar <i class="fa-solid fa-arrow-right ms-2"></i>
           </div>
+          <div class="sede-card-dot"></div>
         </div>
       </div>
-
     </div>
+
   </div>
+</div>
 
   <!-- Contenido de snacks (solo si ya seleccionó sede) -->
   <div *ngIf="sedeSeleccionada">
