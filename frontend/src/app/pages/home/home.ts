@@ -1,46 +1,64 @@
-import { Component, OnInit } from '@angular/core'; 
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { MovieService, Movie } from '../../services/movie.service';
+import { environment } from '../../enviroments/environment';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class Home implements OnInit {
 
   movies: Movie[] = [];
-  filteredMovies: Movie[] = [];
+  sedes: any[] = [];
   loading = true;
   error = false;
 
+  filtroIdMovie: number | null = null;
+  filtroIdVenue: number | null = null;
+
   constructor(
     private router: Router,
-    private movieService: MovieService
+    private movieService: MovieService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.loadMovies();
+    this.cargarMovies();
+    this.cargarSedes();
   }
 
-  loadMovies() {
-    this.loading = true;
-    this.error = false;
+  cargarMovies() {
     this.movieService.getMovies().subscribe({
       next: (data: Movie[]) => {
         this.movies = data;
-        this.filteredMovies = data;
         this.loading = false;
       },
-      error: (err: any) => {
-        console.error('Error cargando peliculas:', err);
+      error: () => {
         this.error = true;
         this.loading = false;
       }
     });
+  }
+
+  cargarSedes() {
+    this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
+      next: (data) => this.sedes = data,
+      error: () => this.sedes = []
+    });
+  }
+
+  filtrar() {
+    const params: any = {};
+    if (this.filtroIdMovie) params['idMovie'] = this.filtroIdMovie;
+    if (this.filtroIdVenue) params['idVenue'] = this.filtroIdVenue;
+    this.router.navigate(['/movies'], { queryParams: params });
   }
 
   irAMovies() {
