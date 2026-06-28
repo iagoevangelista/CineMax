@@ -3,7 +3,7 @@
   <div class="mb-4 border-bottom border-secondary pb-3">
     <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Mi Panel de Control</h2>
     <p class="text-secondary small mb-0">Administra tus datos, revisa tus entradas y gestiona tu seguridad en CineMax.</p>
-    <button *ngIf="true" class="btn btn-sm btn-outline-secondary mt-3" (click)="volver()">
+    <button *ngIf="esAdmin" class="btn btn-sm btn-outline-secondary mt-3" (click)="volver()">
       <i class="fa-solid fa-arrow-left me-2"></i>Volver al panel
     </button>
   </div>
@@ -29,7 +29,7 @@
             <span class="fw-semibold">Mis Datos</span>
           </button>
 
-          <button (click)="cambiarPestana('compras')" 
+          <button *ngIf="!esAdmin" (click)="cambiarPestana('compras')" 
                   class="list-group-item list-group-item-action border-0 rounded text-white py-3 px-4 mb-1 d-flex align-items-center bg-transparent btn-menu-profile"
                   [style.backgroundColor]="pestanaActiva === 'compras' ? '#2a2a32' : 'transparent'"
                   [style.color]="pestanaActiva === 'compras' ? 'var(--primary-color)' : 'white'">
@@ -91,6 +91,7 @@
                 <p class="small text-secondary mb-0">Recomendado: 1:1 (Cuadrado).<br>Formatos admitidos: JPG, PNG, WEBP.</p>
               </div>
             </div>
+
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label text-secondary fw-semibold small">Nombre <span class="text-danger">*</span></label>
@@ -160,7 +161,7 @@
           </form>
         </div>
 
-        <div *ngIf="pestanaActiva === 'compras'">
+        <div *ngIf="pestanaActiva === 'compras' && !esAdmin">
           <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Historial de Entradas</h4>
           
           <div *ngIf="misCompras.length === 0" class="text-center py-5">
