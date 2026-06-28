@@ -3,6 +3,9 @@
   <div class="mb-4 border-bottom border-secondary pb-3">
     <h2 class="fw-bold text-uppercase" style="color: var(--primary-color);">Mi Panel de Control</h2>
     <p class="text-secondary small mb-0">Administra tus datos, revisa tus entradas y gestiona tu seguridad en CineMax.</p>
+    <button *ngIf="true" class="btn btn-sm btn-outline-secondary mt-3" (click)="volver()">
+      <i class="fa-solid fa-arrow-left me-2"></i>Volver al panel
+    </button>
   </div>
 
   <div *ngIf="cargando" class="text-center my-5">

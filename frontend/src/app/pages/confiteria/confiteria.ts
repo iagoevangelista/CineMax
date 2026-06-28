@@ -2,9 +2,11 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../services/confiteria.service';
 import { environment } from '../../enviroments/environment';
 import { AuthService } from '../../services/auth.service';
+import { BookingService, SnackEntry } from '../../services/booking';
 import { Offcanvas } from 'bootstrap';
 
 @Component({
@@ -30,14 +32,16 @@ export class Confiteria implements OnInit {
     private snackService: ConfiteriaService,
     private cdr: ChangeDetectorRef,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private bookingService: BookingService,
+    private router: Router
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.cargarSedes();
   }
 
-  cargarSedes() {
+  cargarSedes(): void {
     this.cargandoSedes = true;
     this.error = false;
     this.http.get<any[]>(`${environment.apiUrl}/venues/public`).subscribe({
@@ -54,7 +58,7 @@ export class Confiteria implements OnInit {
     });
   }
 
-  seleccionarSede(sede: any) {
+  seleccionarSede(sede: any): void {
     this.sedeSeleccionada = sede;
     this.cargando = true;
     this.error = false;
@@ -62,7 +66,7 @@ export class Confiteria implements OnInit {
     this.cargarDatos();
   }
 
-  cambiarSede() {
+  cambiarSede(): void {
     this.sedeSeleccionada = null;
     this.carrito = [];
     this.snacks = [];
@@ -72,7 +76,7 @@ export class Confiteria implements OnInit {
     this.cdr.detectChanges();
   }
 
-  cargarDatos() {
+  cargarDatos(): void {
     this.cargando = true;
     this.error = false;
     let categoriasOk = false;
@@ -86,7 +90,6 @@ export class Confiteria implements OnInit {
       }
     };
 
-    // CORRECCIÓN AQUÍ: Consumir el endpoint público de categorías habilitado en tu Spring Security
     this.http.get<any[]>(`${environment.apiUrl}/snack-categories`).subscribe({
       next: (cats: any[]) => {
         this.categories = cats;
@@ -115,12 +118,12 @@ export class Confiteria implements OnInit {
     });
   }
 
-  get snacksFiltrados() {
+  get snacksFiltrados(): any[] {
     if (!this.categoriaActiva) return this.snacks;
     return this.snacks.filter(s => s.idSnackCategory === this.categoriaActiva.idSnackCategory);
   }
 
-  agregarAlCarrito(snack: any) {
+  agregarAlCarrito(snack: any): void {
     const item = this.carrito.find(c => c.snack.idSnack === snack.idSnack);
     if (item) {
       item.cantidad++;
@@ -129,7 +132,7 @@ export class Confiteria implements OnInit {
     }
   }
 
-  quitarDelCarrito(snack: any) {
+  quitarDelCarrito(snack: any): void {
     const idx = this.carrito.findIndex(c => c.snack.idSnack === snack.idSnack);
     if (idx === -1) return;
     if (this.carrito[idx].cantidad > 1) {
@@ -139,7 +142,7 @@ export class Confiteria implements OnInit {
     }
   }
 
-  continuarCompra() {
+  continuarCompra(): void {
     if (!this.authService.isLoggedIn()) {
       const offcanvasEl = document.getElementById('authOffcanvas');
       if (offcanvasEl) {
@@ -148,7 +151,19 @@ export class Confiteria implements OnInit {
       }
       return;
     }
-    console.log('Continuar compra con carrito:', this.carrito);
+
+    const snackEntries: SnackEntry[] = this.carrito.map(item => ({
+      idSnack:  item.snack.idSnack,
+      nombre:   item.snack.nameSnack,
+      precio:   item.snack.price,
+      cantidad: item.cantidad,
+      subtotal: item.snack.price * item.cantidad,
+      imagen:   item.snack.imageUrlSnack
+    }));
+
+    this.bookingService.limpiar();
+    this.bookingService.guardarSnacks(snackEntries);
+    this.router.navigate(['/payment']);
   }
 
   cantidadEnCarrito(snack: any): number {

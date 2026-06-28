@@ -60,12 +60,12 @@ export class Payment implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.resumen = this.bookingService.obtenerResumen();
-    if (!this.resumen.tickets?.length) {
-      this.router.navigate(['/seats']);
-    }
+ngOnInit(): void {
+  this.resumen = this.bookingService.obtenerResumen();
+  if (!this.resumen.tickets?.length && !this.resumen.snacks?.length) {
+    this.router.navigate(['/seats']);
   }
+}
 
   // ── Método de pago ────────────────────────────────────────────────────────
   seleccionarMetodo(m: MetodoPago): void {
@@ -82,13 +82,30 @@ export class Payment implements OnInit {
     input.value         = this.numeroMostrado;
   }
 
-  onVencimientoInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    let val = input.value.replace(/\D/g, '').slice(0, 4);
-    if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
-    this.card.vencimiento = val;
-    input.value           = val;
+ onVencimientoInput(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  let digits = input.value.replace(/\D/g, '').slice(0, 4);
+
+  // Validación de que el primer dígito no sea > 1
+  if (digits.length >= 1 && parseInt(digits[0]) > 1) {
+    digits = '';
   }
+
+  // Validación de que los primeros dos dígitos sean mes válido (01-12)
+  if (digits.length >= 2) {
+    const mes = parseInt(digits.slice(0, 2));
+    if (mes < 1 || mes > 12) {
+      digits = digits.slice(0, 1); 
+    }
+  }
+
+  // Formatear con /
+  let val = digits;
+  if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
+
+  this.card.vencimiento = val;
+  input.value = val;
+}
 
   get tipoTarjeta(): string {
     const n = this.card.numero;
@@ -150,6 +167,13 @@ export class Payment implements OnInit {
     const ahora = new Date();
     const vencimiento = new Date(anioCompleto, mes, 1);
     return vencimiento <= ahora;
+  }
+
+  get mesInvalido(): boolean {
+    const digits = this.card.vencimiento.replace(/\D/g, '');
+    if (digits.length < 2) return false;
+    const mes = parseInt(digits.slice(0, 2));
+    return mes < 1 || mes > 12;
   }
 
   get formularioValido(): boolean {
