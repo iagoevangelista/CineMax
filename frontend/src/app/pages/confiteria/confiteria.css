@@ -438,3 +438,51 @@
 .sede-card-new:hover .sede-card-dot {
   opacity: 1;
 }
+
+.sede-card-bg-icon {
+  position: absolute;
+  bottom: -20px;
+  right: -10px;
+  font-size: 7rem;
+  color: rgba(155, 48, 242, 0.06);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.sede-card-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.sede-tag {
+  background: rgba(155, 48, 242, 0.12);
+  border: 1px solid rgba(155, 48, 242, 0.25);
+  color: #b388ff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.sede-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.sede-card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9b30f2;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.sede-card-new:hover .sede-card-dot {
+  opacity: 1;
+}
