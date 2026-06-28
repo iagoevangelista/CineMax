@@ -2,7 +2,7 @@
   
   <div class="row mb-4">
     <div class="col-12">
-      <h1 class="fw-bold text-uppercase d-inline-block border-bottom border-primary border-3 pb-2" style="color: white; letter-spacing: 1px;">NUESTROS CINES</h1>
+      <h1 class="fw-bold text-uppercase d-inline-block border-bottom border-3 pb-2" style="color: white; letter-spacing: 1px; border-color: var(--primary-color) !important;">NUESTROS CINES</h1>
       <p class="text-secondary mt-2">Encuentra la sede más cercana y disfruta de la mejor experiencia.</p>
     </div>
   </div>
@@ -11,13 +11,13 @@
     <div class="col-lg-3 mb-4">
       <div class="card bg-dark border-secondary shadow sticky-top" style="top: 100px; z-index: 10; border-radius: 12px;">
         <div class="card-header border-bottom border-secondary bg-transparent py-3">
-          <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-location-dot me-2 text-primary"></i>Ubicación</h5>
+          <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-location-dot me-2" style="color: var(--primary-color);"></i>Ubicación</h5>
         </div>
         <div class="list-group list-group-flush" style="border-radius: 0 0 12px 12px; overflow: hidden;">
           
           <button *ngFor="let dep of departamentos" 
                   class="list-group-item list-group-item-action py-3 border-secondary"
-                  [ngClass]="{'bg-primary text-white fw-bold': departamentoSeleccionado === dep, 'bg-dark text-secondary': departamentoSeleccionado !== dep}"
+                  [ngClass]="{'bg-sede-active text-white fw-bold': departamentoSeleccionado === dep, 'bg-dark text-secondary': departamentoSeleccionado !== dep}"
                   (click)="seleccionarDepartamento(dep)"
                   style="cursor: pointer; transition: 0.3s;">
             {{ dep | uppercase }}
@@ -32,11 +32,11 @@
       
       <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 bg-dark p-3 rounded border border-secondary shadow-sm">
         <h5 class="text-white fw-bold mb-2 mb-md-0 m-0">
-          <i class="fa-solid fa-building me-2 text-primary"></i> Cines en {{ departamentoSeleccionado || '...' }}
+          <i class="fa-solid fa-building me-2" style="color: var(--primary-color);"></i> Cines en {{ departamentoSeleccionado || '...' }}
         </h5>
         
         <div class="input-group" style="max-width: 350px;">
-          <span class="input-group-text bg-transparent border-secondary text-primary">
+          <span class="input-group-text bg-transparent border-secondary" style="color: var(--primary-color);">
             <i class="fa-solid fa-magnifying-glass"></i>
           </span>
           <input type="text" class="form-control bg-transparent text-white border-secondary" 
@@ -67,14 +67,14 @@
             </div>
 
             <div class="card-body p-4">
-              <p class="text-light small mb-2"><i class="fa-solid fa-location-dot me-2 text-primary"></i>{{ sede.addressVenue }}</p>
-              <p class="text-white small mb-3"><i class="fa-solid fa-city me-2 text-primary"></i>{{ sede.districtName }}</p>
+              <p class="text-light small mb-2"><i class="fa-solid fa-location-dot me-2" style="color: var(--primary-color);"></i>{{ sede.addressVenue }}</p>
+              <p class="text-white small mb-3"><i class="fa-solid fa-city me-2" style="color: var(--primary-color);"></i>{{ sede.districtName }}</p>
               
               <div class="d-flex gap-2 mt-4 pt-2 border-top border-secondary">
-                <button class="btn btn-primary fw-bold flex-grow-1" (click)="irACartelera(sede.idVenue)">
+                <button class="btn btn-sede-primary fw-bold flex-grow-1" (click)="irACartelera(sede.idVenue)">
                   <i class="fa-solid fa-ticket me-2"></i>CARTELERA
                 </button>
-                <button class="btn btn-outline-info fw-bold" (click)="verDetalles(sede)" title="Ver mapa">
+                <button class="btn btn-outline-secondary fw-bold" (click)="verDetalles(sede)" title="Ver mapa" style="border-color: var(--primary-color) !important; color: var(--primary-color);">
                   <i class="fa-solid fa-map-location-dot"></i>
                 </button>
               </div>
@@ -123,7 +123,7 @@
 
       <div class="modal-footer border-secondary pt-3 pb-4 px-4 d-flex justify-content-between" style="background-color: #1a1a1f;">
         <button type="button" class="btn btn-outline-secondary px-4" (click)="cerrarDetalles()">Cerrar</button>
-        <button type="button" class="btn btn-primary px-5 fw-bold" (click)="irACartelera(sedeDetalle.idVenue)">
+        <button type="button" class="btn btn-sede-primary px-5 fw-bold" (click)="irACartelera(sedeDetalle.idVenue)">
           COMPRAR ENTRADAS <i class="fa-solid fa-arrow-right ms-2"></i>
         </button>
       </div>
