@@ -120,6 +120,7 @@
                 <p class="snack-name">{{ snack.nameSnack | uppercase }}</p>
                 <p class="snack-desc">{{ snack.descriptionSnack }}</p>
                 <p class="snack-price">S/ {{ snack.price | number:'1.2-2' }}</p>
+                <p class="snack-stock" *ngIf="snack.stock <= 5">Solo {{ snack.stock }} disponibles</p>
               </div>
               <div class="snack-actions">
                 <ng-container *ngIf="cantidadEnCarrito(snack) === 0; else contador">
@@ -129,8 +130,7 @@
                   <div class="snack-counter">
                     <button class="counter-btn" (click)="quitarDelCarrito(snack)">−</button>
                     <span>{{ cantidadEnCarrito(snack) }}</span>
-                    <button class="counter-btn" (click)="agregarAlCarrito(snack)">+</button>
-                  </div>
+                    <button class="counter-btn" (click)="agregarAlCarrito(snack)" [disabled]="cantidadEnCarrito(snack) >= snack.stock">+</button>                  </div>
                 </ng-template>
               </div>
             </div>

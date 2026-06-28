@@ -486,3 +486,9 @@
 .sede-card-new:hover .sede-card-dot {
   opacity: 1;
 }
+
+.snack-stock {
+  font-size: 0.75rem;
+  color: #f97316;
+  margin: 0;
+}

@@ -140,13 +140,14 @@ export class Confiteria implements OnInit {
   // --- Manejo del carrito ---
 
   agregarAlCarrito(snack: any): void {
-    const item = this.carrito.find(c => c.snack.idSnack === snack.idSnack);
-    if (item) {
-      item.cantidad++;
-    } else {
-      this.carrito.push({ snack, cantidad: 1 });
-    }
+  const item = this.carrito.find(c => c.snack.idSnack === snack.idSnack);
+  if (item) {
+    if (item.cantidad >= snack.stock) return; // no superar el stock
+    item.cantidad++;
+  } else {
+    this.carrito.push({ snack, cantidad: 1 });
   }
+}
 
   quitarDelCarrito(snack: any): void {
     const idx = this.carrito.findIndex(c => c.snack.idSnack === snack.idSnack);
