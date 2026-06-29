@@ -1,5 +1,6 @@
 package com.cinemax.backend.service.saletransaction;
 
+import com.cinemax.backend.model.dto.saletransaction.SaleTransactionHistoryDTO;
 import com.cinemax.backend.model.dto.saletransaction.SaleTransactionRequestDTO;
 import com.cinemax.backend.model.dto.saletransaction.SaleTransactionResponseDTO;
 import com.cinemax.backend.model.entity.*;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +30,6 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
     private final PromotionRepository           promotionRepository;
     private final TransactionStatusRepository   transactionStatusRepository;
 
-    /**
-     * Crea una SaleTransaction completa.
-     * Soporta dos modos:
-     *  - Con película: idShowtime presente, valida asientos y crea tickets.
-     *  - Solo snacks: idShowtime null, solo crea snack details.
-     */
     @Override
     @Transactional
     public SaleTransactionResponseDTO createSaleTransaction(SaleTransactionRequestDTO request, String userEmail) {
@@ -171,5 +167,56 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
                 qrCodeData,
                 "Reserva confirmada exitosamente."
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SaleTransactionHistoryDTO> getMyPurchases(String userEmail) {
+        UserAccount userAccount = userAccountRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        List<SaleTransaction> transactions = saleTransactionRepository
+                .findByUserAccount_IdUserOrderByPaymentDateDesc(userAccount.getIdUser());
+
+        return transactions.stream().map(tx -> {
+            SaleTransactionHistoryDTO dto = new SaleTransactionHistoryDTO();
+            dto.setIdTransaction(tx.getIdTransaction());
+            dto.setTotalAmount(tx.getTotalAmount());
+            dto.setStatus(tx.getTransactionStatus().getNameStatus());
+
+            // Tickets (película)
+            List<SaleTicketDetail> tickets = saleTicketDetailRepository
+                    .findBySaleTransaction_IdTransaction(tx.getIdTransaction());
+
+            if (!tickets.isEmpty()) {
+                SaleTicketDetail primerTicket = tickets.get(0);
+                Showtime showtime = primerTicket.getShowtime();
+                dto.setMovieTitle(showtime.getMovie().getTitleMovie());
+                dto.setVenueName(showtime.getRoom().getVenue().getNameVenue());
+                dto.setRoomName(showtime.getRoom().getNameRoom());
+                dto.setDate(showtime.getShowDate().toString());
+                dto.setTime(showtime.getStartTime().toString());
+                dto.setSeats(tickets.stream()
+                        .map(t -> t.getSeat().getRowName() + t.getSeat().getColumnNumber())
+                        .collect(Collectors.joining(", ")));
+            } else {
+                dto.setMovieTitle(null);
+                dto.setVenueName(null);
+                dto.setRoomName(null);
+                dto.setDate(tx.getPaymentDate().toLocalDate().toString());
+                dto.setTime(tx.getPaymentDate().toLocalTime().toString());
+                dto.setSeats(null);
+            }
+
+            // Snacks
+            List<SaleSnackDetail> snackDetails = saleSnackDetailRepository
+                    .findBySaleTransaction_IdTransaction(tx.getIdTransaction());
+
+            dto.setSnacks(snackDetails.stream()
+                    .map(s -> s.getQuantity() + "x " + s.getSnack().getNameSnack())
+                    .collect(Collectors.toList()));
+
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

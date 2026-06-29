@@ -5,8 +5,9 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../enviroments/environment';
 
-// Mismo patrón: mínimo 8 caracteres, al menos una letra y un número.
 const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 function confirmPasswordMatchValidator(group: AbstractControl): ValidationErrors | null {
@@ -29,11 +30,9 @@ export class Profile implements OnInit {
   cargando: boolean = false;
   guardando: boolean = false;
   esAdmin: boolean = false;
-
   mensaje: string = '';
   esError: boolean = false;
 
-  // Formularios
   datosForm: FormGroup = new FormGroup({});
   seguridadForm: FormGroup = new FormGroup({});
   formDatosEnviado = false;
@@ -41,10 +40,8 @@ export class Profile implements OnInit {
 
   perfilSoloLectura = { email: '', idDocumentType: 1, documentNumber: '', imageUrl: '' };
 
-  misCompras: any[] = [
-    { idSale: 1042, movieTitle: 'Super Mario Bros 2', venueName: 'CineMax San Miguel', date: '2026-05-18', time: '19:30', amount: 45.00, ticketsCount: 2, roomName: 'Sala 3 (2D)', seats: 'G12, G13' },
-    { idSale: 987, movieTitle: 'La Momia', venueName: 'CineMax Villa María', date: '2026-04-12', time: '21:00', amount: 22.50, ticketsCount: 1, roomName: 'Sala 1 (3D)', seats: 'F5' }
-  ];
+  misCompras: any[] = [];
+  cargandoCompras: boolean = false;
 
   imagenSeleccionada: File | null = null;
   imagenPrevia: string | null = null;
@@ -55,39 +52,39 @@ export class Profile implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-  if (!this.authService.isLoggedIn()) {
-    this.router.navigate(['/']);
-    return;
-  }
-
-  this.construirFormularios();
-  this.cargarPerfil();
-  
-  const rol = this.authService.getRole();
-  const rolesAdmin = ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING', 'GERENTE_DE_OPERACIONES', 'ADMIN'];
-  this.esAdmin = rolesAdmin.includes(rol) || document.referrer.includes('/admin');
-  console.log('ROL detectado:', rol, '| esAdmin:', this.esAdmin);
-  this.cdr.detectChanges();  
-  this.route.queryParams.subscribe(params => {
-    if (params['tab']) {
-      this.pestanaActiva = params['tab'];
-      this.mensaje = '';
-      this.cdr.detectChanges();
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/']);
+      return;
     }
-  });
-}
 
-  // Construcción de formularios
+    this.construirFormularios();
+    this.cargarPerfil();
+    this.cargarMisCompras();
+
+    const rol = this.authService.getRole();
+    const rolesAdmin = ['GERENTE_GENERAL', 'GERENTE_DE_MARKETING', 'GERENTE_DE_OPERACIONES', 'ADMIN'];
+    this.esAdmin = rolesAdmin.includes(rol) || document.referrer.includes('/admin');
+    console.log('ROL detectado:', rol, '| esAdmin:', this.esAdmin);
+    this.cdr.detectChanges();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.pestanaActiva = params['tab'];
+        this.mensaje = '';
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   private construirFormularios(): void {
     this.datosForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      // Opcional: si se completa, debe parecer un número de teléfono (7 a 9 dígitos).
       phone: ['', [Validators.pattern(/^[0-9]{7,9}$/)]],
       datebirth: ['', [this.fechaNacimientoValidator]],
     });
@@ -99,7 +96,6 @@ export class Profile implements OnInit {
     }, { validators: confirmPasswordMatchValidator });
   }
 
-  // Evita fechas de nacimiento futuras 
   private fechaNacimientoValidator(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
     const fecha = new Date(control.value);
@@ -133,12 +129,12 @@ export class Profile implements OnInit {
     if (!esSilencioso) this.cargando = true;
 
     this.userService.getProfile().subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.actualizarVariablesLocales(res);
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar perfil:', err);
         this.cargando = false;
         this.cdr.detectChanges();
@@ -146,7 +142,6 @@ export class Profile implements OnInit {
     });
   }
 
-  // Método auxiliar para no repetir código
   private actualizarVariablesLocales(res: any) {
     this.datosForm.patchValue({
       firstName: res.firstName || '',
@@ -162,10 +157,10 @@ export class Profile implements OnInit {
     };
   }
 
-  // Helpers para las iniciales del avatar
   get inicialNombre(): string {
     return (this.datosForm?.get('firstName')?.value || '').charAt(0).toUpperCase();
   }
+
   get inicialApellido(): string {
     return (this.datosForm?.get('lastName')?.value || '').charAt(0).toUpperCase();
   }
@@ -212,26 +207,19 @@ export class Profile implements OnInit {
     }
 
     this.userService.updateProfile(formData)
-      .pipe(
-        finalize(() => {
-          this.guardando = false;
-          this.cdr.detectChanges();
-        })
-      )
+      .pipe(finalize(() => { this.guardando = false; this.cdr.detectChanges(); }))
       .subscribe({
         next: (res: any) => {
           this.esError = false;
           this.mensaje = '¡Datos actualizados correctamente!';
           this.imagenSeleccionada = null;
-          this.imagenPrevia = null; 
+          this.imagenPrevia = null;
           this.formDatosEnviado = false;
-
           this.actualizarVariablesLocales(res);
           this.userService.updateLocalUser(res);
-
           this.cdr.detectChanges();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error:', err);
           this.esError = true;
           this.mensaje = err.error?.message || 'Error al actualizar.';
@@ -269,7 +257,7 @@ export class Profile implements OnInit {
           this.formSeguridadEnviado = false;
           this.seguridadForm.reset({ oldPassword: '', newPassword: '', confirmPassword: '' });
         },
-        error: (err) => {
+        error: (err: any) => {
           this.esError = true;
           this.mensaje = err.error?.message || 'Contraseña actual incorrecta.';
         }
@@ -292,7 +280,7 @@ export class Profile implements OnInit {
           this.router.navigate(['/']);
           setTimeout(() => window.location.reload(), 500);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.esError = true;
           this.mensaje = err.error?.message || 'No se pudo eliminar la cuenta. Intenta nuevamente.';
         }
@@ -300,7 +288,21 @@ export class Profile implements OnInit {
   }
 
   volver(): void {
-  this.router.navigate(['/admin/dashboard']);
-}
+    this.router.navigate(['/admin/dashboard']);
+  }
 
+  cargarMisCompras() {
+    this.cargandoCompras = true;
+    this.http.get<any[]>(`${environment.apiUrl}/sale-transactions/my-purchases`).subscribe({
+      next: (data: any[]) => {
+        this.misCompras = data;
+        this.cargandoCompras = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('Error al cargar compras:', err);
+        this.cargandoCompras = false;
+      }
+    });
+  }
 }
