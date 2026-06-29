@@ -60,14 +60,16 @@
             <span class="ticket-info-label">HORA</span>
             <span class="ticket-info-val">{{ resumenSnapshot?.fechaHora | slice:9 }}</span>
           </div>
-          <div class="ticket-info-item">
-            <span class="ticket-info-label">SALA</span>
-            <span class="ticket-info-val" style="color:#8a2be2;">{{ transaccionRespuesta?.qrCodeData | slice:4:6 }}</span>
-          </div>
-          <div class="ticket-info-item text-end">
-            <span class="ticket-info-label">ASIENTOS</span>
-            <span class="ticket-info-val" style="color:#8a2be2;">{{ resumenSnapshot?.asientos?.join(', ') }}</span>
-          </div>
+          <ng-container *ngIf="resumenSnapshot?.pelicula?.nombre">
+  <div class="ticket-info-item">
+    <span class="ticket-info-label">SALA</span>
+    <span class="ticket-info-val" style="color:#8a2be2;">{{ transaccionRespuesta?.qrCodeData | slice:4:6 }}</span>
+  </div>
+  <div class="ticket-info-item text-end">
+    <span class="ticket-info-label">ASIENTOS</span>
+    <span class="ticket-info-val" style="color:#8a2be2;">{{ resumenSnapshot?.asientos?.join(', ') }}</span>
+  </div>
+</ng-container>
         </div>
 
         <!-- Snacks si los hay -->
