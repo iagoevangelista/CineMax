@@ -111,11 +111,15 @@ public class SnackServiceImpl implements SnackService {
 
         // Si la sede no tiene snacks asignados, devolver solo la lista predeterminada (ids 1-18)
         if (registros.isEmpty()) {
-            return snackRepository.findAllById(SNACKS_PREDETERMINADOS).stream()
-                    .filter(s -> "Activo".equals(s.getStatus()))
-                    .map(this::convertToDTO)
-                    .toList();
-        }
+        return snackRepository.findAllById(SNACKS_PREDETERMINADOS).stream()
+                .filter(s -> "Activo".equals(s.getStatus()))
+                .map(s -> {
+                    SnackResponseDTO dto = convertToDTO(s);
+                    dto.setStock(50);
+                    return dto;
+                })
+                .toList();
+}
 
         return registros.stream()
                 .map(svs -> {
