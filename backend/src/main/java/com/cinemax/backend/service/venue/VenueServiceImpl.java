@@ -10,8 +10,12 @@ import com.cinemax.backend.model.dto.venue.VenueDropdownDTO;
 import com.cinemax.backend.model.dto.venue.VenueRequestDTO;
 import com.cinemax.backend.model.dto.venue.VenueResponseDTO;
 import com.cinemax.backend.model.entity.District;
+import com.cinemax.backend.model.entity.Snack;
+import com.cinemax.backend.model.entity.SnackVenueStock;
 import com.cinemax.backend.model.entity.Venue;
 import com.cinemax.backend.repository.DistrictRepository;
+import com.cinemax.backend.repository.SnackRepository;
+import com.cinemax.backend.repository.SnackVenueStockRepository;
 import com.cinemax.backend.repository.VenueRepository;
 import com.cinemax.backend.service.cloudinary.CloudinaryService;
 
@@ -23,7 +27,14 @@ public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
     private final DistrictRepository districtRepository;
-    private final CloudinaryService cloudinaryService; // <-- Inyectamos el servicio de Cloudinary
+    private final CloudinaryService cloudinaryService;
+    private final SnackRepository snackRepository;
+    private final SnackVenueStockRepository snackVenueStockRepository;
+
+    // IDs de los snacks predeterminados que toda sede nueva debe tener
+    private static final List<Integer> SNACKS_PREDETERMINADOS = List.of(
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+    );
 
     @Override
     public List<VenueResponseDTO> getAllVenues() {
@@ -44,11 +55,11 @@ public class VenueServiceImpl implements VenueService {
             if (sede.getDistrict() != null) {
                 dto.setDistrictName(sede.getDistrict().getNameDistrict());
                 dto.setIdDistrict(sede.getDistrict().getIdDistrict());
-                
+
                 if (sede.getDistrict().getProvince() != null) {
                     dto.setProvinceName(sede.getDistrict().getProvince().getNameProvince());
                     dto.setIdProvince(sede.getDistrict().getProvince().getIdProvince());
-                    
+
                     if (sede.getDistrict().getProvince().getDepartment() != null) {
                         dto.setDepartmentName(sede.getDistrict().getProvince().getDepartment().getNameDepartment());
                         dto.setIdDepartment(sede.getDistrict().getProvince().getDepartment().getIdDepartment());
@@ -66,7 +77,6 @@ public class VenueServiceImpl implements VenueService {
                 .orElseThrow(() -> new RuntimeException("Distrito no encontrado"));
 
         String imageUrl = null;
-        // Si viene una imagen, la subimos a Cloudinary
         if (image != null && !image.isEmpty()) {
             try {
                 imageUrl = cloudinaryService.uploadImage(image);
@@ -88,6 +98,19 @@ public class VenueServiceImpl implements VenueService {
 
         Venue guardada = venueRepository.save(nuevaSede);
 
+        // Asignar lista predeterminada de snacks a la nueva sede
+        for (Integer idSnack : SNACKS_PREDETERMINADOS) {
+            snackRepository.findById(idSnack).ifPresent(snack -> {
+                SnackVenueStock svs = SnackVenueStock.builder()
+                        .snack(snack)
+                        .venue(guardada)
+                        .stock(50)
+                        .status("Activo")
+                        .build();
+                snackVenueStockRepository.save(svs);
+            });
+        }
+
         VenueResponseDTO response = new VenueResponseDTO();
         response.setIdVenue(guardada.getIdVenue());
         response.setNameVenue(guardada.getNameVenue());
@@ -97,14 +120,14 @@ public class VenueServiceImpl implements VenueService {
         response.setImageUrl(guardada.getImageUrl());
         response.setLatitude(request.getLatitude());
         response.setLongitude(request.getLongitude());
-        
+
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());
-        
+
         if (dist.getProvince() != null) {
             response.setIdProvince(dist.getProvince().getIdProvince());
             response.setProvinceName(dist.getProvince().getNameProvince());
-            
+
             if (dist.getProvince().getDepartment() != null) {
                 response.setIdDepartment(dist.getProvince().getDepartment().getIdDepartment());
                 response.setDepartmentName(dist.getProvince().getDepartment().getNameDepartment());
@@ -122,11 +145,10 @@ public class VenueServiceImpl implements VenueService {
         District dist = districtRepository.findById(request.getIdDistrict())
                 .orElseThrow(() -> new RuntimeException("Distrito no encontrado"));
 
-        // Si mandan una nueva imagen, la subimos y actualizamos la URL
         if (image != null && !image.isEmpty()) {
             try {
                 String newImageUrl = cloudinaryService.uploadImage(image);
-                sedeExistente.setImageUrl(newImageUrl); // <-- Reemplazamos la URL anterior
+                sedeExistente.setImageUrl(newImageUrl);
             } catch (Exception e) {
                 throw new RuntimeException("Error al subir imagen a Cloudinary", e);
             }
@@ -153,11 +175,11 @@ public class VenueServiceImpl implements VenueService {
         response.setLongitude(actualizada.getLongitude());
         response.setIdDistrict(dist.getIdDistrict());
         response.setDistrictName(dist.getNameDistrict());
-        
+
         if (dist.getProvince() != null) {
             response.setIdProvince(dist.getProvince().getIdProvince());
             response.setProvinceName(dist.getProvince().getNameProvince());
-            
+
             if (dist.getProvince().getDepartment() != null) {
                 response.setIdDepartment(dist.getProvince().getDepartment().getIdDepartment());
                 response.setDepartmentName(dist.getProvince().getDepartment().getNameDepartment());
@@ -184,7 +206,6 @@ public class VenueServiceImpl implements VenueService {
                     venue.getIdVenue(),
                     venue.getNameVenue()
             );
-            
             responseList.add(dto);
         }
         return responseList;

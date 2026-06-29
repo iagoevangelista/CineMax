@@ -27,6 +27,11 @@ public class SnackServiceImpl implements SnackService {
     private final SnackVenueStockRepository snackVenueStockRepository;
     private final VenueRepository venueRepository;
 
+    // IDs de los snacks predeterminados (lista base que toda sede tiene)
+    private static final List<Integer> SNACKS_PREDETERMINADOS = List.of(
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+    );
+
     @Override
     public List<SnackResponseDTO> getAllSnacks() {
         return snackRepository.findAll().stream()
@@ -99,8 +104,20 @@ public class SnackServiceImpl implements SnackService {
 
     @Override
     public List<SnackResponseDTO> getSnacksByVenue(Integer idVenue) {
-        return snackVenueStockRepository.findByVenue_IdVenueAndStockGreaterThan(idVenue, 0).stream()
+        List<SnackVenueStock> registros = snackVenueStockRepository
+                .findByVenue_IdVenueAndStockGreaterThan(idVenue, 0).stream()
                 .filter(svs -> "Activo".equals(svs.getStatus()))
+                .toList();
+
+        // Si la sede no tiene snacks asignados, devolver solo la lista predeterminada (ids 1-18)
+        if (registros.isEmpty()) {
+            return snackRepository.findAllById(SNACKS_PREDETERMINADOS).stream()
+                    .filter(s -> "Activo".equals(s.getStatus()))
+                    .map(this::convertToDTO)
+                    .toList();
+        }
+
+        return registros.stream()
                 .map(svs -> {
                     SnackResponseDTO dto = convertToDTO(svs.getSnack());
                     dto.setStock(svs.getStock());
