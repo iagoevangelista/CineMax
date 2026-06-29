@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking';
 import { AuthService } from '../../../services/auth.service';
 import { SaleTransactionService, SaleTransactionRequestDTO, SaleTransactionResponseDTO } from '../../../services/sale-transaction.service';
+import { environment } from '../../../enviroments/environment';
 
 type MetodoPago = 'tarjeta' | 'yape';
 
@@ -49,7 +50,7 @@ export class Payment implements OnInit {
   // Número de tarjeta formateado para la vista previa
   numeroMostrado = '';
 
-  private readonly apiUrl = 'http://localhost:8080/api/v1';
+  private readonly apiUrl = '${environment.apiUrl}';
 
   constructor(
     public router: Router,

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BookingService, SnackEntry } from '../../../services/booking';
+import { environment } from '../../../enviroments/environment';
 
 interface SnackItem {
   idSnack: number;
@@ -64,7 +65,7 @@ export class Snacks implements OnInit {
   cargando = true;
   error = '';
 
-  private readonly apiUrl = 'http://localhost:8080/api/v1';
+  private readonly apiUrl = '${environment.apiUrl}';
 
   constructor(
     private router: Router,
