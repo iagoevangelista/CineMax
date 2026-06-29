@@ -118,27 +118,27 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Retorna 200 con las funciones de la película indicada (endpoint público)")
         void retorna200ConFuncionesDeLaPelicula() {
-            when(showtimeService.getShowtimesByMovie(1)).thenReturn(List.of(funcionMock));
+                when(showtimeService.getShowtimesByMovie(1)).thenReturn(List.of(funcionMock));
 
-            ResponseEntity<List<ShowtimeDTO>> response =
-                    showtimeController.getShowtimesByMovie(1);
+                ResponseEntity<List<ShowtimeDTO>> response =
+                        showtimeController.getShowtimesByMovie(1);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody()).hasSize(1);
-            assertThat(response.getBody().get(0).getTitleMovie()).isEqualTo("Inception");
-            verify(showtimeService, times(1)).getShowtimesByMovie(1);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).hasSize(1);
+                assertThat(response.getBody().get(0).getTitleMovie()).isEqualTo("Inception");
+                verify(showtimeService, times(1)).getShowtimesByMovie(1);
         }
 
         @Test
         @DisplayName("Retorna 200 con lista vacía si la película no tiene funciones programadas")
         void retorna200ConListaVacia() {
-            when(showtimeService.getShowtimesByMovie(99)).thenReturn(List.of());
+                when(showtimeService.getShowtimesByMovie(99)).thenReturn(List.of());
 
-            ResponseEntity<List<ShowtimeDTO>> response =
-                    showtimeController.getShowtimesByMovie(99);
+                ResponseEntity<List<ShowtimeDTO>> response =
+                        showtimeController.getShowtimesByMovie(99);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody()).isEmpty();
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).isEmpty();
         }
     }
 
@@ -151,58 +151,58 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Gerente General puede ver funciones de cualquier sede")
         void gerGenPuedeVerFuncionesDeOtraSede() {
-            LocalDate fecha = LocalDate.now().plusDays(1);
-            when(showtimeService.getShowtimesByVenueAndDate(2, fecha))
-                    .thenReturn(List.of(funcionMock));
+                LocalDate fecha = LocalDate.now().plusDays(1);
+                when(showtimeService.getShowtimesByVenueAndDate(2, fecha))
+                        .thenReturn(List.of(funcionMock));
 
-            ResponseEntity<?> response =
-                    showtimeController.getShowtimesByVenue(2, fecha, authGerGeneral);
+                ResponseEntity<?> response =
+                        showtimeController.getShowtimesByVenue(2, fecha, authGerGeneral);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(showtimeService, times(1)).getShowtimesByVenueAndDate(2, fecha);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                verify(showtimeService, times(1)).getShowtimesByVenueAndDate(2, fecha);
         }
 
         @Test
         @DisplayName("Gerente de sede puede ver funciones de su propia sede")
         void gerenteSedePuedeVerSusPropiasFunciones() {
-            LocalDate fecha = LocalDate.now().plusDays(1);
-            when(showtimeService.getShowtimesByVenueAndDate(1, fecha))
-                    .thenReturn(List.of(funcionMock));
+                LocalDate fecha = LocalDate.now().plusDays(1);
+                when(showtimeService.getShowtimesByVenueAndDate(1, fecha))
+                        .thenReturn(List.of(funcionMock));
 
-            ResponseEntity<?> response =
-                    showtimeController.getShowtimesByVenue(1, fecha, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.getShowtimesByVenue(1, fecha, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(showtimeService, times(1)).getShowtimesByVenueAndDate(1, fecha);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                verify(showtimeService, times(1)).getShowtimesByVenueAndDate(1, fecha);
         }
 
         @Test
         @DisplayName("Retorna 403 si el gerente de sede intenta ver funciones de otra sede")
         void retorna403SiGerenteSedePideOtraSede() {
-            LocalDate fecha = LocalDate.now().plusDays(1);
+                LocalDate fecha = LocalDate.now().plusDays(1);
 
-            // idVenue=2 pero el gerente pertenece a sede 1
-            ResponseEntity<?> response =
-                    showtimeController.getShowtimesByVenue(2, fecha, authGerenteSede);
+                // idVenue=2 pero el gerente pertenece a sede 1
+                ResponseEntity<?> response =
+                        showtimeController.getShowtimesByVenue(2, fecha, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-            assertThat(response.getBody().toString())
-                    .contains("No tienes permiso para ver funciones de otra sede.");
-            verify(showtimeService, never()).getShowtimesByVenueAndDate(anyInt(), any());
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(response.getBody().toString())
+                        .contains("No tienes permiso para ver funciones de otra sede.");
+                verify(showtimeService, never()).getShowtimesByVenueAndDate(anyInt(), any());
         }
 
         @Test
         @DisplayName("Retorna 400 si el Service lanza RuntimeException")
         void retorna400SiServiceLanzaExcepcion() {
-            LocalDate fecha = LocalDate.now().plusDays(1);
-            when(showtimeService.getShowtimesByVenueAndDate(1, fecha))
-                    .thenThrow(new RuntimeException("Error inesperado al consultar funciones."));
+                LocalDate fecha = LocalDate.now().plusDays(1);
+                when(showtimeService.getShowtimesByVenueAndDate(1, fecha))
+                        .thenThrow(new RuntimeException("Error inesperado al consultar funciones."));
 
-            ResponseEntity<?> response =
-                    showtimeController.getShowtimesByVenue(1, fecha, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.getShowtimesByVenue(1, fecha, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(response.getBody()).isEqualTo("Error inesperado al consultar funciones.");
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(response.getBody()).isEqualTo("Error inesperado al consultar funciones.");
         }
     }
 
@@ -215,19 +215,19 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Retorna 200 con el resumen de la función para el flujo de compra (endpoint público)")
         void retorna200ConResumenDeLaFuncion() {
-            ShowtimeSummaryDTO summary = new ShowtimeSummaryDTO();
-            summary.setTitleMovie("Inception");
-            summary.setNameVenue("CineMax San Isidro");
-            summary.setShowDate(LocalDate.now().plusDays(1));
-            summary.setStartTime(LocalTime.of(18, 0));
+                ShowtimeSummaryDTO summary = new ShowtimeSummaryDTO();
+                summary.setTitleMovie("Inception");
+                summary.setNameVenue("CineMax San Isidro");
+                summary.setShowDate(LocalDate.now().plusDays(1));
+                summary.setStartTime(LocalTime.of(18, 0));
 
-            when(showtimeService.getShowtimeSummary(10)).thenReturn(summary);
+                when(showtimeService.getShowtimeSummary(10)).thenReturn(summary);
 
-            ResponseEntity<ShowtimeSummaryDTO> response = showtimeController.getSummary(10);
+                ResponseEntity<ShowtimeSummaryDTO> response = showtimeController.getSummary(10);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody().getTitleMovie()).isEqualTo("Inception");
-            verify(showtimeService, times(1)).getShowtimeSummary(10);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody().getTitleMovie()).isEqualTo("Inception");
+                verify(showtimeService, times(1)).getShowtimeSummary(10);
         }
     }
 
@@ -240,21 +240,21 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Retorna 200 con las 4 tarifas calculadas para la función indicada")
         void retorna200ConLasCuatroTarifas() {
-            List<TicketFareDTO> tarifas = List.of(
-                    new TicketFareDTO("ADULTO",        "Adulto",                 new BigDecimal("15.00")),
-                    new TicketFareDTO("NINO",          "Niño",                   new BigDecimal("4.00")),
-                    new TicketFareDTO("ADULTO_MAYOR",  "Adulto Mayor",           new BigDecimal("6.00")),
-                    new TicketFareDTO("DISCAPACITADO", "Personas Discapacitadas", new BigDecimal("6.00"))
-            );
-            when(showtimeService.getTicketFares(10)).thenReturn(tarifas);
+                List<TicketFareDTO> tarifas = List.of(
+                        new TicketFareDTO("ADULTO",        "Adulto",                 new BigDecimal("15.00")),
+                        new TicketFareDTO("NINO",          "Niño",                   new BigDecimal("4.00")),
+                        new TicketFareDTO("ADULTO_MAYOR",  "Adulto Mayor",           new BigDecimal("6.00")),
+                        new TicketFareDTO("DISCAPACITADO", "Personas Discapacitadas", new BigDecimal("6.00"))
+                );
+                when(showtimeService.getTicketFares(10)).thenReturn(tarifas);
 
-            ResponseEntity<List<TicketFareDTO>> response = showtimeController.getTicketFares(10);
+                ResponseEntity<List<TicketFareDTO>> response = showtimeController.getTicketFares(10);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody()).hasSize(4);
-            assertThat(response.getBody()).extracting(TicketFareDTO::getCategoryCode)
-                    .containsExactly("ADULTO", "NINO", "ADULTO_MAYOR", "DISCAPACITADO");
-            verify(showtimeService, times(1)).getTicketFares(10);
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).hasSize(4);
+                assertThat(response.getBody()).extracting(TicketFareDTO::getCategoryCode)
+                        .containsExactly("ADULTO", "NINO", "ADULTO_MAYOR", "DISCAPACITADO");
+                verify(showtimeService, times(1)).getTicketFares(10);
         }
     }
 
@@ -267,44 +267,44 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Gerente General crea función en cualquier sede (callerVenueId=null)")
         void gerGenCreaFuncionEnCualquierSede() {
-            when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), isNull()))
-                    .thenReturn(funcionMock);
+                when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), isNull()))
+                        .thenReturn(funcionMock);
 
-            ResponseEntity<?> response =
-                    showtimeController.createShowtime(requestValido, authGerGeneral);
+                ResponseEntity<?> response =
+                        showtimeController.createShowtime(requestValido, authGerGeneral);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            // Verifica que se pasa null como callerVenueId para el Gerente General
-            verify(showtimeService, times(1)).createShowtime(any(ShowtimeRequestDTO.class), isNull());
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                // Verifica que se pasa null como callerVenueId para el Gerente General
+                verify(showtimeService, times(1)).createShowtime(any(ShowtimeRequestDTO.class), isNull());
         }
 
         @Test
         @DisplayName("Gerente de sede crea función pasando su idVenue como callerVenueId")
         void gerenteSedeCreaFuncionConSuIdVenue() {
-            when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), eq(1)))
-                    .thenReturn(funcionMock);
+                when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), eq(1)))
+                        .thenReturn(funcionMock);
 
-            ResponseEntity<?> response =
-                    showtimeController.createShowtime(requestValido, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.createShowtime(requestValido, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            // Verifica que se pasa el idVenue del gerente (1) al Service
-            verify(showtimeService, times(1)).createShowtime(any(ShowtimeRequestDTO.class), eq(1));
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                // Verifica que se pasa el idVenue del gerente (1) al Service
+                verify(showtimeService, times(1)).createShowtime(any(ShowtimeRequestDTO.class), eq(1));
         }
 
         @Test
         @DisplayName("Retorna 400 si el Service rechaza la creación (sala inactiva, fecha pasada, conflicto...)")
         void retorna400SiServiceLanzaRuntimeException() {
-            when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), any()))
-                    .thenThrow(new RuntimeException("La sala \"Sala A\" está inactiva y no puede recibir funciones."));
+                when(showtimeService.createShowtime(any(ShowtimeRequestDTO.class), any()))
+                        .thenThrow(new RuntimeException("La sala \"Sala A\" está inactiva y no puede recibir funciones."));
 
-            ResponseEntity<?> response =
-                    showtimeController.createShowtime(requestValido, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.createShowtime(requestValido, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(response.getBody())
-                    .isEqualTo("La sala \"Sala A\" está inactiva y no puede recibir funciones.");
-        }
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(response.getBody())
+                        .isEqualTo("La sala \"Sala A\" está inactiva y no puede recibir funciones.");
+                }
     }
 
     // ── updateShowtime() ──────────────────────────────────────────────────────
@@ -316,43 +316,43 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Gerente General actualiza cualquier función (callerVenueId=null)")
         void gerGenActualizaFuncionEnCualquierSede() {
-            when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), isNull()))
-                    .thenReturn(funcionMock);
+                when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), isNull()))
+                        .thenReturn(funcionMock);
 
-            ResponseEntity<?> response =
-                    showtimeController.updateShowtime(10, requestValido, authGerGeneral);
+                ResponseEntity<?> response =
+                        showtimeController.updateShowtime(10, requestValido, authGerGeneral);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(showtimeService, times(1))
-                    .updateShowtime(eq(10), any(ShowtimeRequestDTO.class), isNull());
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                verify(showtimeService, times(1))
+                        .updateShowtime(eq(10), any(ShowtimeRequestDTO.class), isNull());
         }
 
         @Test
         @DisplayName("Gerente de sede actualiza función pasando su idVenue como callerVenueId")
         void gerenteSededActualizaFuncionConSuIdVenue() {
-            when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1)))
-                    .thenReturn(funcionMock);
+                when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1)))
+                        .thenReturn(funcionMock);
 
-            ResponseEntity<?> response =
-                    showtimeController.updateShowtime(10, requestValido, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.updateShowtime(10, requestValido, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(showtimeService, times(1))
-                    .updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1));
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                verify(showtimeService, times(1))
+                        .updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1));
         }
 
         @Test
         @DisplayName("Retorna 400 si la función no es editable (ya Finalizada o es de otra sede)")
         void retorna400SiFuncionNoEsEditable() {
-            when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1)))
-                    .thenThrow(new RuntimeException("Solo se pueden editar funciones en estado 'Programada'."));
+                when(showtimeService.updateShowtime(eq(10), any(ShowtimeRequestDTO.class), eq(1)))
+                        .thenThrow(new RuntimeException("Solo se pueden editar funciones en estado 'Programada'."));
 
-            ResponseEntity<?> response =
-                    showtimeController.updateShowtime(10, requestValido, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.updateShowtime(10, requestValido, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(response.getBody())
-                    .isEqualTo("Solo se pueden editar funciones en estado 'Programada'.");
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(response.getBody())
+                        .isEqualTo("Solo se pueden editar funciones en estado 'Programada'.");
         }
     }
 
@@ -365,54 +365,54 @@ class ShowtimeControllerTest {
         @Test
         @DisplayName("Gerente General cancela función y retorna 200 con mensaje de éxito")
         void gerGenCancelaFuncion() {
-            doNothing().when(showtimeService).cancelShowtime(eq(10), isNull());
+                doNothing().when(showtimeService).cancelShowtime(eq(10), isNull());
 
-            ResponseEntity<?> response =
-                    showtimeController.cancelShowtime(10, authGerGeneral);
+                ResponseEntity<?> response =
+                        showtimeController.cancelShowtime(10, authGerGeneral);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody()).isEqualTo("Función cancelada exitosamente.");
-            verify(showtimeService, times(1)).cancelShowtime(eq(10), isNull());
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).isEqualTo("Función cancelada exitosamente.");
+                verify(showtimeService, times(1)).cancelShowtime(eq(10), isNull());
         }
 
         @Test
         @DisplayName("Gerente de sede cancela función de su propia sede")
         void gerenteSedeCancelaFuncionPropia() {
-            doNothing().when(showtimeService).cancelShowtime(eq(10), eq(1));
+                doNothing().when(showtimeService).cancelShowtime(eq(10), eq(1));
 
-            ResponseEntity<?> response =
-                    showtimeController.cancelShowtime(10, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.cancelShowtime(10, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(response.getBody()).isEqualTo("Función cancelada exitosamente.");
-            verify(showtimeService, times(1)).cancelShowtime(eq(10), eq(1));
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).isEqualTo("Función cancelada exitosamente.");
+                verify(showtimeService, times(1)).cancelShowtime(eq(10), eq(1));
         }
 
         @Test
         @DisplayName("Retorna 400 si la función ya estaba cancelada o ya finalizó")
         void retorna400SiFuncionYaCanceladaOFinalizada() {
-            doThrow(new RuntimeException("Esta función ya está cancelada."))
-                    .when(showtimeService).cancelShowtime(eq(10), any());
+                doThrow(new RuntimeException("Esta función ya está cancelada."))
+                        .when(showtimeService).cancelShowtime(eq(10), any());
 
-            ResponseEntity<?> response =
-                    showtimeController.cancelShowtime(10, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.cancelShowtime(10, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(response.getBody()).isEqualTo("Esta función ya está cancelada.");
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(response.getBody()).isEqualTo("Esta función ya está cancelada.");
         }
 
         @Test
         @DisplayName("Retorna 400 si el gerente de sede intenta cancelar función de otra sede")
         void retorna400SiGerenteIntentaCancelarFuncionDeOtraSede() {
-            doThrow(new RuntimeException("No tienes permiso para cancelar funciones de otra sede."))
-                    .when(showtimeService).cancelShowtime(eq(10), eq(1));
+                doThrow(new RuntimeException("No tienes permiso para cancelar funciones de otra sede."))
+                        .when(showtimeService).cancelShowtime(eq(10), eq(1));
 
-            ResponseEntity<?> response =
-                    showtimeController.cancelShowtime(10, authGerenteSede);
+                ResponseEntity<?> response =
+                        showtimeController.cancelShowtime(10, authGerenteSede);
 
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(response.getBody())
-                    .isEqualTo("No tienes permiso para cancelar funciones de otra sede.");
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(response.getBody())
+                        .isEqualTo("No tienes permiso para cancelar funciones de otra sede.");
         }
     }
 }
