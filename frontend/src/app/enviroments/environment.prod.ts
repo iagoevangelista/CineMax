@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-dominio.com/api/v1'
+  apiUrl: 'https://cinemax-qhvo.onrender.com/api/v1'
 };
