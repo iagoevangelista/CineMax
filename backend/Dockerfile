@@ -1,33 +1,24 @@
 # ==========================================
-# 1. Etapa de compilación (Build)
+# 1. Etapa de compilación con Maven Oficial
 # ==========================================
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
-# Copiamos el wrapper de Maven y las configuraciones base
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-
-# Aseguramos que el wrapper tenga permisos de ejecución
-RUN chmod +x ./mvnw
-
-# Descargamos las dependencias de Spring Boot
-RUN ./mvnw dependency:go-offline
-
-# Copiamos el código fuente y compilamos ignorando los tests
+# Copiamos solo el pom.xml y el código fuente
+COPY pom.xml .
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+
+# Compilamos la aplicación usando el Maven de Docker
+RUN mvn clean package -DskipTests
 
 # ==========================================
-# 2. Etapa de ejecución (Run)
+# 2. Etapa de ejecución
 # ==========================================
-FROM eclipse-temurin:17-jre-alpine
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Traemos únicamente el archivo .jar generado en el paso anterior
+# Traemos el archivo .jar compilado
 COPY --from=build /app/target/*.jar app.jar
-
-# Exponemos el puerto dinámico
 EXPOSE 8080
 
 # Encendemos el servidor
