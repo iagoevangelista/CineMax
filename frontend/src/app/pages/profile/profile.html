@@ -65,26 +65,22 @@
           <div>{{ mensaje }}</div>
         </div>
 
+        <!-- DATOS -->
         <div *ngIf="pestanaActiva === 'datos'">
           <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Información Personal</h4>
-          
           <form [formGroup]="datosForm" (ngSubmit)="guardarDatosPersonales()" novalidate>
-            
             <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary" style="border-color: #333 !important;">
               <div class="position-relative me-4">
-                
                 <div class="rounded-circle shadow d-flex align-items-center justify-content-center overflow-hidden" 
                      style="width: 100px; height: 100px; background-color: #2a2a32; font-size: 2.5rem; color: white; border: 2px solid #555;">
                   <img *ngIf="imagenPrevia || perfilSoloLectura.imageUrl" [src]="imagenPrevia || perfilSoloLectura.imageUrl" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
                   <span *ngIf="!imagenPrevia && !perfilSoloLectura.imageUrl">{{ inicialNombre }}{{ inicialApellido }}</span>
                 </div>
-                
                 <label for="avatarUpload" class="position-absolute bottom-0 end-0 rounded-circle shadow d-flex justify-content-center align-items-center" 
                        style="cursor: pointer; right: -5px; bottom: 0px; background-color: var(--primary-color); border: 3px solid #161619; width: 34px; height: 34px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                   <i class="fa-solid fa-camera text-white" style="font-size: 0.85rem;"></i>
                 </label>
                 <input type="file" id="avatarUpload" class="d-none" (change)="onFileSelected($event)" accept="image/*">
-                
               </div>
               <div>
                 <h5 class="fw-bold text-white mb-1">Tu Foto de Perfil</h5>
@@ -161,34 +157,54 @@
           </form>
         </div>
 
+        <!-- COMPRAS -->
         <div *ngIf="pestanaActiva === 'compras' && !esAdmin">
-          <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Historial de Entradas</h4>
+          <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Historial de Compras</h4>
           
-          <div *ngIf="misCompras.length === 0" class="text-center py-5">
+          <div *ngIf="cargandoCompras" class="text-center py-4">
+            <div class="spinner-border text-info" role="status"></div>
+          </div>
+
+          <div *ngIf="!cargandoCompras && misCompras.length === 0" class="text-center py-5">
             <i class="fa-solid fa-receipt fs-1 text-secondary mb-3" style="opacity: 0.3;"></i>
             <p class="text-muted">Aún no has realizado ninguna compra en CineMax.</p>
           </div>
 
-          <div class="row g-3" *ngIf="misCompras.length > 0">
+          <div class="row g-3" *ngIf="!cargandoCompras && misCompras.length > 0">
             <div class="col-12" *ngFor="let compra of misCompras">
               <div class="p-3 rounded border border-secondary d-flex justify-content-between align-items-center flex-wrap gap-3" style="background-color: #0d0d11;">
                 <div>
-                  <h5 class="fw-bold mb-1 text-white">{{ compra.movieTitle }}</h5>
-                  <p class="mb-1 small text-secondary"><i class="fa-solid fa-film me-2"></i>{{ compra.venueName }} — {{ compra.roomName }}</p>
+                  <!-- Título: película o lista de snacks -->
+                  <h5 class="fw-bold mb-1 text-white">
+                    {{ compra.movieTitle || (compra.snacks && compra.snacks.length > 0 ? compra.snacks.join(', ') : 'Compra de Snacks') }}
+                  </h5>
+
+                  <!-- Sede y sala: solo si hay película -->
+                  <p *ngIf="compra.venueName" class="mb-1 small text-secondary">
+                    <i class="fa-solid fa-film me-2"></i>{{ compra.venueName }}{{ compra.roomName ? ' — ' + compra.roomName : '' }}
+                  </p>
+
+                  <!-- Fecha y hora -->
                   <p class="mb-0 small text-secondary">
-                    <i class="fa-solid fa-calendar-day me-2"></i>{{ compra.date }} a las {{ compra.time }} | <i class="fa-solid fa-chair ms-1 me-2"></i>Asientos: <strong>{{ compra.seats }}</strong>
+                    <i class="fa-solid fa-calendar-day me-2"></i>{{ compra.date }} a las {{ compra.time }}
+                    <!-- Asientos: solo si hay película -->
+                    <span *ngIf="compra.seats">
+                      | <i class="fa-solid fa-chair ms-1 me-2"></i>Asientos: <strong>{{ compra.seats }}</strong>
+                    </span>
                   </p>
                 </div>
+
                 <div class="text-md-end border-start border-secondary ps-3">
                   <span class="badge bg-success mb-2 d-block">Compra Exitosa</span>
-                  <small class="text-muted d-block mb-1">Ticket ID: #{{ compra.idSale }}</small>
-                  <strong style="color: var(--primary-color); font-size: 1.1rem;">S/. {{ compra.amount | number:'1.2-2' }}</strong>
+                  <small class="text-muted d-block mb-1">Ticket ID: #{{ compra.idTransaction }}</small>
+                  <strong style="color: var(--primary-color); font-size: 1.1rem;">S/. {{ compra.totalAmount | number:'1.2-2' }}</strong>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- SEGURIDAD -->
         <div *ngIf="pestanaActiva === 'seguridad'">
           <h4 class="fw-bold mb-4" style="color: var(--primary-color);">Actualizar Contraseña</h4>
           <form [formGroup]="seguridadForm" (ngSubmit)="actualizarContrasena()" novalidate>
@@ -240,6 +256,7 @@
           </form>
         </div>
 
+        <!-- ELIMINAR CUENTA -->
         <div *ngIf="pestanaActiva === 'eliminar'">
           <h4 class="fw-bold text-danger mb-3">Eliminar Cuenta</h4>
           <div class="p-3 rounded mb-4" style="background-color: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3);">
@@ -262,6 +279,5 @@
 
       </div>
     </div>
-
   </div>
 </div>
