@@ -20,7 +20,6 @@ public class EmailService {
     private String fromEmail;
 
     public void sendPasswordResetEmail(String toEmail, String resetToken) {
-        // Por ahora apuntamos al localhost de Angular, luego en producción esto cambia a tu dominio real
         String resetLink = frontendUrl + "/reset-password?token=" + resetToken;
 
         SimpleMailMessage message = new SimpleMailMessage();
