@@ -5,6 +5,7 @@ import { Venues } from './pages/admin/venues/venues';
 import { Users } from './pages/admin/users/users';
 import { Dashboard } from './pages/admin/dashboard/dashboard';
 import { authGuard } from './services/auth.guard';
+import { checkoutGuard } from './services/checkout-guard';
 import { MovieDetail } from './pages/movie-detail/movie-detail';
 import { Movies } from './pages/movies/movies';
 import { Seats } from './pages/checkout/seats/seats';
@@ -34,9 +35,9 @@ export const routes: Routes = [
       { path: 'confiteria', component: ConfiteriaPublica },
       { path: 'movie/:id', component: MovieDetail, runGuardsAndResolvers: 'always' },
       { path: 'seats', component: Seats },
-      { path: 'tickets', component: Tickets },
-      { path: 'snacks', component: Snacks },
-      { path: 'payment', component: Payment },
+      { path: 'tickets', component: Tickets, canActivate: [checkoutGuard] },
+      { path: 'snacks', component: Snacks, canActivate: [checkoutGuard] },
+      { path: 'payment', component: Payment, canActivate: [checkoutGuard] },
       { path: 'reset-password', component: ResetPasswordComponent }
     ]
   },

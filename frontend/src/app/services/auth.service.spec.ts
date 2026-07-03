@@ -4,7 +4,7 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
-import { environment } from '../enviroments/environment';
+import { environment } from '../environments/environment';
 
 const MOCK_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +

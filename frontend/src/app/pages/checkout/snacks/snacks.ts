@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BookingService, SnackEntry } from '../../../services/booking';
-import { environment } from '../../../enviroments/environment';
+import { environment } from '../../../environments/environment';
 
 interface SnackItem {
   idSnack: number;

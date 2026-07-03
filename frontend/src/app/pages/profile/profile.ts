@@ -6,7 +6,7 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../enviroments/environment';
+import { environment } from '../../environments/environment';
 
 const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 

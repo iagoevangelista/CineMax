@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { BookingService } from '../../../services/booking';
 import { AuthService } from '../../../services/auth.service';
 import { SaleTransactionService, SaleTransactionRequestDTO, SaleTransactionResponseDTO } from '../../../services/sale-transaction.service';
-import { environment } from '../../../enviroments/environment';
+import { environment } from '../../../environments/environment';
 
 type MetodoPago = 'tarjeta' | 'yape';
 

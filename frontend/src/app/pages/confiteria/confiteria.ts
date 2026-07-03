@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../services/confiteria.service';
-import { environment } from '../../enviroments/environment';
+import { environment } from '../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { BookingService, SnackEntry } from '../../services/booking';
 import { Offcanvas } from 'bootstrap';

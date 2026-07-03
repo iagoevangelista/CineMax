@@ -44,7 +44,7 @@ public class SecurityConfig {
 
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                .requestMatchers("/api/v1/lookup/**").permitAll()
+                .requestMatchers("/api/v1/roles").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/showtimes/**").permitAll()

@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ConfiteriaService } from '../../../services/confiteria.service';
 import { AuthService } from '../../../services/auth.service';
-import { environment } from '../../../enviroments/environment';
+import { environment } from '../../../environments/environment';
 import { Modal } from 'bootstrap';
 
 @Component({

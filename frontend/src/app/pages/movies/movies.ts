@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MovieService, Movie } from '../../services/movie.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../enviroments/environment';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-movies',

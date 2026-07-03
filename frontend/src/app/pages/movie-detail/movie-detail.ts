@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../services/booking';
 import { MovieService } from '../../services/movie.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../enviroments/environment';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-movie-detail',
