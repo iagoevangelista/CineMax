@@ -1,8 +1,8 @@
 package com.cinemax.backend.controller;
 
-import com.cinemax.backend.model.entity.Department;
-import com.cinemax.backend.model.entity.District;
-import com.cinemax.backend.model.entity.Province;
+import com.cinemax.backend.model.dto.location.DepartmentResponseDTO;
+import com.cinemax.backend.model.dto.location.DistrictResponseDTO;
+import com.cinemax.backend.model.dto.location.ProvinceResponseDTO;
 import com.cinemax.backend.repository.DepartmentRepository;
 import com.cinemax.backend.repository.DistrictRepository;
 import com.cinemax.backend.repository.ProvinceRepository;
@@ -22,17 +22,26 @@ public class LocationController {
     private final DistrictRepository districtRepository;
 
     @GetMapping("/departments")
-    public ResponseEntity<List<Department>> getDepartments() {
-        return ResponseEntity.ok(departmentRepository.findAll());
+    public ResponseEntity<List<DepartmentResponseDTO>> getDepartments() {
+        var result = departmentRepository.findAll().stream()
+                .map(d -> new DepartmentResponseDTO(d.getIdDepartment(), d.getNameDepartment()))
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/provinces/{idDepartment}")
-    public ResponseEntity<List<Province>> getProvincesByDepartment(@PathVariable Integer idDepartment) {
-        return ResponseEntity.ok(provinceRepository.findByDepartment_IdDepartment(idDepartment));
+    public ResponseEntity<List<ProvinceResponseDTO>> getProvincesByDepartment(@PathVariable Integer idDepartment) {
+        var result = provinceRepository.findByDepartment_IdDepartment(idDepartment).stream()
+                .map(p -> new ProvinceResponseDTO(p.getIdProvince(), p.getNameProvince(), p.getDepartment().getIdDepartment()))
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/districts/{idProvince}")
-    public ResponseEntity<List<District>> getDistrictsByProvince(@PathVariable Integer idProvince) {
-        return ResponseEntity.ok(districtRepository.findByProvince_IdProvince(idProvince));
+    public ResponseEntity<List<DistrictResponseDTO>> getDistrictsByProvince(@PathVariable Integer idProvince) {
+        var result = districtRepository.findByProvince_IdProvince(idProvince).stream()
+                .map(d -> new DistrictResponseDTO(d.getIdDistrict(), d.getNameDistrict(), d.getProvince().getIdProvince()))
+                .toList();
+        return ResponseEntity.ok(result);
     }
 }
