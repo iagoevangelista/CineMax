@@ -16,8 +16,7 @@ class JwtServiceTest {
     @BeforeEach
     void setUp() {
         jwtService = new JwtService();
-        // Como este es un test unitario puro (sin levantar Spring),
-        // los campos @Value no se resuelven solos - los inyectamos a mano.
+        // Como este es un test unitario puro
         ReflectionTestUtils.setField(jwtService, "secret",
                 "586E3272357538782F413F4428472B4B6250655368566B597033733676397924");
         ReflectionTestUtils.setField(jwtService, "expirationMillis", 3600000L);
