@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: cine
+      POSTGRES_PASSWORD: cine123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+
+  mysql:
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: cine123
+    volumes:
+      - mysqldata:/var/lib/mysql
+      - ./init-scripts/mysql:/docker-entrypoint-initdb.d
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: cine
+      MONGO_INITDB_ROOT_PASSWORD: cine123
+    volumes:
+      - mongodata:/data/db
+      - ./init-scripts/mongodb:/docker-entrypoint-initdb.d
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "123456"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+volumes:
+  pgdata:
+  mysqldata:
+  mongodata:
+  sqldata:
