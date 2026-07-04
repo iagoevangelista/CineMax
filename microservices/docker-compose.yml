@@ -38,10 +38,11 @@ services:
     ports:
       - "1433:1433"
     environment:
-      SA_PASSWORD: "123456"
+      MSSQL_SA_PASSWORD: "Cine123456"
       ACCEPT_EULA: "Y"
     volumes:
       - sqldata:/var/opt/mssql
+      - ./init-scripts/sqlserver:/docker-entrypoint-initdb.d
 
 volumes:
   pgdata:
