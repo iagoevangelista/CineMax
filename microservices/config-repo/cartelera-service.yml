@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: cartelera_db
+      username: cine
+      password: cine123
+      authentication-database: admin
+
+server:
+  port: 8082
