@@ -32,4 +32,4 @@ CREATE TABLE IF NOT EXISTS seat_type (
 
 -- Seed data: departamentos, provincias, distritos
 INSERT INTO department (name_department) VALUES ('Lima'), ('Arequipa'), ('Cusco') ON DUPLICATE KEY UPDATE name_department=name_department;
-INSERT INTO seat_type (name_seat_type) VALUES ('General'), ('VIP'), ('Preferencial') ON DUPLICATE KEY UPDATE name_seat_type=name_seat_type;
+INSERT INTO seat_type (name_seat_type) VALUES ('REGULAR'), ('WHEELCHAIR') ON DUPLICATE KEY UPDATE name_seat_type=name_seat_type;
