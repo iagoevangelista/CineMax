@@ -29,23 +29,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Pruebas Unitarias para AuthController - CINEMAX
- * Módulo: Auth & Seguridad (Integrante 1)
- *
- * Estrategia: MockMvc standalone + @Mock en AuthService.
- * No levanta contexto Spring completo → ejecución ultrarrápida.
- *
- * Nota sobre manejo de excepciones:
- *   En producción el GlobalExceptionHandler intercepta las excepciones y
- *   devuelve el status HTTP adecuado. En estas pruebas unitarias standalone
- *   NO se registra el GlobalExceptionHandler, por lo que una excepción no
- *   capturada devuelve 500. Si quieres probar el status 401/403 exacto,
- *   hay dos opciones:
- *     a) Registrar el GlobalExceptionHandler en el standaloneSetup (ver setUp).
- *     b) Escribir una prueba de integración con @SpringBootTest + @AutoConfigureMockMvc.
- *   Los tests aquí siguen la opción (a) cuando corresponde.
- */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthController - Pruebas Unitarias (MockMvc Standalone)")
 class AuthControllerTest {
@@ -61,11 +44,6 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Standalone: no levanta ApplicationContext, solo el controlador bajo prueba.
-        // Si tu GlobalExceptionHandler es un @ControllerAdvice, agrégalo aquí:
-        // mockMvc = MockMvcBuilders.standaloneSetup(authController)
-        //         .setControllerAdvice(new GlobalExceptionHandler())
-        //         .build();
         mockMvc = MockMvcBuilders.standaloneSetup(authController)
         .setControllerAdvice(new GlobalExceptionHandler())
         .build();
@@ -105,7 +83,6 @@ class AuthControllerTest {
     @Test
     @DisplayName("POST /login — CP-02: credenciales incorrectas propaga excepción del service")
     void login_credencialesIncorrectas_propagaExcepcion() throws Exception {
-        // ARRANGE
         AuthRequestDTO request = AuthRequestDTO.builder()
                 .email("juan@test.com")
                 .password("MalPassword1")
@@ -115,8 +92,6 @@ class AuthControllerTest {
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
         // ACT & ASSERT
-        // Sin GlobalExceptionHandler, MockMvc standalone reporta 500.
-        // Lo importante es que el service fue invocado y lanzó la excepción.
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
