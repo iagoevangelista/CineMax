@@ -19,9 +19,6 @@ spring:
           starttls:
             enable: true
 
-app:
-  frontend-url: ${FRONTEND_URL:http://localhost:4200}
-
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:tu-cloud}
   api-key: ${CLOUDINARY_API_KEY:tu-key}
