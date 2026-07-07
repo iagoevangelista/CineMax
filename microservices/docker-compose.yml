@@ -18,6 +18,9 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: cine123
+      MYSQL_USER: cine
+      MYSQL_PASSWORD: cine123
+      MYSQL_DATABASE: sucursales_db
     volumes:
       - mysqldata:/var/lib/mysql
       - ./init-scripts/mysql:/docker-entrypoint-initdb.d

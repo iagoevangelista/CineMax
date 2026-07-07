@@ -12,3 +12,6 @@ eureka:
 jwt:
   secret: ${TOKEN_JWT_SECRET:your-secret-key}
   expiration: 3600000 
+
+app:
+  frontend-url: http://localhost:4200

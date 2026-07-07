@@ -10,7 +10,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>sucursales-service</artifactId>
+    <artifactId>cartelera-service</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -20,15 +20,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- JPA + MySQL -->
+        <!-- MongoDB -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
         <!-- Eureka Client -->
@@ -43,7 +38,7 @@
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
-        <!-- common-library: CloudinaryService compartido (para la imagen de Venue) -->
+        <!-- common-library -->
         <dependency>
             <groupId>com.cinemax</groupId>
             <artifactId>common-library</artifactId>
@@ -81,5 +76,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+   </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.cinemax.cartelera.CarteleraApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
