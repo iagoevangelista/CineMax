@@ -1,0 +1,28 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=usuarios_db;encrypt=true;trustServerCertificate=true
+    username: ${SQLSERVER_USER:sa}
+    password: ${SQLSERVER_PASSWORD:tu-password}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:tu-correo@gmail.com}
+    password: ${MAIL_PASSWORD:tu-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:tu-cloud}
+  api-key: ${CLOUDINARY_API_KEY:tu-key}
+  api-secret: ${CLOUDINARY_API_SECRET:tu-secret}
