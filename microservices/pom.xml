@@ -23,6 +23,7 @@
         <module>api-gateway</module>
         <module>auth-service</module>
         <module>sucursales-service</module>
+        <module>cartelera-service</module>
     </modules>
 
     <properties>
