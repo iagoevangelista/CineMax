@@ -1,0 +1,14 @@
+server:
+  port: 8081
+
+jwt:
+  secret: 586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+  expiration: 86400000
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}
+  api-key: ${CLOUDINARY_API_KEY:your-api-key}
+  api-secret: ${CLOUDINARY_API_SECRET:your-api-secret}
+
+app:
+  frontend-url: http://localhost:4200

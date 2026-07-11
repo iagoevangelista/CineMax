@@ -1,19 +1,12 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:16
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: cine
-      POSTGRES_PASSWORD: cine123
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init-scripts/postgres:/docker-entrypoint-initdb.d
 
-  mysql:
+  # ============================
+  # BASES DE DATOS 
+  # ============================
+
+  mysql-sucursales:
     image: mysql:8
+    container_name: mysql-sucursales
     ports:
       - "3307:3306"
     environment:
@@ -22,33 +15,236 @@ services:
       MYSQL_PASSWORD: cine123
       MYSQL_DATABASE: sucursales_db
     volumes:
-      - mysqldata:/var/lib/mysql
-      - ./init-scripts/mysql:/docker-entrypoint-initdb.d
+      - mysqldata-sucursales:/var/lib/mysql
+      - ./init-scripts/mysql-sucursales:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -pcine123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
-  mongodb:
+  mysql-confiteria:
+    image: mysql:8
+    container_name: mysql-confiteria
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: cine123
+      MYSQL_USER: cine
+      MYSQL_PASSWORD: cine123
+      MYSQL_DATABASE: confiteria_db
+    volumes:
+      - mysqldata-confiteria:/var/lib/mysql
+      - ./init-scripts/mysql-confiteria:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -pcine123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+  mongodb-cartelera:
     image: mongo:7
+    container_name: mongodb-cartelera
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: cine
       MONGO_INITDB_ROOT_PASSWORD: cine123
     volumes:
-      - mongodata:/data/db
-      - ./init-scripts/mongodb:/docker-entrypoint-initdb.d
+      - mongodata-cartelera:/data/db
+      - ./init-scripts/mongodb-cartelera:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
-  sqlserver:
+  sqlserver-usuarios:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-usuarios
     ports:
       - "1433:1433"
     environment:
       MSSQL_SA_PASSWORD: "Cine123456"
       ACCEPT_EULA: "Y"
     volumes:
-      - sqldata:/var/opt/mssql
-      - ./init-scripts/sqlserver:/docker-entrypoint-initdb.d
+      - sqldata-usuarios:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"Cine123456\" -C -Q \"SELECT 1\" -b || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"Cine123456\" -Q \"SELECT 1\" -b || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+  sqlserver-usuarios-init:
+    image: mcr.microsoft.com/mssql-tools
+    container_name: sqlserver-usuarios-init
+    depends_on:
+      sqlserver-usuarios:
+        condition: service_healthy
+    volumes:
+      - ./init-scripts/sqlserver-usuarios:/scripts
+    command: >
+      /opt/mssql-tools/bin/sqlcmd -S sqlserver-usuarios -U sa -P "Cine123456" -i /scripts/01-init-databases.sql
+    restart: "no"
 
+  # ============================
+  # INFRAESTRUCTURA
+  # ============================
+
+  config-server:
+    build: ./config-server
+    image: cinemax/config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8888/auth-service/default || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  service-discovery:
+    build: ./service-discovery
+    image: cinemax/service-discovery
+    container_name: service-discovery
+    ports:
+      - "8761:8761"
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api-gateway:
+    build: ./api-gateway
+    image: cinemax/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  # ============================
+  # MICROSERVICIOS DE NEGOCIO
+  # ============================
+
+  auth-service:
+    build: ./auth-service
+    image: cinemax/auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  sucursales-service:
+    build: ./sucursales-service
+    image: cinemax/sucursales-service
+    container_name: sucursales-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-sucursales:3306/sucursales_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=cine
+      - SPRING_DATASOURCE_PASSWORD=cine123
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    depends_on:
+      mysql-sucursales:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  cartelera-service:
+    build: ./cartelera-service
+    image: cinemax/cartelera-service
+    container_name: cartelera-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SPRING_DATA_MONGODB_HOST=mongodb-cartelera
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_USERNAME=cine
+      - SPRING_DATA_MONGODB_PASSWORD=cine123
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    depends_on:
+      mongodb-cartelera:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  confiteria-service:
+    build: ./confiteria-service
+    image: cinemax/confiteria-service
+    container_name: confiteria-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-confiteria:3306/confiteria_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=cine
+      - SPRING_DATASOURCE_PASSWORD=cine123
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    depends_on:
+      mysql-confiteria:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  usuarios-service:
+    build: ./usuarios-service
+    image: cinemax/usuarios-service
+    container_name: usuarios-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver-usuarios:1433;databaseName=usuarios_db;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=Cine123456
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    depends_on:
+      sqlserver-usuarios-init:
+        condition: service_completed_successfully
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+
+  # facturacion-service: EXCLUIDO por ahora
 volumes:
-  pgdata:
-  mysqldata:
-  mongodata:
-  sqldata:
+  mysqldata-sucursales:
+  mysqldata-confiteria:
+  mongodata-cartelera:
+  sqldata-usuarios:

@@ -1,6 +1,5 @@
 -- Sucursales DB
 CREATE DATABASE IF NOT EXISTS sucursales_db;
-CREATE DATABASE IF NOT EXISTS dulceria_db;
 
 USE sucursales_db;
 

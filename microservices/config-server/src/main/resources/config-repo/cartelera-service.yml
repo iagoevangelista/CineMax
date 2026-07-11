@@ -1,12 +1,15 @@
 spring:
   data:
     mongodb:
-      host: localhost
+      host: mongodb-cartelera
       port: 27017
       database: cartelera_db
       username: cine
       password: cine123
       authentication-database: admin
-
+      
 server:
   port: 8082
+
+app:
+  frontend-url: http://localhost:4200

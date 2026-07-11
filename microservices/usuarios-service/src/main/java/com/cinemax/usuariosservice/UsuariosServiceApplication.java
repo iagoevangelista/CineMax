@@ -6,8 +6,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan(basePackages = "com.cinemax")
 @EnableFeignClients
-@ComponentScan(basePackages = {"com.cinemax.usuariosservice", "com.cinemax.common"})
 public class UsuariosServiceApplication {
 
     public static void main(String[] args) {
