@@ -25,7 +25,8 @@
         <module>sucursales-service</module>
         <module>cartelera-service</module>
         <module>confiteria-service</module>
-        <module>usuarios-service</module>   
+        <module>usuarios-service</module>
+        <module>facturacion-service</module>
     </modules>
 
     <properties>

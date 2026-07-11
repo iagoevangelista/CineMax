@@ -1,12 +1,12 @@
-// dto/response/SaleTransactionResponseDTO.java
-@Data @Builder
+package com.cinemax.facturacion.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class SaleTransactionResponseDTO {
     private Integer idTransaction;
-    private String status;
-    private BigDecimal subtotal;
-    private BigDecimal discountAmount;
-    private BigDecimal totalAmount;
-    private String paymentMethod;
-    private LocalDateTime createdAt;
     private String qrCodeData;
+    private String message;
 }

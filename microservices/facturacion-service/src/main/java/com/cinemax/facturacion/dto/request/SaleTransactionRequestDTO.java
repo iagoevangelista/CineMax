@@ -1,22 +1,37 @@
-// dto/request/SaleTransactionRequestDTO.java
+package com.cinemax.facturacion.dto.request;
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.List;
+
 @Data
 public class SaleTransactionRequestDTO {
 
-    @NotNull
+    private Integer idShowtime;
+    private List<Integer> asientosIds;
+    private List<TicketLineDTO> tickets;
+    private List<SnackLineDTO> snacks;
+
+    private BigDecimal subtotal;
+    private BigDecimal discountAmount;
+    private BigDecimal totalAmount;
+
     private String paymentMethod;
 
-    private List<TicketItemDTO> tickets;   // puede venir vacío si solo compra snacks
-    private List<SnackItemDTO> snacks;     // puede venir vacío si solo compra entradas
+    private Integer idPromotion;
 
     @Data
-    public static class TicketItemDTO {
-        @NotNull private Integer idShowtime;
-        @NotNull private Integer idSeat;
+    public static class TicketLineDTO {
+        private String categoryCode;
+        private Integer cantidad;
+        private BigDecimal precioUnitario;
     }
 
     @Data
-    public static class SnackItemDTO {
-        @NotNull private Integer idSnack;
-        @Positive private Integer quantity;
+    public static class SnackLineDTO {
+        private Integer idSnack;
+        private Integer cantidad;
+        private BigDecimal unitPrice;
     }
 }

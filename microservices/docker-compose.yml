@@ -47,8 +47,20 @@ services:
       - sqldata:/var/opt/mssql
       - ./init-scripts/sqlserver:/docker-entrypoint-initdb.d
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
+
 volumes:
   pgdata:
   mysqldata:
   mongodata:
   sqldata:
+  rabbitmqdata:

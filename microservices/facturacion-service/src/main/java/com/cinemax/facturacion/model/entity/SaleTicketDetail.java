@@ -1,9 +1,21 @@
-// model/entity/SaleTicketDetail.java
+package com.cinemax.facturacion.model.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "sale_ticket_detail", uniqueConstraints = {
         @UniqueConstraint(name = "uq_ticket_seat_showtime", columnNames = {"id_showtime", "id_seat"})
 })
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SaleTicketDetail {
 
     @Id
@@ -15,9 +27,11 @@ public class SaleTicketDetail {
     @JoinColumn(name = "id_transaction", nullable = false)
     private SaleTransaction saleTransaction;
 
+    // Dueño real: cartelera-service.
     @Column(name = "id_showtime", nullable = false)
     private Integer idShowtime;
 
+    // Dueño real: sucursales-service.
     @Column(name = "id_seat", nullable = false)
     private Integer idSeat;
 
