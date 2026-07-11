@@ -61,37 +61,67 @@ services:
       retries: 10
       start_period: 40s
 
-  sqlserver-usuarios:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver-usuarios
+  postgres-usuarios:
+    image: postgres:16
+    container_name: postgres-usuarios
     ports:
-      - "1433:1433"
+      - "5433:5432"
     environment:
-      MSSQL_SA_PASSWORD: "Cine123456"
-      ACCEPT_EULA: "Y"
+      POSTGRES_USER: cine
+      POSTGRES_PASSWORD: cine123
+      POSTGRES_DB: usuarios_db
     volumes:
-      - sqldata-usuarios:/var/opt/mssql
+      - pgdata-usuarios:/var/lib/postgresql/data
+      - ./init-scripts/postgres-usuarios:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"Cine123456\" -C -Q \"SELECT 1\" -b || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"Cine123456\" -Q \"SELECT 1\" -b || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U cine -d usuarios_db"]
+      interval: 5s
       timeout: 5s
-      retries: 15
-      start_period: 30s
-  sqlserver-usuarios-init:
-    image: mcr.microsoft.com/mssql-tools
-    container_name: sqlserver-usuarios-init
-    depends_on:
-      sqlserver-usuarios:
-        condition: service_healthy
+      retries: 10
+      start_period: 20s
+
+  # ============================
+  # FACTURACION
+  # ============================
+
+  postgres-facturacion:
+    image: postgres:16
+    container_name: postgres-facturacion
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: cine
+      POSTGRES_PASSWORD: cine123
+      POSTGRES_DB: sales_db
     volumes:
-      - ./init-scripts/sqlserver-usuarios:/scripts
-    command: >
-      /opt/mssql-tools/bin/sqlcmd -S sqlserver-usuarios -U sa -P "Cine123456" -i /scripts/01-init-databases.sql
-    restart: "no"
+      - pgdata-facturacion:/var/lib/postgresql/data
+      - ./init-scripts/postgres-facturacion:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cine -d sales_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   # ============================
   # INFRAESTRUCTURA
   # ============================
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   config-server:
     build: ./config-server
@@ -230,21 +260,44 @@ services:
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
-      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver-usuarios:1433;databaseName=usuarios_db;encrypt=true;trustServerCertificate=true
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=Cine123456
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-usuarios:5432/usuarios_db
+      - SPRING_DATASOURCE_USERNAME=cine
+      - SPRING_DATASOURCE_PASSWORD=cine123
       - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
     depends_on:
-      sqlserver-usuarios-init:
-        condition: service_completed_successfully
+      postgres-usuarios:
+        condition: service_healthy
       service-discovery:
         condition: service_healthy
       config-server:
         condition: service_healthy
 
-  # facturacion-service: EXCLUIDO por ahora
+  facturacion-service:
+    build: ./facturacion-service
+    image: cinemax/facturacion-service
+    container_name: facturacion-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-facturacion:5432/sales_db
+      - SPRING_DATASOURCE_USERNAME=cine
+      - SPRING_DATASOURCE_PASSWORD=cine123
+      - JWT_SECRET=586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    depends_on:
+      postgres-facturacion:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   mysqldata-sucursales:
   mysqldata-confiteria:
   mongodata-cartelera:
-  sqldata-usuarios:
+  pgdata-usuarios:
+  pgdata-facturacion:

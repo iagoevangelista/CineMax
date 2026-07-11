@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://sqlserver-usuarios:1433;databaseName=usuarios_db;encrypt=true;trustServerCertificate=true
-    username: ${SQLSERVER_USER:sa}
-    password: ${SQLSERVER_PASSWORD:tu-password}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:postgresql://postgres-usuarios:5432/usuarios_db
+    username: ${POSTGRES_USER:cine}
+    password: ${POSTGRES_PASSWORD:cine123}
+    driver-class-name: org.postgresql.Driver
     
   mail:
     host: smtp.gmail.com

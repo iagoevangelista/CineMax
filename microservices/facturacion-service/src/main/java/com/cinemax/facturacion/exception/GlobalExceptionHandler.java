@@ -1,3 +1,49 @@
+package com.cinemax.facturacion.exception;
+
+import com.cinemax.common.dto.ApiResponse;
+import feign.FeignException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessError(IllegalStateException e) {
+        return ResponseEntity.badRequest().body(
+                ApiResponse.<Void>builder().success(false).message(e.getMessage()).build()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationError(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.badRequest().body(
+                ApiResponse.<Void>builder().success(false).message(message).build()
+        );
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ApiResponse<Void>> handleFeignError(FeignException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+                ApiResponse.<Void>builder()
+                        .success(false)
+                        .message("Un servicio dependiente no está disponible en este momento.")
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception e) {
+        return ResponseEntity.internalServerError().body(
+                ApiResponse.<Void>builder().success(false).message("Error interno del servidor.").build()
+        );
+    }
 }

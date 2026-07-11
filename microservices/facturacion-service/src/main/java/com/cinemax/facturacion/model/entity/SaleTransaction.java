@@ -1,7 +1,20 @@
-// model/entity/SaleTransaction.java
+package com.cinemax.facturacion.model.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "sale_transaction")
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SaleTransaction {
 
     @Id
@@ -9,9 +22,11 @@ public class SaleTransaction {
     @Column(name = "id_transaction")
     private Integer idTransaction;
 
+    // Dueño real: usuarios-service. Solo guardamos el ID plano.
     @Column(name = "id_user", nullable = false)
     private Integer idUser;
 
+    // Catálogo interno propio de sales_db -> sí es relación JPA normal.
     @ManyToOne
     @JoinColumn(name = "id_transaction_status", nullable = false)
     private TransactionStatus transactionStatus;
