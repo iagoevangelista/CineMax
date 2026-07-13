@@ -37,17 +37,15 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                // TEMPORAL - SOLO PARA PRUEBAS - QUITAR DESPUÉS
-                .requestMatchers("/api/**").permitAll()
-                // ---
-                .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/classifications/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/showtimes/**").permitAll()
-                .anyRequest().authenticated()
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/error").permitAll()
+            .requestMatchers("/actuator/health").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/genres/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/classifications/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/showtimes/**").permitAll()
+            .anyRequest().authenticated()
+)
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cinemax.confiteria.dto.SnackVenueStockRequestDTO;
 import com.cinemax.confiteria.dto.SnackVenueStockResponseDTO;
+import com.cinemax.confiteria.dto.StockDescontarRequestDTO;
 import com.cinemax.confiteria.service.SnackVenueStockService;
 
 import jakarta.validation.Valid;
@@ -48,6 +49,12 @@ public class SnackVenueStockController {
     @PutMapping("/{id}")
     public ResponseEntity<SnackVenueStockResponseDTO> update(@PathVariable Integer id, @Valid @RequestBody SnackVenueStockRequestDTO dto) {
         return ResponseEntity.ok(snackVenueStockService.update(id, dto));
+    }
+
+    @PatchMapping("/descontar")
+    public ResponseEntity<SnackVenueStockResponseDTO> descontarStock(
+            @Valid @RequestBody StockDescontarRequestDTO dto) {
+        return ResponseEntity.ok(snackVenueStockService.descontarStock(dto));
     }
 
     @DeleteMapping("/{id}")
