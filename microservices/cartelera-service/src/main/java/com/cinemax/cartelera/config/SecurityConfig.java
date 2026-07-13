@@ -45,7 +45,6 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/classifications/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/showtimes/**").permitAll()
             .anyRequest().authenticated()
-)
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
