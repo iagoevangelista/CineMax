@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cinemax.confiteria.dto.SnackVenueStockRequestDTO;
 import com.cinemax.confiteria.dto.SnackVenueStockResponseDTO;
+import com.cinemax.confiteria.dto.StockDescontarRequestDTO;
 import com.cinemax.confiteria.entity.Snack;
 import com.cinemax.confiteria.entity.SnackVenueStock;
 import com.cinemax.confiteria.repository.SnackRepository;
@@ -86,6 +88,26 @@ public class SnackVenueStockService {
             stock.setStatus(dto.getStatus());
         }
 
+        return toResponseDTO(snackVenueStockRepository.save(stock));
+    }
+
+    @Transactional
+    public SnackVenueStockResponseDTO descontarStock(StockDescontarRequestDTO dto) {
+        SnackVenueStock stock = snackVenueStockRepository
+                .findByIdVenueAndSnack_IdSnack(dto.getIdVenue(), dto.getSnackId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(
+                        "No existe stock registrado para el snack " + dto.getSnackId()
+                                + " en la sede " + dto.getIdVenue()));
+
+        if (stock.getStock() < dto.getQuantity()) {
+            throw new RuntimeException(
+                    "Stock insuficiente. Disponible: " + stock.getStock()
+                            + ", solicitado: " + dto.getQuantity());
+        }
+
+        stock.setStock(stock.getStock() - dto.getQuantity());
         return toResponseDTO(snackVenueStockRepository.save(stock));
     }
 

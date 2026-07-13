@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize; 
 import org.springframework.web.bind.annotation.*;
 
 import com.cinemax.cartelera.dto.MovieRequestDTO;
@@ -36,17 +37,20 @@ public class MovieController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')") 
     public ResponseEntity<MovieResponseDTO> create(@Valid @RequestBody MovieRequestDTO dto) {
         MovieResponseDTO created = movieService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')") 
     public ResponseEntity<MovieResponseDTO> update(@PathVariable String id, @Valid @RequestBody MovieRequestDTO dto) {
         return ResponseEntity.ok(movieService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('MANAGE_MOVIES')")  
     public ResponseEntity<Void> delete(@PathVariable String id) {
         movieService.delete(id);
         return ResponseEntity.noContent().build();
