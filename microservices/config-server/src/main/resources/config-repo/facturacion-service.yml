@@ -1,18 +1,12 @@
+server:
+  port: 8086
+
 spring:
   datasource:
     url: jdbc:postgresql://postgres-facturacion:5432/sales_db
-    username: ${POSTGRES_USER:cine}
-    password: ${POSTGRES_PASSWORD:cine123}
+    username: ${DB_USER:cine}
+    password: ${DB_PASSWORD:cine123}
     driver-class-name: org.postgresql.Driver
-
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: guest
-    password: guest
-
-server:
-  port: 8086
 
 jwt:
   secret: ${JWT_SECRET:your-secret-key}

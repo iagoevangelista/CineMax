@@ -1,4 +1,4 @@
-package com.cinemax.usuariosservice.client;
+package com.cinemax.usuariosservice.clients;
 
 import com.cinemax.usuariosservice.model.dto.venue.VenueDTO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -10,6 +10,6 @@ import java.util.List;
 @FeignClient(name = "sucursales-service")
 public interface VenueFeignClient {
 
-    @GetMapping("/api/v1/venues")
+    @GetMapping("/api/venues")
     List<VenueDTO> getVenues(@RequestParam("status") String status);
 }

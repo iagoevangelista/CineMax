@@ -6,19 +6,19 @@ import com.cinemax.facturacion.client.UsuariosClient;
 import com.cinemax.facturacion.dto.external.ShowtimeDTO;
 import com.cinemax.facturacion.dto.external.SnackStockDTO;
 import com.cinemax.facturacion.dto.external.UserDTO;
-import com.cinemax.facturacion.dto.external.VentaRealizadaEvent;
 import com.cinemax.facturacion.dto.request.SaleTransactionRequestDTO;
 import com.cinemax.facturacion.dto.response.SaleTransactionHistoryDTO;
 import com.cinemax.facturacion.dto.response.SaleTransactionResponseDTO;
-import com.cinemax.facturacion.messaging.VentaEventPublisher;
 import com.cinemax.facturacion.model.entity.SaleSnackDetail;
 import com.cinemax.facturacion.model.entity.SaleTicketDetail;
 import com.cinemax.facturacion.model.entity.SaleTransaction;
 import com.cinemax.facturacion.model.entity.TransactionStatus;
+import com.cinemax.facturacion.model.entity.Promotion;
 import com.cinemax.facturacion.repository.SaleSnackDetailRepository;
 import com.cinemax.facturacion.repository.SaleTicketDetailRepository;
 import com.cinemax.facturacion.repository.SaleTransactionRepository;
 import com.cinemax.facturacion.repository.TransactionStatusRepository;
+import com.cinemax.facturacion.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,11 +38,11 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
     private final SaleTicketDetailRepository saleTicketDetailRepository;
     private final SaleSnackDetailRepository saleSnackDetailRepository;
     private final TransactionStatusRepository transactionStatusRepository;
+    private final PromotionRepository promotionRepository;
 
     private final CarteleraClient carteleraClient;
     private final ConfiteriaClient confiteriaClient;
     private final UsuariosClient usuariosClient;
-    private final VentaEventPublisher ventaEventPublisher;
 
     @Override
     @Transactional
@@ -98,12 +98,19 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
         TransactionStatus statusCompletado = transactionStatusRepository.findByNameStatus("COMPLETADO")
                 .orElseThrow(() -> new IllegalStateException("Estado COMPLETADO no configurado."));
 
+        // 5b. Resolver Promotion (opcional), igual que el monolito
+        Promotion promotion = null;
+        if (request.getIdPromotion() != null) {
+            promotion = promotionRepository.findById(request.getIdPromotion()).orElse(null);
+        }
+
         String qrCodeData = "TXN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
 
         // 6. Guardar la transacción. Confiamos en los totales que manda el frontend,
         //    igual que hacía el monolito (no se recalculan).
         SaleTransaction transaction = SaleTransaction.builder()
                 .idUser(user.getIdUser())
+                .promotion(promotion)
                 .transactionStatus(statusCompletado)
                 .subtotal(request.getSubtotal())
                 .discountAmount(request.getDiscountAmount() != null ? request.getDiscountAmount() : BigDecimal.ZERO)
@@ -155,10 +162,10 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
             }
         }
 
-        // 9. Publicar evento asíncrono (no bloquea la respuesta)
-        ventaEventPublisher.publicarVentaRealizada(
-                new VentaRealizadaEvent(transaction.getIdTransaction(), user.getIdUser(), transaction.getTotalAmount())
-        );
+        // 9. Reducir availableSeats en cartelera-service (solo si hay showtime), igual que el monolito.
+        if (showtime != null && !seatIds.isEmpty()) {
+            carteleraClient.decreaseAvailableSeats(request.getIdShowtime(), seatIds.size());
+        }
 
         return new SaleTransactionResponseDTO(transaction.getIdTransaction(), qrCodeData, "Reserva confirmada exitosamente.");
     }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/v1/seats")
+@RequestMapping("/api/seats")
 @RequiredArgsConstructor
 public class SeatController {
 

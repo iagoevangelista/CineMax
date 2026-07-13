@@ -2,8 +2,8 @@ server:
   port: 8081
 
 jwt:
-  secret: 586E3272357538782F413F4428472B4B6250655368566B597033733676397924
-  expiration: 86400000
+  secret: ${JWT_SECRET:your-secret-key}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}

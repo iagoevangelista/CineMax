@@ -112,6 +112,15 @@ public class ShowtimeService {
         showtimeRepository.deleteById(id);
     }
 
+    // Usado por facturacion-service al confirmar una venta, igual que hacía
+    // el monolito: showtime.setAvailableSeats(availableSeats - seats.size()).
+    public void decreaseAvailableSeats(String id, int cantidad) {
+        Showtime showtime = showtimeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Función no encontrada con id: " + id));
+        showtime.setAvailableSeats(showtime.getAvailableSeats() - cantidad);
+        showtimeRepository.save(showtime);
+    }
+
     private ShowtimeResponseDTO toResponseDTO(Showtime showtime) {
         Movie movie = movieRepository.findById(showtime.getMovieId()).orElse(null);
         return toResponseDTO(showtime, movie);

@@ -59,4 +59,11 @@ public class ShowtimeController {
         showtimeService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Llamado por facturacion-service al confirmar una venta.
+    @PatchMapping("/{id}/decrease-seats")
+    public ResponseEntity<Void> decreaseAvailableSeats(@PathVariable String id, @RequestParam int cantidad) {
+        showtimeService.decreaseAvailableSeats(id, cantidad);
+        return ResponseEntity.noContent().build();
+    }
 }

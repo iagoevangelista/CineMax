@@ -4,10 +4,9 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://postgres-usuarios:5432/usuarios_db
-    username: ${POSTGRES_USER:cine}
-    password: ${POSTGRES_PASSWORD:cine123}
+    username: ${DB_USER:cine}
+    password: ${DB_PASSWORD:cine123}
     driver-class-name: org.postgresql.Driver
-    
   mail:
     host: smtp.gmail.com
     port: 587

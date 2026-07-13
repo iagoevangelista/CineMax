@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - AddRequestHeader=X-Gateway-Request, true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/login
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: usuarios-auth
+          uri: lb://usuarios-service
+          predicates:
+            - Path=/api/v1/auth/register,/api/v1/auth/forgot-password,/api/v1/auth/reset-password,/api/v1/auth/validate-reset-token/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: cartelera-service
+          uri: lb://cartelera-service
+          predicates:
+            - Path=/api/v1/movies/**,/api/v1/showtimes/**,/api/v1/genres/**,/api/v1/classifications/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: usuarios-service
+          uri: lb://usuarios-service
+          predicates:
+            - Path=/api/v1/users/**,/api/v1/roles/**,/api/v1/documents/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: usuarios-venues-available
+          uri: lb://usuarios-service
+          predicates:
+            - Path=/api/v1/venues/available-for-role/**
+          filters:
+            - RewritePath=/api/v1/venues/(?<segment>.*), /api/users/venues/${segment}
+
+        - id: sucursales-service
+          uri: lb://sucursales-service
+          predicates:
+            - Path=/api/v1/venues/**,/api/v1/locations/**,/api/v1/rooms/**,/api/v1/seats/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: confiteria-service
+          uri: lb://confiteria-service
+          predicates:
+            - Path=/api/v1/snacks/**,/api/v1/snack-categories/**,/api/v1/snack-venue-stock/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
+        - id: facturacion-service
+          uri: lb://facturacion-service
+          predicates:
+            - Path=/api/v1/sale-transactions/**,/api/v1/promotions/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /api/${segment}

@@ -11,4 +11,4 @@ eureka:
 
 jwt:
   secret: ${JWT_SECRET:your-secret-key}
-  expiration: 3600000 
+  expiration: ${JWT_EXPIRATION:3600000}

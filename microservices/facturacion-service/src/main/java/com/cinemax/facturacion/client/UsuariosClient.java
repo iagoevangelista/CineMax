@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "usuarios-service")
 public interface UsuariosClient {
 
-    @GetMapping("/api/v1/users/profile")
+    @GetMapping("/api/users/profile")
     UserDTO getProfile();
 }

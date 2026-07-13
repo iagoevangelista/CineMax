@@ -1,7 +1,7 @@
 package com.cinemax.usuariosservice.service.user;
 
 import com.cinemax.common.cloudinary.CloudinaryService;
-import com.cinemax.usuariosservice.client.VenueFeignClient;
+import com.cinemax.usuariosservice.clients.VenueFeignClient;
 import com.cinemax.usuariosservice.model.dto.auth.UserRegisterDTO;
 import com.cinemax.usuariosservice.model.dto.auth.ValidateCredentialsRequestDTO;
 import com.cinemax.usuariosservice.model.dto.auth.ValidateCredentialsResponseDTO;

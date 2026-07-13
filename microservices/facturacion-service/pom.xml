@@ -14,6 +14,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Común: ApiResponse, etc. -->
         <dependency>
             <groupId>com.cinemax</groupId>
@@ -62,12 +67,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-
-        <!-- RabbitMQ: publicar el evento VentaRealizada -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
         <!-- Validación @Valid en los DTO -->

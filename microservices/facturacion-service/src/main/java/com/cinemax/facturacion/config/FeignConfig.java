@@ -10,6 +10,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class FeignConfig {
 
     @Bean
+    public RequestInterceptor gatewayHeaderInterceptor() {
+        return template -> template.header("X-Gateway-Request", "true");
+    }
+
+    @Bean
     public RequestInterceptor authForwardingInterceptor() {
         return template -> {
             ServletRequestAttributes attrs =

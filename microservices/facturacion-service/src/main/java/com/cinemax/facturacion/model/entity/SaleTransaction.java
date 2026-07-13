@@ -31,6 +31,11 @@ public class SaleTransaction {
     @JoinColumn(name = "id_transaction_status", nullable = false)
     private TransactionStatus transactionStatus;
 
+    // Promotion también vive en sales_db (facturacion-service) -> relación JPA normal, igual que el monolito.
+    @ManyToOne
+    @JoinColumn(name = "id_promotion")
+    private Promotion promotion;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
