@@ -65,6 +65,27 @@ export class AuthService {
     return this.getPermissions().includes(permission);
   }
 
+  // Devuelve la primera ruta admin a la que el usuario logueado realmente
+  // tiene acceso, según sus permisos reales. Evita el bucle de redirigir
+  // siempre a /admin/dashboard cuando el usuario (ej. ADMIN) no tiene
+  // VIEW_DASHBOARD. Si no tiene ningún permiso admin, manda al home público.
+  getDefaultRoute(): string {
+    const rutasPorPermiso: [string, string][] = [
+      ['VIEW_DASHBOARD', '/admin/dashboard'],
+      ['MANAGE_USERS', '/admin/usuarios'],
+      ['VIEW_VENUES', '/admin/sedes'],
+      ['MANAGE_VENUES', '/admin/sedes'],
+      ['MANAGE_ROOMS', '/admin/salas'],
+      ['MANAGE_MOVIES', '/admin/peliculas'],
+      ['MANAGE_SHOWTIMES', '/admin/funciones'],
+      ['MANAGE_CONFITERIA', '/admin/confiteria'],
+    ];
+
+    const permisos = this.getPermissions();
+    const match = rutasPorPermiso.find(([permiso]) => permisos.includes(permiso));
+    return match ? match[1] : '/';
+  }
+
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data).pipe(
       tap((response: any) => {
