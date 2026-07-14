@@ -21,10 +21,14 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @GetMapping
-    public ResponseEntity<List<MovieResponseDTO>> findAll() {
-        return ResponseEntity.ok(movieService.findAll());
+   @GetMapping
+public ResponseEntity<List<MovieResponseDTO>> findAll(
+        @RequestParam(required = false) String status) {
+    if (status != null) {
+        return ResponseEntity.ok(movieService.findByStatus(status));
     }
+    return ResponseEntity.ok(movieService.findAll());
+}
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<MovieResponseDTO>> findByStatus(@PathVariable String status) {
