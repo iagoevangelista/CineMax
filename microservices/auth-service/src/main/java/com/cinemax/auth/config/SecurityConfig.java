@@ -21,13 +21,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())              // 👈 nuevo: activa el CORS del bean de abajo
+                .cors(Customizer.withDefaults())           
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

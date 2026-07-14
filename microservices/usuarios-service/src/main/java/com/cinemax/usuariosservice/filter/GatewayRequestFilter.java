@@ -17,7 +17,7 @@ public class GatewayRequestFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String path = httpRequest.getRequestURI();
-        if (path.startsWith("/api/")) {
+        if (path.startsWith("/api/") || path.startsWith("/internal/")) {
             String gatewayHeader = httpRequest.getHeader("X-Gateway-Request");
             if (gatewayHeader == null || !gatewayHeader.equals("true")) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied: Direct requests are not allowed.");
