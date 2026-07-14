@@ -44,13 +44,13 @@ ON CONFLICT (role_name) DO NOTHING;
 -- (nunca un nombre de rol aquí)
 -- ============================================
 INSERT INTO permission (permission_name) VALUES
-    ('USER_READ'),
-    ('USER_WRITE'),
-    ('USER_DELETE'),
-    ('ROLE_MANAGE'),
-    ('VENUE_MANAGE'),
-    ('BILLING_READ'),
-    ('CATALOG_MANAGE')
+    ('VIEW_DASHBOARD'), 
+    ('VIEW_VENUES'), 
+    ('MANAGE_ROOMS'), 
+    ('MANAGE_MOVIES'), 
+    ('MANAGE_SHOWTIMES'), 
+    ('MANAGE_CONFITERIA'), 
+    ('MANAGE_USERS')
 ON CONFLICT (permission_name) DO NOTHING;
 
 -- ============================================
