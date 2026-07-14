@@ -24,7 +24,6 @@ public class Snack {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idSnack;
 
-    // Antes era @ManyToOne a Venue (sucursales-service). Ahora es plano, sin relación.
     @Column(name = "id_venue")
     private Integer idVenue;
 

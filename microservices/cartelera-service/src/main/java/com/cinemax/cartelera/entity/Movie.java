@@ -33,6 +33,8 @@ public class Movie {
 
     private String posterUrl;
 
+    private String director;
+
     private LocalDate releaseDate;
 
     @Builder.Default
@@ -47,8 +49,6 @@ public class Movie {
 
     @Builder.Default
     private Boolean premiereWeek = false;
-
-    private String director;
 
     private List<String> genreIds;
 
