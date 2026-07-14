@@ -44,13 +44,13 @@ public class SecurityConfig {
                 .requestMatchers("/internal/**").permitAll()
 
                 // Flujo público de auth (forgot/reset-password)
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
 
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                .requestMatchers("/api/v1/roles").permitAll()
+                .requestMatchers("/api/roles").permitAll()
 
-                .requestMatchers("/api/v1/documents").permitAll()
+                .requestMatchers("/api/documents").permitAll()
 
                 .requestMatchers("/actuator/health").permitAll()
 
