@@ -1,0 +1,15 @@
+.git/
+**/target/
+**/.classpath
+**/.project
+**/.settings/
+**/*.iml
+.idea/
+*.md
+*.zip
+.env
+.gitignore
+README.md
+frontend/
+backend/
+node_modules/
