@@ -26,9 +26,9 @@ public class DataSeeder implements CommandLineRunner {
             return; // idempotente: no duplica en cada arranque
         }
 
-        Role gerenteGeneral = roleRepository.findByRoleName("GERENTE_GENERAL")
+        Role rolAdmin = roleRepository.findByRoleName("ADMIN")
                 .orElseThrow(() -> new IllegalStateException(
-                        "Rol GERENTE_GENERAL no existe. Revisa init-scripts/postgres-usuarios."));
+                        "Rol ADMIN no existe. Revisa init-scripts/postgres-usuarios."));
 
         DocumentType dni = documentTypeRepository.findByDocName("DNI")
                 .orElseThrow(() -> new IllegalStateException(
@@ -41,7 +41,7 @@ public class DataSeeder implements CommandLineRunner {
         admin.setPassword(passwordEncoder.encode("Admin123!"));
         admin.setDocumentNumber("00000001");
         admin.setDocumentType(dni);
-        admin.setRole(gerenteGeneral);
+        admin.setRole(rolAdmin);
         admin.setStatus("Activo");
 
         userRepository.save(admin);

@@ -37,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final VenueFeignClient venueFeignClient;
 
     // Constantes para no quemar strings mágicos por todo el código
+    private static final String ADMIN = "ADMIN";
     private static final String GERENTE_GENERAL = "GERENTE_GENERAL";
     private static final String GERENTE_MARKETING = "GERENTE_MARKETING";
     private static final String GERENTE_OPERACIONES = "GERENTE_OPERACIONES";
@@ -48,8 +49,10 @@ public class UserServiceImpl implements UserService {
         return GERENTE_MARKETING.equals(roleName) || GERENTE_OPERACIONES.equals(roleName);
     }
 
+    // ADMIN y GERENTE_GENERAL son roles globales únicos: no se atan a una sede
+    // y solo puede existir un usuario activo con cada uno de estos roles.
     private boolean rolEsUnicoGlobal(String roleName) {
-        return GERENTE_GENERAL.equals(roleName);
+        return GERENTE_GENERAL.equals(roleName) || ADMIN.equals(roleName);
     }
 
     @Override
@@ -76,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
         if (rolEsUnicoGlobal(roleName)) {
             if (userRepository.existsByRole_IdRoleAndStatus(rol.getIdRole(), ESTADO_ACTIVO)) {
-                throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
+                throw new RuntimeException("Error: Ya existe un usuario activo con rol " + roleName + " en CineMax.");
             }
             request.setIdVenue(null);
         } else if (rolRequiereSede(roleName)) {
@@ -120,7 +123,7 @@ public class UserServiceImpl implements UserService {
         if (rolEsUnicoGlobal(roleName)) {
             UserAccount gerenteActual = userRepository.findByRole_IdRoleAndStatus(nuevoRol.getIdRole(), ESTADO_ACTIVO).orElse(null);
             if (gerenteActual != null && !gerenteActual.getIdUser().equals(idUser)) {
-                throw new RuntimeException("Error: Ya existe un Gerente General activo en CineMax.");
+                throw new RuntimeException("Error: Ya existe un usuario activo con rol " + roleName + " en CineMax.");
             }
             usuarioExistente.setIdVenue(null);
         } else if (rolRequiereSede(roleName)) {
@@ -161,7 +164,7 @@ public class UserServiceImpl implements UserService {
 
             if (rolEsUnicoGlobal(roleName)) {
                 if (userRepository.existsByRole_IdRoleAndStatus(idRole, ESTADO_ACTIVO)) {
-                    throw new RuntimeException("No se puede reactivar: Ya existe un Gerente General activo.");
+                    throw new RuntimeException("No se puede reactivar: Ya existe un usuario activo con rol " + roleName + ".");
                 }
             } else if (rolRequiereSede(roleName) && user.getIdVenue() != null) {
                 if (userRepository.existsByRole_IdRoleAndIdVenueAndStatus(idRole, user.getIdVenue(), ESTADO_ACTIVO)) {

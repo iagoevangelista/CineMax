@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class SaleTransactionRequestDTO {
 
-    private Integer idShowtime;
+    private String idShowtime;
     private List<Integer> asientosIds;
     private List<TicketLineDTO> tickets;
     private List<SnackLineDTO> snacks;

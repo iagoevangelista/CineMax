@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SaleTicketDetailRepository extends JpaRepository<SaleTicketDetail, Integer> {
     List<SaleTicketDetail> findBySaleTransaction_IdTransaction(Integer idTransaction);
-    boolean existsByIdShowtimeAndIdSeat(Integer idShowtime, Integer idSeat);
+    boolean existsByIdShowtimeAndIdSeat(String idShowtime, Integer idSeat);
 }

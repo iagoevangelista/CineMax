@@ -5,3 +5,4 @@ target/
 .vscode/
 *.log
 .env
+k8s/secrets/app-secrets.yaml

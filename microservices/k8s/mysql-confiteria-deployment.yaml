@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: mysql-confiteria
+  name: mysql-confiteria
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mysql-confiteria
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mysql-confiteria
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: confiteria_db
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+            - name: MYSQL_USER
+              value: cine
+          image: mysql:8
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
+            failureThreshold: 10
+            initialDelaySeconds: 40
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: mysql-confiteria
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysqldata-confiteria
+            - mountPath: /docker-entrypoint-initdb.d
+              name: mysql-confiteria-cm1
+      restartPolicy: Always
+      volumes:
+        - name: mysqldata-confiteria
+          persistentVolumeClaim:
+            claimName: mysqldata-confiteria
+        - configMap:
+            name: mysql-confiteria-cm1
+          name: mysql-confiteria-cm1

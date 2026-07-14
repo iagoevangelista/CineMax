@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/internal/**").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/venues/**", "/api/locations/**").permitAll()
                 .anyRequest().authenticated()
             )

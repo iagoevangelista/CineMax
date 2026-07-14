@@ -20,7 +20,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
     if (!tienePermiso) {
       alert('Acceso Denegado: No tienes permisos para ver esta pantalla.');
-      router.navigate(['/admin/dashboard']);
+      router.navigate([authService.getDefaultRoute()]);
       return false;
     }
   }

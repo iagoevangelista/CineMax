@@ -40,4 +40,11 @@ public class AuthController {
     public ResponseEntity<Map<String, Boolean>> validateResetToken(@PathVariable String token) {
         return ResponseEntity.ok(Map.of("valid", userService.validateResetToken(token)));
     }
+
+    // Compatibilidad con el contrato del monolito (GET /api/v1/auth/validate-token?token=xxx),
+    // que el frontend Angular ya consume. Mantener ambas rutas evita tocar el cliente.
+    @GetMapping("/validate-token")
+    public ResponseEntity<Map<String, Boolean>> validateTokenLegacy(@RequestParam String token) {
+        return ResponseEntity.ok(Map.of("isValid", userService.validateResetToken(token)));
+    }
 }

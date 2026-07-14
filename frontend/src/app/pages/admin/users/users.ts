@@ -44,8 +44,8 @@ export class Users implements OnInit {
   private rolSeleccionadoRequiereSede(idRole: number): boolean {
     const rol = this.listaRoles.find(r => r.idRole === idRole);
     if (!rol) return false;
-    return rol.roleName === 'GERENTE_DE_MARKETING'
-        || rol.roleName === 'GERENTE_DE_OPERACIONES';
+    return rol.roleName === 'GERENTE_MARKETING'
+        || rol.roleName === 'GERENTE_OPERACIONES';
   }
 
   private rolSeleccionadoEsGlobal(idRole: number): boolean {

@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS sale_transaction (
 CREATE TABLE IF NOT EXISTS sale_ticket_detail (
     id_ticket SERIAL PRIMARY KEY,
     id_transaction INTEGER NOT NULL,
-    id_showtime INTEGER NOT NULL,
+    id_showtime VARCHAR(24) NOT NULL,
     id_seat INTEGER NOT NULL,
     ticket_price DECIMAL(10,2) NOT NULL,
     is_used BOOLEAN NOT NULL DEFAULT FALSE,

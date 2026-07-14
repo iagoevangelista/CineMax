@@ -75,7 +75,7 @@ services:
       - pgdata-usuarios:/var/lib/postgresql/data
       - ./init-scripts/postgres-usuarios:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d usuarios_db"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d usuarios_db"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -94,7 +94,7 @@ services:
       - pgdata-facturacion:/var/lib/postgresql/data
       - ./init-scripts/postgres-facturacion:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d sales_db"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d sales_db"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -105,7 +105,9 @@ services:
   # ============================
 
   config-server:
-    build: ./config-server
+    build:
+      context: .
+      dockerfile: config-server/Dockerfile
     image: cinemax/config-server
     container_name: config-server
     ports:
@@ -118,7 +120,9 @@ services:
       start_period: 40s
 
   service-discovery:
-    build: ./service-discovery
+    build:
+      context: .
+      dockerfile: service-discovery/Dockerfile
     image: cinemax/service-discovery
     container_name: service-discovery
     ports:
@@ -133,7 +137,9 @@ services:
       retries: 10
 
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
     image: cinemax/api-gateway
     container_name: api-gateway
     ports:
@@ -158,7 +164,9 @@ services:
   # ============================
 
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     image: cinemax/auth-service
     container_name: auth-service
     ports:
@@ -181,7 +189,9 @@ services:
       start_period: 360s
 
   sucursales-service:
-    build: ./sucursales-service
+    build:
+      context: .
+      dockerfile: sucursales-service/Dockerfile
     image: cinemax/sucursales-service
     container_name: sucursales-service
     ports:
@@ -192,6 +202,9 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       mysql-sucursales:
         condition: service_healthy
@@ -207,7 +220,9 @@ services:
       start_period: 360s
 
   cartelera-service:
-    build: ./cartelera-service
+    build:
+      context: .
+      dockerfile: cartelera-service/Dockerfile
     image: cinemax/cartelera-service
     container_name: cartelera-service
     ports:
@@ -233,7 +248,9 @@ services:
       start_period: 360s
 
   confiteria-service:
-    build: ./confiteria-service
+    build:
+      context: .
+      dockerfile: confiteria-service/Dockerfile
     image: cinemax/confiteria-service
     container_name: confiteria-service
     ports:
@@ -259,7 +276,9 @@ services:
       start_period: 360s
 
   usuarios-service:
-    build: ./usuarios-service
+    build:
+      context: .
+      dockerfile: usuarios-service/Dockerfile
     image: cinemax/usuarios-service
     container_name: usuarios-service
     ports:
@@ -272,6 +291,9 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       postgres-usuarios:
         condition: service_healthy
@@ -287,7 +309,9 @@ services:
       start_period: 360s
 
   facturacion-service:
-    build: ./facturacion-service
+    build:
+      context: .
+      dockerfile: facturacion-service/Dockerfile
     image: cinemax/facturacion-service
     container_name: facturacion-service
     ports:
