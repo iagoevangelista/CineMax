@@ -75,7 +75,7 @@ services:
       - pgdata-usuarios:/var/lib/postgresql/data
       - ./init-scripts/postgres-usuarios:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d usuarios_db"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d usuarios_db"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -94,7 +94,7 @@ services:
       - pgdata-facturacion:/var/lib/postgresql/data
       - ./init-scripts/postgres-facturacion:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d sales_db"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d sales_db"]
       interval: 5s
       timeout: 5s
       retries: 10
