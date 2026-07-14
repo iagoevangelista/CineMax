@@ -3,8 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
+export interface Genre {
+  idGenre: string;
+  nameGenre: string;
+}
+
+export interface Classification {
+  idClassification: string;
+  nameClassification: string;
+  descriptionText: string;
+}
+
 export interface Movie {
-  idMovie: number;
+  idMovie: string;
   titleMovie: string;
   synopsis: string;
   durationMinutes: number;
@@ -14,9 +25,8 @@ export interface Movie {
   status: string;
   isActive?: boolean;
   premiereWeek: boolean;
-  rating?: string;
-  classificationName?: string;
-  genreNames?: string[];
+  genres?: Genre[];
+  classification?: Classification;
 }
 
 @Injectable({
@@ -28,26 +38,26 @@ export class MovieService {
   constructor(private http: HttpClient) {}
 
   getMovies(): Observable<Movie[]> {
-    return this.http.get<Movie[]>(`${this.apiUrl}?status=Cartelera`);
+    return this.http.get<Movie[]>(`${this.apiUrl}/status/Cartelera`);
   }
 
-  getMovieById(id: number): Observable<Movie> {
+  getMovieById(id: string): Observable<Movie> {
     return this.http.get<Movie>(`${this.apiUrl}/${id}`);
   }
 
   getMoviesByStatus(status: string): Observable<Movie[]> {
-    return this.http.get<Movie[]>(`${this.apiUrl}?status=${status}`);
+    return this.http.get<Movie[]>(`${this.apiUrl}/status/${status}`);
   }
 
   createMovie(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}`, formData);
   }
 
-  updateMovie(id: number, formData: FormData): Observable<any> {
+  updateMovie(id: string, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
-  deleteMovie(id: number): Observable<any> {
+  deleteMovie(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

@@ -38,7 +38,7 @@ export class MovieDetail implements OnInit {
       this.movie = null;
       this.loading = true;
       this.error = false;
-      const id = Number(params.get('id'));
+      const id = params.get('id')!;
       this.movieService.getMovieById(id).subscribe({
         next: (data) => {
           this.movie = data;
@@ -55,7 +55,7 @@ export class MovieDetail implements OnInit {
     });
   }
 
-  cargarHorarios(idMovie: number) {
+  cargarHorarios(idMovie: string) {
     this.http.get<any[]>(`${environment.apiUrl}/showtimes?idMovie=${idMovie}`).subscribe({
       next: (data) => {
         this.horarios = data;

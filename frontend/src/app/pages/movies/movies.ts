@@ -27,7 +27,7 @@ export class Movies implements OnInit {
   clasificaciones: string[] = ['ATP', '+14', '+17', 'PG-13'];
   mensajeFiltro: string = '';
 
-  filtroIdMovie: number | null = null;
+  filtroIdMovie: string | null = null;
   filtroIdVenue: number | null = null;
 
   constructor(
@@ -39,7 +39,7 @@ export class Movies implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.filtroIdMovie = params['idMovie'] ? +params['idMovie'] : null;
+      this.filtroIdMovie = params['idMovie'] ? params['idMovie'] : null;
       this.filtroIdVenue = params['idVenue'] ? +params['idVenue'] : null;
       this.cargarPorTab('Cartelera');
     });
@@ -136,7 +136,7 @@ export class Movies implements OnInit {
 
     this.peliculasFiltradas = this.todasLasPeliculas.filter(p => {
       const coincideTexto = texto === '' || p.titleMovie.toLowerCase().includes(texto);
-      const coincideClasif = clasif === '' || (p as any).rating === clasif;
+      const coincideClasif = clasif === '' || (p as any).classification?.nameClassification === clasif;
       return coincideTexto && coincideClasif;
     });
 
@@ -156,7 +156,7 @@ export class Movies implements OnInit {
     this.peliculasFiltradas = [...this.todasLasPeliculas];
   }
 
-  irADetalle(id: number) {
+  irADetalle(id: string) {
     window.location.href = '/movie/' + id;
   }
 }

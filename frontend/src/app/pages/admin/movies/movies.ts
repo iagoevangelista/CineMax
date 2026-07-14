@@ -23,7 +23,7 @@ export class AdminMovies implements OnInit {
   filtroEstado = 'Cartelera';
   isEditMode = false;
   selectedFile: File | null = null;
-  currentMovieId: number | null = null;
+  currentMovieId: string | null = null;
   peliculaDetalle: any = null;
   formEnviado = false;
 
@@ -70,8 +70,8 @@ export class AdminMovies implements OnInit {
 
   // ── Géneros (checkbox manual sobre el array del form) ─────────────────────
 
-  toggleGenre(id: number): void {
-    const actuales: number[] = this.ctrl('idGenres').value ?? [];
+  toggleGenre(id: string): void {
+    const actuales: string[] = this.ctrl('idGenres').value ?? [];
     const idx = actuales.indexOf(id);
     const nuevos = idx > -1
       ? actuales.filter(g => g !== id)
@@ -79,7 +79,7 @@ export class AdminMovies implements OnInit {
     this.ctrl('idGenres').setValue(nuevos);
   }
 
-  isGenreSelected(id: number): boolean {
+  isGenreSelected(id: string): boolean {
     return (this.ctrl('idGenres').value ?? []).includes(id);
   }
 
@@ -133,13 +133,7 @@ export class AdminMovies implements OnInit {
     this.form.reset({ titleMovie: 'Cargando...', idGenres: [] });
 
     this.movieService.getMovieById(peli.idMovie).subscribe(d => {
-      const classif = this.classifications.find(c =>
-        (c.nameClassification || c.name_classification) === d.classificationName
-      );
-      const genreIds = (d.genreNames ?? []).map((name: string) => {
-        const g = this.genres.find(g => (g.nameGenre || g.name_genre) === name);
-        return g ? (g.idGenre || g.id_genre) : null;
-      }).filter(Boolean);
+      const genreIds = (d.genres ?? []).map(g => g.idGenre);
 
       this.form.setValue({
         titleMovie:       d.titleMovie,
@@ -149,7 +143,7 @@ export class AdminMovies implements OnInit {
         releaseDate:      d.releaseDate ?? '',
         status:           d.status ?? 'Cartelera',
         premiereWeek:     d.premiereWeek ?? false,
-        idClassification: classif ? (classif.idClassification || classif.id_classification) : null,
+        idClassification: d.classification?.idClassification ?? null,
         idGenres:         genreIds
       });
       this.cdr.detectChanges();
@@ -200,7 +194,7 @@ export class AdminMovies implements OnInit {
     }
   }
 
-  inhabilitarPelicula(id: number): void {
+  inhabilitarPelicula(id: string): void {
     if (confirm('¿Estás seguro de inhabilitar esta película?')) {
       this.movieService.deleteMovie(id).subscribe(() => {
         this.cargarPeliculas();

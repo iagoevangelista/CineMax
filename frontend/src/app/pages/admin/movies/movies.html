@@ -42,7 +42,7 @@
             <i class="fa-solid fa-clock me-1 text-info"></i> {{ peli.durationMinutes || 'Ver detalles' }} min
           </p>
           <div>
-            <span class="badge bg-primary me-2">{{ peli.rating || 'S/C' }}</span>
+            <span class="badge bg-primary me-2">{{ peli.classification?.nameClassification || 'S/C' }}</span>
             <span class="badge bg-success">{{ peli.status }}</span>
           </div>
         </div>
@@ -226,14 +226,14 @@
                 <strong>Duración:</strong> {{ peliculaDetalle.durationMinutes }} min
               </li>
               <li class="list-group-item bg-dark text-white border-secondary">
-                <strong>Clasificación:</strong> {{ peliculaDetalle.classificationName }}
+                <strong>Clasificación:</strong> {{ peliculaDetalle.classification?.nameClassification }}
               </li>
               <li class="list-group-item bg-dark text-white border-secondary">
                 <strong>Estreno:</strong> {{ peliculaDetalle.releaseDate }}
               </li>
               <li class="list-group-item bg-dark text-white border-secondary">
                 <strong>Géneros:</strong>
-                <span class="badge bg-secondary me-1" *ngFor="let g of peliculaDetalle.genreNames">{{ g }}</span>
+                <span class="badge bg-secondary me-1" *ngFor="let g of peliculaDetalle.genres">{{ g.nameGenre }}</span>
               </li>
             </ul>
           </div>
