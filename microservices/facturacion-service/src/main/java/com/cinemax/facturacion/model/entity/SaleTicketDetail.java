@@ -27,9 +27,9 @@ public class SaleTicketDetail {
     @JoinColumn(name = "id_transaction", nullable = false)
     private SaleTransaction saleTransaction;
 
-    // Dueño real: cartelera-service.
-    @Column(name = "id_showtime", nullable = false)
-    private Integer idShowtime;
+    // Dueño real: cartelera-service (MongoDB -> ObjectId como String).
+    @Column(name = "id_showtime", nullable = false, length = 24)
+    private String idShowtime;
 
     // Dueño real: sucursales-service.
     @Column(name = "id_seat", nullable = false)

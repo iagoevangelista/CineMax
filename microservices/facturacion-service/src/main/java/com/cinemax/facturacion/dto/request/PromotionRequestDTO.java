@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class PromotionRequestDTO {
-    private Integer idShowtime;
+    private String idShowtime;
     private BigDecimal subtotal;
     private String promotionCode;
 }

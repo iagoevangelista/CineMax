@@ -2,7 +2,10 @@ package com.cinemax.facturacion.service;
 
 import com.cinemax.facturacion.client.CarteleraClient;
 import com.cinemax.facturacion.client.ConfiteriaClient;
+import com.cinemax.facturacion.client.SucursalesClient;
 import com.cinemax.facturacion.client.UsuariosClient;
+import com.cinemax.facturacion.dto.external.RoomVenueDTO;
+import com.cinemax.facturacion.dto.external.SeatDTO;
 import com.cinemax.facturacion.dto.external.ShowtimeDTO;
 import com.cinemax.facturacion.dto.external.SnackStockDTO;
 import com.cinemax.facturacion.dto.external.UserDTO;
@@ -26,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,6 +48,7 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
     private final CarteleraClient carteleraClient;
     private final ConfiteriaClient confiteriaClient;
     private final UsuariosClient usuariosClient;
+    private final SucursalesClient sucursalesClient;
 
     @Override
     @Transactional
@@ -66,17 +72,31 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
             }
         }
 
-        // 3. Validar asientos ya ocupados (nuestra propia tabla reemplaza "reservar asiento").
-        //    Validación de mantenimiento queda PENDIENTE hasta que sucursales-service
-        //    exponga un endpoint de lectura sin la autoridad MANAGE_SEATS.
+        // 3. Validar asientos: existencia + estado (vía sucursales-service) y que no
+        //    estén ya ocupados en esta función (nuestra propia tabla reemplaza "reservar asiento").
+        //    Guardamos el SeatDTO de cada uno para mostrar el código real (fila+columna)
+        //    en vez del ID crudo, igual que hacía el monolito.
         List<Integer> seatIds = request.getAsientosIds() != null ? request.getAsientosIds() : List.of();
+        Map<Integer, SeatDTO> seatsById = new HashMap<>();
         if (showtime != null) {
             for (Integer idSeat : seatIds) {
+                SeatDTO seat = sucursalesClient.getSeat(idSeat);
+                if (seat == null) {
+                    throw new IllegalStateException("Asiento ID " + idSeat + " no encontrado.");
+                }
+                if ("MANTENIMIENTO".equals(seat.getStatus())) {
+                    throw new IllegalStateException(
+                            "El asiento " + seat.getRowName() + seat.getColumnNumber() + " está en mantenimiento.");
+                }
+
                 boolean yaOcupado = saleTicketDetailRepository
                         .existsByIdShowtimeAndIdSeat(request.getIdShowtime(), idSeat);
                 if (yaOcupado) {
-                    throw new IllegalStateException("El asiento " + idSeat + " ya fue reservado.");
+                    throw new IllegalStateException(
+                            "El asiento " + seat.getRowName() + seat.getColumnNumber() + " ya fue reservado.");
                 }
+
+                seatsById.put(idSeat, seat);
             }
         }
 
@@ -184,23 +204,41 @@ public class SaleTransactionServiceImpl implements SaleTransactionService {
             List<SaleTicketDetail> tickets = saleTicketDetailRepository.findBySaleTransaction_IdTransaction(tx.getIdTransaction());
 
             if (!tickets.isEmpty()) {
-                Integer idShowtime = tickets.get(0).getIdShowtime();
+                String idShowtime = tickets.get(0).getIdShowtime();
                 try {
                     ShowtimeDTO showtime = carteleraClient.getShowtime(idShowtime);
                     dto.setMovieTitle(showtime.getMovieTitle());
                     dto.setDate(showtime.getShowDate());
                     dto.setTime(showtime.getStartTime());
-                    // roomName/venueName: PENDIENTE hasta que sucursales-service
-                    // exponga un endpoint de lectura para Room/Venue.
-                    dto.setRoomName(null);
-                    dto.setVenueName(null);
+
+                    if (showtime.getIdRoom() != null) {
+                        try {
+                            RoomVenueDTO roomVenue = sucursalesClient.getRoomWithVenue(showtime.getIdRoom());
+                            dto.setRoomName(roomVenue.getNameRoom());
+                            dto.setVenueName(roomVenue.getNameVenue());
+                        } catch (Exception e) {
+                            dto.setRoomName(null);
+                            dto.setVenueName(null);
+                        }
+                    }
                 } catch (Exception e) {
                     dto.setMovieTitle(null);
                     dto.setDate(null);
                     dto.setTime(null);
                 }
+
+                // Igual que en createSaleTransaction: mostrar el código real del asiento
+                // (fila+columna) en vez del ID crudo. Como aquí no hay validación de estado
+                // pendiente (la compra ya se hizo), basta con resolverlo para mostrarlo.
                 dto.setSeats(tickets.stream()
-                        .map(t -> String.valueOf(t.getIdSeat()))
+                        .map(t -> {
+                            try {
+                                SeatDTO seat = sucursalesClient.getSeat(t.getIdSeat());
+                                return seat.getRowName() + seat.getColumnNumber();
+                            } catch (Exception e) {
+                                return String.valueOf(t.getIdSeat());
+                            }
+                        })
                         .collect(Collectors.joining(", ")));
             } else {
                 dto.setDate(tx.getPaymentDate().toLocalDate().toString());

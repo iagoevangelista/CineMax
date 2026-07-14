@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface CarteleraClient {
 
     // Ruta real confirmada en ShowtimeController: /api/showtimes/{id} (sin /v1, el gateway reescribe internamente)
+    // idShowtime es String porque cartelera-service usa MongoDB (ObjectId), no un id numerico autoincremental.
     @GetMapping("/api/showtimes/{id}")
-    ShowtimeDTO getShowtime(@PathVariable("id") Integer id);
+    ShowtimeDTO getShowtime(@PathVariable("id") String id);
 
     // Igual que el monolito: showtime.setAvailableSeats(availableSeats - seats.size()) al confirmar una venta.
     @PatchMapping("/api/showtimes/{id}/decrease-seats")
-    void decreaseAvailableSeats(@PathVariable("id") Integer id, @RequestParam("cantidad") int cantidad);
+    void decreaseAvailableSeats(@PathVariable("id") String id, @RequestParam("cantidad") int cantidad);
 }
