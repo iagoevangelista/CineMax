@@ -11,4 +11,4 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET:your-api-secret}
 
 app:
-  frontend-url: http://localhost:4200
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
