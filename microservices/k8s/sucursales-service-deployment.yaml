@@ -48,6 +48,8 @@ spec:
                   key: JWT_SECRET
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: http://service-discovery:8761/eureka/
+            - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
+              value: "true"
             - name: SPRING_CONFIG_IMPORT
               value: optional:configserver:http://config-server:8888
           ports:
@@ -65,8 +67,8 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8083
-            initialDelaySeconds: 60
-            periodSeconds: 15
+            failureThreshold: 30
+            initialDelaySeconds: 360
+            periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 5
       restartPolicy: Always

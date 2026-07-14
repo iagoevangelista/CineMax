@@ -8,7 +8,7 @@ spring:
         add-to-simple-url-handler-mapping: true
         cors-configurations:
           '[/**]':
-            allowedOriginPatterns: "http://localhost:4200"
+            allowedOriginPatterns: "${FRONTEND_URL:http://localhost:4200}"
             allowedMethods:
               - GET
               - POST
@@ -24,7 +24,7 @@ spring:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: lb://auth-service  
           predicates:
             - Path=/api/v1/auth/login
           filters:
@@ -36,6 +36,7 @@ spring:
             - Path=/api/v1/auth/register,/api/v1/auth/forgot-password,/api/v1/auth/reset-password,/api/v1/auth/validate-reset-token/**,/api/v1/auth/validate-token
           filters:
             - RewritePath=/api/v1/(?<segment>.*), /api/${segment}
+
         - id: cartelera-service
           uri: lb://cartelera-service
           predicates:

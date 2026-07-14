@@ -18,7 +18,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor

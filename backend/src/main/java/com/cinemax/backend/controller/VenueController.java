@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/venues")
 @RequiredArgsConstructor
