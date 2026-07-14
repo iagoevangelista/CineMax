@@ -39,6 +39,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/actuator/health/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/snack-categories/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/snacks/**").permitAll()
                 .anyRequest().authenticated()
