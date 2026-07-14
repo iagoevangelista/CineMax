@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: postgres-usuarios
+  name: postgres-usuarios
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: postgres-usuarios
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: postgres-usuarios
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: usuarios_db
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+            - name: POSTGRES_USER
+              value: cine
+          image: postgres:16
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - cine
+                - -d
+                - usuarios_db
+            failureThreshold: 10
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: postgres-usuarios
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata-usuarios
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-usuarios-cm1
+      restartPolicy: Always
+      volumes:
+        - name: pgdata-usuarios
+          persistentVolumeClaim:
+            claimName: pgdata-usuarios
+        - configMap:
+            name: postgres-usuarios-cm1
+          name: postgres-usuarios-cm1
