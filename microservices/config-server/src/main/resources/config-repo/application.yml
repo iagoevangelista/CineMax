@@ -5,6 +5,8 @@ spring:
     show-sql: false
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: http://service-discovery:8761/eureka/
