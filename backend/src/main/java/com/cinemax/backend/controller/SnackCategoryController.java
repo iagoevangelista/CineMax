@@ -13,7 +13,6 @@ import com.cinemax.backend.repository.SnackCategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/snack-categories")
 @RequiredArgsConstructor
