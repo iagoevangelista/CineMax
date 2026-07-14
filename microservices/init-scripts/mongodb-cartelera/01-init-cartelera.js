@@ -1,3 +1,6 @@
+// ===================================================================
+// SECCIÓN: CONEXIÓN Y LIMPIEZA (Reset de la base de datos)
+// ===================================================================
 db = db.getSiblingDB('cartelera_db');
 
 db.movies.drop();
@@ -10,7 +13,9 @@ db.createCollection('classifications');
 db.createCollection('movies');
 db.createCollection('showtimes');
 
-// ---- GENRES ----
+// ===================================================================
+// SECCIÓN: GENRES (Géneros de película)
+// ===================================================================
 db.genres.insertMany([
     { nameGenre: "Acción" },
     { nameGenre: "Aventura" },
@@ -22,15 +27,18 @@ db.genres.insertMany([
     { nameGenre: "Romance" }
 ]);
 
-// ---- CLASSIFICATIONS ----
+// ===================================================================
+// SECCIÓN: CLASSIFICATIONS (Clasificaciones por edad)
+// ===================================================================
 db.classifications.insertMany([
     { nameClassification: "APT", descriptionText: "Apto para todo público" },
     { nameClassification: "PG-13", descriptionText: "Mayores de 13 años" },
     { nameClassification: "PG-18", descriptionText: "Mayores de 18 años" }
 ]);
 
-// Recuperamos los ids reales generados por Mongo, para poder referenciarlos
-// como String en genreIds y classificationId (así funciona tu entidad Movie.java)
+// ===================================================================
+// SECCIÓN: HELPERS DE REFERENCIA (Buscar IDs de genres/classifications)
+// ===================================================================
 const genres = db.genres.find().toArray();
 const classifications = db.classifications.find().toArray();
 
@@ -42,7 +50,9 @@ function classificationId(name) {
     return classifications.find(c => c.nameClassification === name)._id.toString();
 }
 
-// ---- MOVIES ----
+// ===================================================================
+// SECCIÓN: MOVIES (Películas: cartelera, estreno y preventa)
+// ===================================================================
 db.movies.insertMany([
     {
         titleMovie: "Interestelar",
@@ -96,10 +106,30 @@ db.movies.insertMany([
         premiereWeek: true,
         isActive: true,
         createdAt: new Date()
+    },
+    {
+        titleMovie: "Spider-Man",
+        synopsis: "El Hombre Araña enfrenta una nueva amenaza que pone en riesgo a toda la ciudad.",
+        durationMinutes: 130,
+        posterUrl: "",
+        releaseDate: ISODate("2026-08-15"),
+        status: "Preventa",
+        director: "Jon Watts",
+        genreIds: [
+            genreId("Acción"),
+            genreId("Aventura"),
+            genreId("Ciencia Ficción")
+        ],
+        classificationId: classificationId("PG-13"),
+        premiereWeek: false,
+        isActive: true,
+        createdAt: new Date()
     }
 ]);
 
-// ---- SHOWTIMES ----
+// ===================================================================
+// SECCIÓN: HELPERS DE FECHAS (Cálculo de días y horarios)
+// ===================================================================
 const movies = db.movies.find({}, { idMovie: 1, titleMovie: 1 }).toArray();
 
 function getMovieId(title) {
@@ -109,6 +139,17 @@ function getMovieId(title) {
 const today = new Date();
 const tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
+
+// Calcula el próximo miércoles a partir de hoy (si hoy es miércoles, toma hoy mismo)
+function getNextWednesday(fromDate) {
+    const date = new Date(fromDate);
+    const day = date.getDay(); // 0=Domingo, 1=Lunes, ..., 3=Miércoles
+    const daysUntilWednesday = (3 - day + 7) % 7;
+    date.setDate(date.getDate() + daysUntilWednesday);
+    return date;
+}
+
+const nextWednesday = getNextWednesday(today);
 
 function makeShowtime(date, hour, minute) {
     const dt = new Date(date);
@@ -120,6 +161,9 @@ function makeEndtime(start, durationMin) {
     return new Date(start.getTime() + durationMin * 60000);
 }
 
+// ===================================================================
+// SECCIÓN: SHOWTIMES (Funciones de cine por película y horario)
+// ===================================================================
 db.showtimes.insertMany([
     {
         movieId: getMovieId("Interestelar"),
@@ -204,7 +248,23 @@ db.showtimes.insertMany([
         roomId: 5,
         venueId: 2,
         availableSeats: 70
+    },
+    {
+
+        movieId: getMovieId("Spider-Man"),
+        showDate: ISODate(nextWednesday.toISOString().split('T')[0]),
+        startTime: makeShowtime(nextWednesday, 19, 0),
+        endTime: makeEndtime(makeShowtime(nextWednesday, 19, 0), 130),
+        languageFormat: "Subtitulada",
+        baseTicketPrice: NumberDecimal("25.00"),
+        status: "Disponible",
+        roomId: 1,
+        venueId: 1,
+        availableSeats: 80
     }
 ]);
 
+// ===================================================================
+// SECCIÓN: VERIFICACIÓN (Conteo final de documentos cargados)
+// ===================================================================
 print("Seed cargado: " + db.movies.countDocuments() + " movies, " + db.showtimes.countDocuments() + " showtimes");
