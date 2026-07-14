@@ -23,7 +23,6 @@ public class SnackVenueStock {
     @JoinColumn(name = "id_snack", nullable = false)
     private Snack snack;
 
-    // Antes era @ManyToOne a Venue (sucursales-service). Ahora es plano, sin relación.
     @Column(name = "id_venue", nullable = false)
     private Integer idVenue;
 

@@ -50,9 +50,7 @@ public class Movie {
 
     private String director;
 
-    // Antes era @ManyToMany a Genre. Ahora solo guardamos los ids.
     private List<String> genreIds;
 
-    // Antes era @ManyToOne a Classification. Ahora solo el id.
     private String classificationId;
 }

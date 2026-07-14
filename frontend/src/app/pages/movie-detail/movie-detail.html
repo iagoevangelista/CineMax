@@ -32,7 +32,7 @@
           <h1 class="movie-title">{{ movie.titleMovie }}</h1>
           <div class="meta-row">
             <span class="meta-chip"><i class="fa-regular fa-clock"></i> {{ movie.durationMinutes }} min</span>
-            <span class="meta-chip"><i class="fa-solid fa-film"></i> {{ movie.classificationName }}</span>
+            <span class="meta-chip"><i class="fa-solid fa-film"></i> {{ movie.classification?.nameClassification }}</span>
             <span class="meta-chip"><i class="fa-solid fa-clapperboard"></i> {{ movie.director }}</span>
           </div>
           <button class="btn-comprar-hero" (click)="empezarCompra()">
@@ -64,7 +64,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">Clasificación</span>
-            <span class="info-value">{{ movie.classificationName }}</span>
+            <span class="info-value">{{ movie.classification?.nameClassification }}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Director</span>
@@ -120,7 +120,7 @@
           <img [src]="movie.posterUrl" [alt]="movie.titleMovie" class="cta-poster">
           <div class="cta-body">
             <h5 class="cta-title">{{ movie.titleMovie }}</h5>
-            <p class="cta-meta">{{ movie.durationMinutes }} min · {{ movie.classificationName }}</p>
+            <p class="cta-meta">{{ movie.durationMinutes }} min · {{ movie.classification?.nameClassification }}</p>
             <button class="btn-comprar-cta" (click)="empezarCompra()">
               <i class="fa-solid fa-ticket me-2"></i>Comprar Entradas
             </button>
