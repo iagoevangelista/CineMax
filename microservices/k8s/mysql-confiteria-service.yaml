@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: mysql-confiteria
+  name: mysql-confiteria
+spec:
+  ports:
+    - name: "3308"
+      port: 3308
+      targetPort: 3306
+  selector:
+    io.kompose.service: mysql-confiteria

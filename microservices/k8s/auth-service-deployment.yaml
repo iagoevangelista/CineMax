@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: auth-service
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: auth-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: auth-service
+    spec:
+      initContainers:
+        - name: wait-for-dependencies
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z service-discovery 8761 && nc -z config-server 8888; do
+                echo "Waiting for service-discovery:8761 and config-server:8888..."
+                sleep 2
+              done
+              echo "Dependencies are ready!"
+      containers:
+        - env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://service-discovery:8761/eureka/
+            - name: JWT_EXPIRATION
+              value: "86400000"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: JWT_SECRET
+            - name: SPRING_CONFIG_IMPORT
+              value: optional:configserver:http://config-server:8888
+          image: cinemax/auth-service
+          imagePullPolicy: Never
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            failureThreshold: 30
+            initialDelaySeconds: 360
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          name: auth-service
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+      restartPolicy: Always
