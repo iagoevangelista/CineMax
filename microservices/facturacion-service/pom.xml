@@ -45,12 +45,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Seguridad: para leer el JWT que emite auth-service -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
         <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
