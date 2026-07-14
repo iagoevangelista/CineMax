@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS document_type (
 -- SEED: Roles → el "QUÉ ES" el usuario
 -- ============================================
 INSERT INTO role (role_name) VALUES
+    ('ADMIN'),
     ('GERENTE_GENERAL'),
     ('GERENTE_MARKETING'),
     ('GERENTE_OPERACIONES'),
@@ -46,7 +47,9 @@ ON CONFLICT (role_name) DO NOTHING;
 INSERT INTO permission (permission_name) VALUES
     ('VIEW_DASHBOARD'), 
     ('VIEW_VENUES'), 
+    ('MANAGE_VENUES'),
     ('MANAGE_ROOMS'), 
+    ('MANAGE_SEATS'),
     ('MANAGE_MOVIES'), 
     ('MANAGE_SHOWTIMES'), 
     ('MANAGE_CONFITERIA'), 
@@ -65,29 +68,38 @@ ON CONFLICT (doc_name) DO NOTHING;
 -- Ajusta esta matriz a tus reglas de negocio reales;
 -- lo importante es la estructura, no estos valores.
 -- ============================================
+-- ADMIN: único responsable de la gestión de usuarios/colaboradores.
+-- No debe tener acceso a ningún otro módulo de negocio.
 INSERT INTO role_permission (id_role, id_permission)
 SELECT r.id_role, p.id_permission
 FROM role r, permission p
-WHERE r.role_name = 'GERENTE_GENERAL'          -- admin del sistema: todos los permisos
+WHERE r.role_name = 'ADMIN'
+  AND p.permission_name IN ('MANAGE_USERS', 'VIEW_VENUES')
+ON CONFLICT DO NOTHING;
+
+-- GERENTE_GENERAL: dueño de todo el negocio (sedes, salas, películas,
+-- funciones, confitería) PERO explícitamente sin MANAGE_USERS —
+-- eso es responsabilidad exclusiva de ADMIN.
+INSERT INTO role_permission (id_role, id_permission)
+SELECT r.id_role, p.id_permission
+FROM role r, permission p
+WHERE r.role_name = 'GERENTE_GENERAL'
+  AND p.permission_name <> 'MANAGE_USERS'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO role_permission (id_role, id_permission)
 SELECT r.id_role, p.id_permission
 FROM role r, permission p
 WHERE r.role_name = 'GERENTE_MARKETING'
-  AND p.permission_name IN ('USER_READ', 'CATALOG_MANAGE')
+  AND p.permission_name IN ('VIEW_DASHBOARD', 'MANAGE_CONFITERIA')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO role_permission (id_role, id_permission)
 SELECT r.id_role, p.id_permission
 FROM role r, permission p
 WHERE r.role_name = 'GERENTE_OPERACIONES'
-  AND p.permission_name IN ('USER_READ', 'VENUE_MANAGE')
+  AND p.permission_name IN ('VIEW_DASHBOARD', 'MANAGE_ROOMS', 'MANAGE_SEATS', 'MANAGE_MOVIES', 'MANAGE_SHOWTIMES')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO role_permission (id_role, id_permission)
-SELECT r.id_role, p.id_permission
-FROM role r, permission p
-WHERE r.role_name = 'CLIENTE'
-  AND p.permission_name = 'USER_READ'
-ON CONFLICT DO NOTHING;
+-- CLIENTE es un usuario final: no tiene permisos de pantallas /admin,
+-- por eso no se le asigna ninguna fila en role_permission.
