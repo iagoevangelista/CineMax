@@ -5,7 +5,7 @@ import { UserService } from '../../../services/user.service';
 import { VenueService } from '../../../services/venue.service';
 import { RoleService, Role } from '../../../services/role.service';
 
-const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
 @Component({
   selector: 'app-users',
@@ -306,7 +306,7 @@ export class Users implements OnInit {
         alert('¡Colaborador creado exitosamente!');
         document.getElementById('cerrarModalNuevoUser')?.click();
         this.cargarUsuarios();
-        this.abrirModalNuevoUsuario(); // resetea el formulario para la próxima vez
+        this.abrirModalNuevoUsuario(); 
       },
       error: (err) => {
         this.creandoUsuario = false;

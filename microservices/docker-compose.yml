@@ -332,7 +332,7 @@ services:
     depends_on:
       postgres-facturacion:
         condition: service_healthy
-      service-discovery:
+      service-discovery:  
         condition: service_healthy
       config-server:
         condition: service_healthy
