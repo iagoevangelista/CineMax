@@ -42,6 +42,8 @@ spec:
               value: http://service-discovery:8761/eureka/
             - name: EUREKA_INSTANCE_PREFER_IP_ADDRESS
               value: "true"
+            - name: MANAGEMENT_HEALTH_MAIL_ENABLED
+              value: "false"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

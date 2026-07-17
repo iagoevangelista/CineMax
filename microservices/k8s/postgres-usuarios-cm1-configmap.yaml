@@ -36,6 +36,7 @@ data:
     -- SEED: Roles → el "QUÉ ES" el usuario
     -- ============================================
     INSERT INTO role (role_name) VALUES
+        ('ADMIN'),
         ('GERENTE_GENERAL'),
         ('GERENTE_MARKETING'),
         ('GERENTE_OPERACIONES'),
